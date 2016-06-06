@@ -3,9 +3,9 @@ FactoryGirl.define do
     sequence :name do |n|
       name "Game #{n}"
     end
-    
+    white_player
   end
-  factory :user do
+  factory :user, aliases: [:white_player, :black_player] do
     sequence :email do |n|
       "dummyemail#{n}@example.com"
     end
