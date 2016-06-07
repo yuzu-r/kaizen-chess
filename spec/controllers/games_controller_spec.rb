@@ -37,7 +37,7 @@ RSpec.describe GamesController, type: :controller do
       expect(response).to redirect_to root_path
       game = Game.last
       expect(game.name).to eq("Death Match")
-      expect(game.user).to eq(user)
+      expect(game.white_player).to eq(user)
     end
 
   end
