@@ -1,0 +1,42 @@
+.board_square{
+	height: 40px;
+	width: 40px;
+}
+
+.label_square{
+	height: 40px;
+	width: 40px;
+	text-align: center;
+	/*display: table-cell;*/
+  vertical-align: middle;
+}
+
+.dark_square{
+	background: #474747;
+}
+
+.light_square{
+	background: #d5dadb;
+}
+
+.chess_board_container{
+	margin: 0 auto;
+	width: 320px;
+}
+
+.x_axis_labels{
+	position: absolute;
+	left: 5;
+	top: -30px;
+}
+
+.y_axis_labels{
+	position: absolute;
+	left: -50px;
+	top: 16px;
+}
+
+.chess_board_container{
+	position: relative;
+	text-align: center;
+}

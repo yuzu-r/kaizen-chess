@@ -1,0 +1,72 @@
+<h1><%= @game.name %></h1>
+
+<div class="chess_board_container">
+	<table class="chess_board_table">
+		
+		<% for position_y in 1..8 %>
+			<% 
+				if position_y % 2 == 0
+					dark_square = true
+				else
+					dark_square = false
+				end
+			%>
+			<tr>
+			<% for position_x in 1..8 %>
+				<% 
+					if dark_square == true
+						color_class = "dark_square"
+						dark_square = false
+					else
+						color_class = "light_square"
+						dark_square = true
+					end
+				%>
+				<td><div class="board_square <%= color_class %>"></div></td>	
+			<% end %>
+			</tr>	
+		<% end %>
+
+	</table>
+
+	<table class="x_axis_labels">
+		<tr>
+			<td><div class="label_square">a</div></td>
+			<td><div class="label_square">b</div></td>
+			<td><div class="label_square">c</div></td>
+			<td><div class="label_square">d</div></td>
+			<td><div class="label_square">e</div></td>
+			<td><div class="label_square">f</div></td>
+			<td><div class="label_square">g</div></td>
+			<td><div class="label_square">h</div></td>
+		</tr>
+	</table>
+
+	<table class="y_axis_labels">
+		<tr>
+			<td><div class="label_square">8</div></td>
+		</tr>
+		<tr>
+			<td><div class="label_square">7</div></td>
+		</tr>
+		<tr>
+			<td><div class="label_square">6</div></td>
+		</tr>
+		<tr>
+			<td><div class="label_square">5</div></td>
+		</tr>
+		<tr>
+			<td><div class="label_square">4</div></td>
+		</tr>
+		<tr>
+			<td><div class="label_square">3</div></td>
+		</tr>
+		<tr>
+			<td><div class="label_square">2</div></td>
+		</tr>
+		<tr>
+			<td><div class="label_square">1</div></td>
+		</tr>
+	</table>
+</div> <!-- close chess_board_container div -->
+

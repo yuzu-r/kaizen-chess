@@ -8,6 +8,10 @@ class GamesController < ApplicationController
     @games = Game.all
   end
 
+  def show
+    @game = Game.find(params[:id])
+  end
+
   def create
     @game = current_user.games.create(game_params)
     if @game.valid?
