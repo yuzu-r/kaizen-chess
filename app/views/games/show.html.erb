@@ -22,7 +22,11 @@
 						dark_square = true
 					end
 				%>
-				<td><div class="board_square <%= color_class %>"></div></td>	
+				<td>
+					<div data-position-y=<%= position_y %> data-position-x=<%= position_x %> class="board_square <%= color_class %>">
+						<div class="piece">&#9817;</div>
+					</div>
+				</td>	
 			<% end %>
 			</tr>	
 		<% end %>
@@ -31,42 +35,32 @@
 
 	<table class="x_axis_labels">
 		<tr>
-			<td><div class="label_square">a</div></td>
-			<td><div class="label_square">b</div></td>
-			<td><div class="label_square">c</div></td>
-			<td><div class="label_square">d</div></td>
-			<td><div class="label_square">e</div></td>
-			<td><div class="label_square">f</div></td>
-			<td><div class="label_square">g</div></td>
-			<td><div class="label_square">h</div></td>
+			<% 
+				arr_x_labels = {
+					1 => 'a',
+					2 => 'b',
+					3 => 'c',
+					4 => 'd',
+					5 => 'e',
+					6 => 'f',
+					7 => 'g',
+					8 => 'h'
+				}
+			%>	
+			<% for i in 1..8 %>
+				<td><div class="label_square"><%= arr_x_labels[i] %></div></td>
+			<% end %>
+
 		</tr>
 	</table>
 
 	<table class="y_axis_labels">
-		<tr>
-			<td><div class="label_square">8</div></td>
-		</tr>
-		<tr>
-			<td><div class="label_square">7</div></td>
-		</tr>
-		<tr>
-			<td><div class="label_square">6</div></td>
-		</tr>
-		<tr>
-			<td><div class="label_square">5</div></td>
-		</tr>
-		<tr>
-			<td><div class="label_square">4</div></td>
-		</tr>
-		<tr>
-			<td><div class="label_square">3</div></td>
-		</tr>
-		<tr>
-			<td><div class="label_square">2</div></td>
-		</tr>
-		<tr>
-			<td><div class="label_square">1</div></td>
-		</tr>
+		<% for i in 8.downto(1) %>
+			<tr>
+				<td><div class="label_square"><%= i %></div></td>
+			</tr>
+		<% end %>
+		
 	</table>
 </div> <!-- close chess_board_container div -->
 

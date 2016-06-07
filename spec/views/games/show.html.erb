@@ -1,0 +1,19 @@
+require "rails_helper"
+
+describe "games/show.html.erb" do
+  it "displays the chess board" do
+
+    assign(:game, Game.create(name: 'You got Game'))
+    render
+
+    totalSquares = assert_select('.board_square').count
+    expect(totalSquares).to eql 64
+
+    lightSquares = assert_select('.light_square').count
+    expect(lightSquares).to eql 32
+
+    darkSquares = assert_select('.dark_square').count
+    expect(darkSquares).to eql 32
+
+  end
+end
