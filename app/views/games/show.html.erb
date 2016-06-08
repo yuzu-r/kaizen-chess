@@ -3,12 +3,12 @@
 <div class="chess_board_container">
 	<table class="chess_board_table">
 		
-		<% for position_y in 1..8 %>
+		<% for position_y in 8.downto(1) %>
 			<% 
 				if position_y % 2 == 0
-					dark_square = true
-				else
 					dark_square = false
+				else
+					dark_square = true
 				end
 			%>
 			<tr>
@@ -24,7 +24,7 @@
 				%>
 				<td>
 					<div data-position-y=<%= position_y %> data-position-x=<%= position_x %> class="board_square <%= color_class %>">
-						<div class="piece">&#9817;</div>
+						<div class="piece"></div>
 					</div>
 				</td>	
 			<% end %>
@@ -64,3 +64,38 @@
 	</table>
 </div> <!-- close chess_board_container div -->
 
+<script>
+
+	// temp js code to show pieces, comment or delete (or move to ajax) this when actually adding pieces to the board
+	function placeBackRowPieces(){
+		// example data structure that we can get from the db for piece information.  Should probably add class to determine
+		// color instead of using the different html entity codes.  Color and type aren't currently being used.
+		initialPieces = [
+			{color: 'light', type: 'pawn', posx: [1,2,3,4,5,6,7,8], posy: 2, htmlCode: '&#9817;'},
+			{color: 'light', type: 'rook', posx: [1,8], posy: 1, htmlCode: '&#9814;'},
+			{color: 'light', type: 'knight', posx: [2,7], posy: 1, htmlCode: '&#9816;'},
+			{color: 'light', type: 'bishop', posx: [3,6], posy: 1, htmlCode: '&#9815;'},
+			{color: 'light', type: 'queen', posx: [4], posy: 1, htmlCode: '&#9813;'},
+			{color: 'light', type: 'king', posx: [5], posy: 1, htmlCode: '&#9812;'},
+
+			{color: 'dark', type: 'pawn', posx: [1,2,3,4,5,6,7,8], posy: 7, htmlCode: '&#9823;'},
+			{color: 'dark', type: 'rook', posx: [1,8], posy: 8, htmlCode: '&#9820;'},
+			{color: 'dark', type: 'knight', posx: [2,7], posy: 8, htmlCode: '&#9822;'},
+			{color: 'dark', type: 'bishop', posx: [3,6], posy: 8, htmlCode: '&#9821;'},
+			{color: 'dark', type: 'queen', posx: [4], posy: 8, htmlCode: '&#9819;'},
+			{color: 'dark', type: 'king', posx: [5], posy: 8, htmlCode: '&#9818;'}	
+		];
+
+		$.each(initialPieces,function(index, object){		
+			$.each(object.posx, function(i, posx){
+				$('.board_square[data-position-x='+ posx + '][data-position-y=' + object.posy + ']').children('.piece').html(object.htmlCode);
+			});			
+		});
+
+	}
+
+	$(document).ready(function(){
+		placeBackRowPieces();
+	});
+
+</script>

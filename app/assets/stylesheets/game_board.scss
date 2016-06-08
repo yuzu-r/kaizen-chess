@@ -6,6 +6,7 @@ $square_size: 50px;
 	display: flex;
   flex-direction: column;
   justify-content: center;
+  font-size: 24px;
 }
 
 .label_square{
@@ -30,13 +31,13 @@ $square_size: 50px;
 
 .chess_board_container{
 	margin: 0 auto;
-	width: 320px;
+	width: 432px;
 }
 
 .x_axis_labels{
 	position: absolute;
 	left: 5;
-	top: -45px;
+	bottom: -45px;
 }
 
 .y_axis_labels{
