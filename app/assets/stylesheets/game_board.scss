@@ -1,0 +1,52 @@
+$square_size: 50px;
+
+.board_square{
+	height: $square_size;
+	width: $square_size;
+	display: flex;
+  flex-direction: column;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.label_square{
+	height: $square_size;
+	width: $square_size;
+	text-align: center;
+  vertical-align: middle;
+  padding: 0;
+  border: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.dark_square{
+	background: #474747;
+}
+
+.light_square{
+	background: #d5dadb;
+}
+
+.chess_board_container{
+	margin: 0 auto;
+	width: 432px;
+}
+
+.x_axis_labels{
+	position: absolute;
+	left: 5;
+	bottom: -45px;
+}
+
+.y_axis_labels{
+	position: absolute;
+	left: -50px;
+	top: 4px;
+}
+
+.chess_board_container{
+	position: relative;
+	text-align: center;
+}

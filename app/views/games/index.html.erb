@@ -1,5 +1,5 @@
 <h1>game index</h1>
 <%= link_to 'Create New Game', new_game_path %>
 <% @games.each do |game| %>
-  <p><%= game.name %></p>
+  <p><%= link_to game.name, game_path(game.id) %></p>
 <% end %>
