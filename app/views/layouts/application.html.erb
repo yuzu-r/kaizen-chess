@@ -7,8 +7,7 @@
   <%= csrf_meta_tags %>
 </head>
 <body>
-  <p class="notice"><%= notice %></p>
-  <p class="alert"><%= alert %></p>
+
   <nav class="navbar navbar-inverse" role="navigation">
   <div class="container-fluid">
     <!-- Brand and toggle get grouped for better mobile display -->
@@ -25,17 +24,15 @@
 
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-      <ul class="nav navbar-nav">
-        
-      
+      <ul class="nav navbar-nav">      
       </ul> 
       <ul class="nav navbar-nav navbar-right">
-        <li>
-          <%= link_to 'New Game', new_game_path %>
-        </li>
         <% if user_signed_in? %>
           <li>
             <%= link_to 'Sign Out', destroy_user_session_path, method: :delete %>
+          </li>
+          <li>
+            <%= link_to 'New Game', new_game_path %>
           </li>
         <% else %>
           <li>
@@ -49,6 +46,8 @@
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
 </nav>
+  <p class="notice"><%= notice %></p>
+  <p class="alert"><%= alert %></p>
 <%= yield %>
 
 </body>
