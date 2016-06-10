@@ -21,6 +21,17 @@ class GamesController < ApplicationController
     end
   end
 
+  def open
+    @games = Game.all
+  end
+
+  def join
+    @game = Game.find(params[:id])
+    @game.black_player = current_user
+    redirect_to game_path(@game)
+  end
+
+
   private
     def game_params
       params.require(:game).permit(:name)

@@ -1,7 +1,12 @@
 Rails.application.routes.draw do
   devise_for :users
   resources :users
-  resources :games
+  resources :games do
+    member do
+      get :join
+    end
+  end
+  get '/open' => 'games#open', :as => :open
   root 'games#index'
   
   # The priority is based upon order of creation: first created -> highest priority.

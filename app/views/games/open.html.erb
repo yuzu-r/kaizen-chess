@@ -1,0 +1,8 @@
+<div class='col-xs-10 col-xs-offset-1 col-sm-2 col-sm-offset-2'>
+  <h1>Join a Game</h1>
+  <% @games.each do |game| %>
+    <% if current_user.id != game.white_player_id && game.black_player_id == nil %>
+      <p><%= link_to game.name, game_path(game.id) %></p>
+    <% end %>
+  <% end %>
+</div>
