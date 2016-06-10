@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160606151442) do
+ActiveRecord::Schema.define(version: 20160610034338) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -33,11 +33,11 @@ ActiveRecord::Schema.define(version: 20160606151442) do
     t.integer  "position_y"
     t.integer  "game_id"
     t.integer  "player_id"
-    t.boolean  "is_active"
-    t.integer  "move_count"
-    t.boolean  "is_selected"
-    t.datetime "created_at",  null: false
-    t.datetime "updated_at",  null: false
+    t.boolean  "is_active",   default: true
+    t.integer  "move_count",  default: 0
+    t.boolean  "is_selected", default: false
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
   end
 
   create_table "users", force: :cascade do |t|
