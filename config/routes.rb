@@ -3,7 +3,7 @@ Rails.application.routes.draw do
   resources :users
   resources :games do
     member do
-      get :join
+      patch :join
     end
   end
   get '/open' => 'games#open', :as => :open

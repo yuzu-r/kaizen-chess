@@ -1,5 +1,5 @@
 <div class='col-xs-10 col-xs-offset-1 col-sm-2 col-sm-offset-1'>
-  <h1>Watchable Games</h1>
+  <h1>Watch a Game in Progress</h1>
   <%= link_to 'Create New Game', new_game_path %>
   <% @games.each do |game| %>
     <% if game.black_player && game.white_player && game.black_player != current_user && game.white_player != current_user %>
