@@ -1,1 +1,16 @@
 <h1>User</h1>
+
+<h1>Your Games</h1>
+<h3>Games as White pieces</h3>
+<% @games.each do |game| %>
+  <% if current_user.id == game.white_player_id %>
+    <p><%= link_to game.name, game_path(game.id) %></p>
+  <% end %>
+<% end %>
+
+<h3>Games as Black pieces</h3>
+<% @games.each do |game| %>
+  <% if current_user.id == game.black_player_id %>
+    <p><%= link_to game.name, game_path(game.id) %></p>
+  <% end %>
+<% end %>
