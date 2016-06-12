@@ -1,5 +1,5 @@
 class GamesController < ApplicationController
-  before_action :authenticate_user!, only: [:new, :create]
+  before_action :authenticate_user!, only: [:new, :create, :open]
   def new
     @game = Game.new
   end
@@ -21,6 +21,17 @@ class GamesController < ApplicationController
       render :new, status: :unprocessable_entity
     end
   end
+
+  def open
+    @games = Game.all
+  end
+
+  def join
+    @game = Game.find(params[:id])
+    @game.update_attributes(black_player: current_user)
+    redirect_to game_path(@game)
+  end
+
 
   private
     def game_params

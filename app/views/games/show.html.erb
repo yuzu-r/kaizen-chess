@@ -99,3 +99,16 @@
 	});
 
 </script>
+
+<h1>White Player</h1>
+<p><%= @game.white_player.email %></p>
+<br />
+<br />
+<h1>Black Player</h1>
+<% if @game.black_player == nil %>
+	<%= link_to 'Join Game', join_game_path(@game), method: :patch, class: 'btn btn-success' %>
+<% else %>
+	<p><%= @game.black_player.email %></p>
+<% end %>
+<br />
+<br />
