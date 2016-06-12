@@ -25,6 +25,7 @@ ActiveRecord::Schema.define(version: 20160610034338) do
     t.string   "status"
   end
 
+  add_index "games", ["black_player_id"], name: "index_games_on_black_player_id", using: :btree
   add_index "games", ["white_player_id"], name: "index_games_on_white_player_id", using: :btree
 
   create_table "pieces", force: :cascade do |t|
