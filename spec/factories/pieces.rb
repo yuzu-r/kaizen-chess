@@ -1,6 +1,5 @@
 FactoryGirl.define do
-  factory :piece do
-    
+  factory :piece do  
   end
 
   factory :king do
