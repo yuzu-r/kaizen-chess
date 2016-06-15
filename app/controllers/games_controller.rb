@@ -10,7 +10,11 @@ class GamesController < ApplicationController
 
   def show
     @game = Game.find(params[:id])
+  end
 
+  def getPieces
+    @pieces = Game.find(params[:id]).pieces
+    render json: @pieces
   end
 
   def create

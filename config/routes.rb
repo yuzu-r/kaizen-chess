@@ -6,6 +6,7 @@ Rails.application.routes.draw do
       patch :join
     end
   end
+  get '/games/:id/getPieces', to: 'games#getPieces', as: 'get_pieces'
   get '/open' => 'games#open', :as => :open
   root 'games#index'
   
