@@ -78,7 +78,7 @@
 <br />
 
 <script>
-	var player_color;
+	
 	var pieceCodes = {
 		white: 
 		{
@@ -106,14 +106,15 @@
       url: '<%= get_pieces_path(@game) %>',
       dataType: 'json',
       success: function(pieces) {
-        $.each(pieces, function(index, piece){				
+        $.each(pieces, function(index, piece){
+        	var piece_color;				
 					if (piece.player_id == <%= @game.white_player_id %>){
-						player_color = 'white';
+						piece_color = 'white';
 					}
 					else{
-						player_color = 'black'
+						piece_color = 'black'
 					}
-					$('.board_square[data-position-x='+ piece.position_x + '][data-position-y=' + piece.position_y + ']').children('.piece').html(pieceCodes[player_color][piece.type.toLowerCase()]);
+					$('.board_square[data-position-x='+ piece.position_x + '][data-position-y=' + piece.position_y + ']').children('.piece').html(pieceCodes[piece_color][piece.type.toLowerCase()]);
 				});
       }, error: function (data) {
         console.log('Chess pieces failed to load!');
