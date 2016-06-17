@@ -78,8 +78,9 @@
 <br />
 
 <script>
+	var player_color;
 	var pieceCodes = {
-		player1: 
+		white: 
 		{
 			'pawn': '&#9817;',
 		 	'rook': '&#9814;',
@@ -88,7 +89,7 @@
 		 	'queen': '&#9813;',
 		 	'king': '&#9812;'
 		},
-		player2: 
+		black: 
 		{
 			'pawn': '&#9823;',
 		 	'rook': '&#9820;',
@@ -106,7 +107,13 @@
       dataType: 'json',
       success: function(pieces) {
         $.each(pieces, function(index, piece){				
-					$('.board_square[data-position-x='+ piece.position_x + '][data-position-y=' + piece.position_y + ']').children('.piece').html(pieceCodes['player' + piece.player_id][piece.type.toLowerCase()]);
+					if (piece.player_id == <%= @game.white_player_id %>){
+						player_color = 'white';
+					}
+					else{
+						player_color = 'black'
+					}
+					$('.board_square[data-position-x='+ piece.position_x + '][data-position-y=' + piece.position_y + ']').children('.piece').html(pieceCodes[player_color][piece.type.toLowerCase()]);
 				});
       }, error: function (data) {
         console.log('Chess pieces failed to load!');
