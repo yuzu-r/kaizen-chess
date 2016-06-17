@@ -223,4 +223,27 @@ RSpec.describe Piece, type: :model do
       expect(@q.is_obstructed?(6,2)).to eq false
     end    
   end
+  describe "is_obstructed? returns true if the destination is off the board" do
+    before :each do
+      @g = FactoryGirl.create(:joined_game)
+      @q = Queen.create(position_x: 4, position_y: 4, game: @g, player: @g.white_player)
+    end
+    it "returns true if dest_x is not legal (low)" do
+      expect(@q.is_obstructed?(0,1)).to eq true      
+    end
+    it "returns true if dest_x is not legal (high)" do
+      expect(@q.is_obstructed?(9,1)).to eq true      
+    end
+    it "returns true if dest_y is not legal (low)" do
+      expect(@q.is_obstructed?(4,0)).to eq true      
+    end
+    it "returns true if dest_y is not legal (high)" do
+      expect(@q.is_obstructed?(4,9)).to eq true      
+    end
+  end
+  it "is_obstructed? returns true if destination = starting point" do
+    @g = FactoryGirl.create(:joined_game)
+    @k = Knight.create(position_x: 4, position_y: 4, game: @g, player: @g.white_player)
+    expect(@k.is_obstructed?(4,4)).to eq true
+  end
 end
