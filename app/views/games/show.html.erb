@@ -64,42 +64,6 @@
 	</table>
 </div> <!-- close chess_board_container div -->
 
-<script>
-
-	// temp js code to show pieces, comment or delete (or move to ajax) this when actually adding pieces to the board
-	function placeBackRowPieces(){
-		// example data structure that we can get from the db for piece information.  Should probably add class to determine
-		// color instead of using the different html entity codes.  Color and type aren't currently being used.
-		initialPieces = [
-			{color: 'light', type: 'pawn', posx: [1,2,3,4,5,6,7,8], posy: 2, htmlCode: '&#9817;'},
-			{color: 'light', type: 'rook', posx: [1,8], posy: 1, htmlCode: '&#9814;'},
-			{color: 'light', type: 'knight', posx: [2,7], posy: 1, htmlCode: '&#9816;'},
-			{color: 'light', type: 'bishop', posx: [3,6], posy: 1, htmlCode: '&#9815;'},
-			{color: 'light', type: 'queen', posx: [4], posy: 1, htmlCode: '&#9813;'},
-			{color: 'light', type: 'king', posx: [5], posy: 1, htmlCode: '&#9812;'},
-
-			{color: 'dark', type: 'pawn', posx: [1,2,3,4,5,6,7,8], posy: 7, htmlCode: '&#9823;'},
-			{color: 'dark', type: 'rook', posx: [1,8], posy: 8, htmlCode: '&#9820;'},
-			{color: 'dark', type: 'knight', posx: [2,7], posy: 8, htmlCode: '&#9822;'},
-			{color: 'dark', type: 'bishop', posx: [3,6], posy: 8, htmlCode: '&#9821;'},
-			{color: 'dark', type: 'queen', posx: [4], posy: 8, htmlCode: '&#9819;'},
-			{color: 'dark', type: 'king', posx: [5], posy: 8, htmlCode: '&#9818;'}	
-		];
-
-		$.each(initialPieces,function(index, object){		
-			$.each(object.posx, function(i, posx){
-				$('.board_square[data-position-x='+ posx + '][data-position-y=' + object.posy + ']').children('.piece').html(object.htmlCode);
-			});			
-		});
-
-	}
-
-	$(document).ready(function(){
-		placeBackRowPieces();
-	});
-
-</script>
-
 <h1>White Player</h1>
 <p><%= @game.white_player.email %></p>
 <br />
@@ -112,3 +76,46 @@
 <% end %>
 <br />
 <br />
+
+<script>
+	var pieceCodes = {
+		player1: 
+		{
+			'pawn': '&#9817;',
+		 	'rook': '&#9814;',
+		 	'knight': '&#9816;',
+		 	'bishop': '&#9815;',
+		 	'queen': '&#9813;',
+		 	'king': '&#9812;'
+		},
+		player2: 
+		{
+			'pawn': '&#9823;',
+		 	'rook': '&#9820;',
+		 	'knight': '&#9822;',
+		 	'bishop': '&#9821;',
+		 	'queen': '&#9819;',
+		 	'king': '&#9818;'
+		}
+	}
+	
+	function drawPieces(){
+		$.ajax({
+      type: 'GET', 
+      url: '<%= get_pieces_path(@game) %>',
+      dataType: 'json',
+      success: function(pieces) {
+        $.each(pieces, function(index, piece){				
+					$('.board_square[data-position-x='+ piece.position_x + '][data-position-y=' + piece.position_y + ']').children('.piece').html(pieceCodes['player' + piece.player_id][piece.type.toLowerCase()]);
+				});
+      }, error: function (data) {
+        console.log('Chess pieces failed to load!');
+      }
+    });
+	}
+
+	$(document).ready(function(){
+		drawPieces();
+	});
+
+</script>
