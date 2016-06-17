@@ -1,14 +1,15 @@
 FactoryGirl.define do
   factory :game do
-    sequence :name do |n|
-      name "Game #{n}"
-    end
+    sequence(:name) {|n| "Game #{n}"}
     white_player
-  end
-  factory :user, aliases: [:white_player, :black_player] do
-    sequence :email do |n|
-      "dummyemail#{n}@example.com"
+
+    factory :joined_game do
+      black_player
     end
+  end
+
+  factory :user, aliases: [:white_player, :black_player] do
+    sequence(:email) {|n| "dummyemail#{n}@example.com"}
     password "password"
     password_confirmation "password"
   end

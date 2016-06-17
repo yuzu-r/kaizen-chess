@@ -45,4 +45,8 @@ def setup
   King.create(game:self, player: self.black_player, position_x: 5, position_y: 8)
 end 
 
+  def is_occupied?(dest_x, dest_y)
+    pieces.where(position_x: dest_x, position_y: dest_y).first.present?
+  end 
+
 end
