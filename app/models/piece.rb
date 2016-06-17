@@ -12,6 +12,8 @@ class Piece < ActiveRecord::Base
     # Checks to see if destination is occupied by a friend
     return true if self.game.is_occupied?(dest_x, dest_y) && self.player == self.game.pieces.where(position_x:dest_x, position_y: dest_y).first.player
 
+    return false if self.type == "Knight"
+
     if self.position_y == dest_y # Horizontal movement
       if self.position_x < dest_x # East
         (position_x + 1).upto(dest_x - 1) do |x|
