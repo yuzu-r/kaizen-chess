@@ -5,6 +5,11 @@ Rails.application.routes.draw do
     member do
       patch :join
     end
+    resources :pieces, only: [:update] do
+      member do
+        patch :select
+      end
+    end
   end
   get '/games/:id/getPieces', to: 'games#getPieces', as: 'get_pieces'
   get '/open' => 'games#open', :as => :open

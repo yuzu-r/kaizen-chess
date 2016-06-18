@@ -50,3 +50,7 @@ $square_size: 50px;
 	position: relative;
 	text-align: center;
 }
+
+.piece.selected-piece{
+  color: red;
+}
