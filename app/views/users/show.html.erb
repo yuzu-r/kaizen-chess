@@ -1,16 +1,51 @@
-<h1>User</h1>
+<h1><%= current_user.email %></h1>
 
 <h1>Your Games</h1>
-<h3>Games as White pieces</h3>
-<% @games.each do |game| %>
-  <% if current_user.id == game.white_player_id %>
-    <p><%= link_to game.name, game_path(game.id) %></p>
+<div class='col-xs-10 col-xs-offset-1 col-md-4 col-md-offset-1'>
+  <h3>Games as White pieces</h3>
+  <% current_user.games.each do |game| %>
+    <% if current_user.id == game.white_player_id %>
+      <p><%= link_to game.name, game_path(game.id) %></p>
+    <% end %>
   <% end %>
-<% end %>
+</div>
 
-<h3>Games as Black pieces</h3>
-<% @games.each do |game| %>
-  <% if current_user.id == game.black_player_id %>
-    <p><%= link_to game.name, game_path(game.id) %></p>
+<div class='col-xs-10 col-xs-offset-1 col-md-4 col-md-offset-1'>
+  <h3>Games as Black pieces</h3>
+  <% current_user.games.each do |game| %>
+    <% if current_user.id == game.black_player_id %>
+      <p><%= link_to game.name, game_path(game.id) %></p>
+    <% end %>
   <% end %>
-<% end %>
+</div>
+
+<div class="clearfix"></div>
+
+<h1>Completed Games</h1>
+<div class='col-xs-10 col-xs-offset-1 col-md-4 col-md-offset-1'>
+  <h3>Games Won</h3>
+  <% current_user.games.each do |game| %>
+    <% if game.status != nil %>
+      <% if game.status == "white_player" && game.white_player_id == current_user.id %>
+        <p><%= link_to game.name, game_path(game.id) %></p>
+      <% end %>
+      <% if game.status == "black_player" && game.black_player_id == current_user.id %>
+        <p><%= link_to game.name, game_path(game.id) %></p>
+      <% end %>
+    <% end %>
+  <% end %>
+</div>
+
+<div class='col-xs-10 col-xs-offset-1 col-md-4 col-md-offset-1'>
+  <h3>Games Lost</h3>
+  <% current_user.games.each do |game| %>
+    <% if game.status != nil %>
+      <% if game.status == "white_player" && game.white_player_id != current_user.id %>
+        <p><%= link_to game.name, game_path(game.id) %></p>
+      <% end %>
+      <% if game.status == "black_player" && game.black_player_id != current_user.id %>
+        <p><%= link_to game.name, game_path(game.id) %></p>
+      <% end %>
+    <% end %>
+  <% end %>
+</div>
