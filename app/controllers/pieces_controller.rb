@@ -15,6 +15,7 @@ class PiecesController < ApplicationController
       @piece.update_attributes(is_selected: true)
     end
     redirect_to game_path(@game)
+
   end
 
 end

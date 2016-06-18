@@ -27,9 +27,9 @@
 						<% isPiece = @game.pieces.where(position_x: position_x, position_y: position_y).first %>
 						<% if isPiece %>
 							<% if isPiece.is_selected %>
-								<div class="piece selected-piece" data-piece-id=<%=isPiece.id %>></div>	
+								<div id="piece-<%=isPiece.id %>" class="piece selected-piece" data-piece-id=<%=isPiece.id %>></div>	
 							<% else %>
-								<div class="piece" data-piece-id=<%=isPiece.id %>></div>	
+								<div id="piece-<%=isPiece.id%>" class="piece" data-piece-id=<%=isPiece.id %>></div>	
 							<% end %>
 						<% end %>
 						
@@ -139,12 +139,12 @@
 
 	function toggleSelect(e){
 		var pieceId = $(e.target).data('piece-id');
-		// build the url: /games/:game_id/pieces/:id
+		// build the url: /games/:game_id/pieces/:id/select
 		var pieceUrl = "/games/" + <%=@game.id%> + "/pieces/" + pieceId + "/select";
 		$.post(pieceUrl, {
 			_method: "PATCH"
 		}).success(function(data){
-			console.log(data);
+			location.reload(true);
 		});
 	} 
 
