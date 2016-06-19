@@ -24,7 +24,15 @@
 				%>
 				<td>
 					<div data-position-y=<%= position_y %> data-position-x=<%= position_x %> class="board_square <%= color_class %>">
-						<div class="piece"></div>
+						<% isPiece = @game.pieces.where(position_x: position_x, position_y: position_y).first %>
+						<% if isPiece %>
+							<% if isPiece.is_selected %>
+								<div id="piece-<%=isPiece.id %>" class="piece selected-piece" data-piece-id=<%=isPiece.id %>></div>	
+							<% else %>
+								<div id="piece-<%=isPiece.id%>" class="piece" data-piece-id=<%=isPiece.id %>></div>	
+							<% end %>
+						<% end %>
+						
 					</div>
 				</td>	
 			<% end %>
@@ -125,5 +133,21 @@
 	$(document).ready(function(){
 		drawPieces();
 	});
+
+//mine
+	$(".piece").click(toggleSelect);
+
+	function toggleSelect(e){
+		var pieceId = $(e.target).data('piece-id');
+		// build the url: /games/:game_id/pieces/:id/select
+		var pieceUrl = "/games/" + <%=@game.id%> + "/pieces/" + pieceId + "/select";
+		$.post(pieceUrl, {
+			_method: "PATCH"
+		}).success(function(data){
+			location.reload(true);
+		});
+	} 
+
+//end
 
 </script>
