@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe Pawn, type: :model do
   
-  describe "is_valid_move? returns false if path is not blocked" do
+  describe "is_valid_move? returns false if move is not allowed" do
     before :each do
       @g = FactoryGirl.create(:joined_game)
       @wp1 = Pawn.create(position_x: 1, position_y: 2, game: @g, player: @g.white_player)
@@ -18,9 +18,12 @@ RSpec.describe Pawn, type: :model do
     it "returns false if moves 1 space backwards" do
     	expect(@wp1.is_valid_move?(1,1)).to eq false
     end
-    it "prevent moving two spaces forward for first move if it has already moved" do
+    it "return false if it moves two spaces forward for first move if it has already moved" do
     	expect(@wp2.is_valid_move?(2,5)).to eq false
     end 
+    it "returns false if it tries to move horizontally" do
+    	expect(@wp2.is_valid_move?(3,3)).to eq false
+    end
     
 
     # black player
