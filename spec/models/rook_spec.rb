@@ -23,6 +23,5 @@ RSpec.describe Rook, type: :model do
     it "returns false if it tries to move horizontally" do
     	expect(@rook.is_valid_move?(8,4)).to eq true
     end
-   
   end
 end
