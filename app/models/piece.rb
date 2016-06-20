@@ -69,62 +69,6 @@ class Piece < ActiveRecord::Base
     false
   end 
 
-  def is_valid_move?(dest_x, dest_y)
-  	
-  	return false if is_obstructed?(dest_x, dest_y) 
-
-  	# if check move is not valid!
-
-  	# pawn # need to accout for backwards and which team
-  	
-  	if self.type == 'Pawn'
-	  	if self.player_id == self.game.white_player_id # player white
-		  	if self.move_count == 0
-		  		return true if (dest_y - self.position_y == 2 || dest_y - self.position_y == 1) && is_vertical_move?(dest_x, dest_y)
-		  	else
-		  		return true if dest_y - self.position_y == 1 && is_vertical_move?(dest_x, dest_y)
-		  	end
-		  elsif self.player_id == self.game.black_player_id # player black
-		  	if self.move_count == 0
-		  		return true if self.position_y - dest_y <= 2 && self.position_x == dest_x
-		  	else
-		  		return true if self.position_y - dest_y == 1 && self.position_x == dest_x
-		  	end
-		  end
-		end
-  	# todo movement for pawn capture
-
-  	# en passant - own method?
-
-  	# rook
-  	if self.type == 'Rook' && (is_vertical_move?(dest_x, dest_y) || is_horizontal_move?(dest_x, dest_y))
-  		return true 
-  	end
-
-  	# bishop
-  	if self.type == 'Bishop' && is_diagonal_move?(dest_x, dest_y)
-  		return true
-  	end
-
-		# knight
-		if self.type == 'Knight' && is_knight_move?(dest_x, dest_y)
-			return true 
-		end
-
-		# king
-		if self.type == 'King' &&  (self.position_x - dest_x).abs <= 1 && (self.position_y - dest_y).abs <= 1
-			return true
-		end
-
-		# castle - no pieces between, no check, rook and king haven't moved, prob own method
-
-		# queen
-		if self.type == 'Queen' && (is_diagonal_move?(dest_x, dest_y) || is_vertical_move?(dest_x, dest_y) || is_horizontal_move?(dest_x, dest_y))
-			return true
-		end
-		false
-  end
-
   def is_diagonal_move?(dest_x, dest_y)
   	if (self.position_y - dest_y).abs == (self.position_x - dest_x).abs
   		return true
