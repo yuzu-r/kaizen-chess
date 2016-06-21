@@ -38,7 +38,7 @@ RSpec.describe King, type: :model do
       
       expect(@king.is_valid_move?(3, 1)).to eq false
     end
-    it "returns true if attempting castle and king has not moved" do
+    it "returns true if attempting castle to right rook and no moves and no obstructions" do
       @king.position_x = 5
       @king.position_y = 1
 
@@ -46,7 +46,7 @@ RSpec.describe King, type: :model do
 
       expect(@king.is_valid_move?(7, 1)).to eq true
     end
-    it "returns true if attempting castle and king has not moved" do
+    it "returns true if attempting castle to left rook and no moves and no obstructions" do
       @king.move_count = 0
       @king.position_x = 5
       @king.position_y = 1
@@ -55,13 +55,16 @@ RSpec.describe King, type: :model do
 
       expect(@king.is_valid_move?(3, 1)).to eq true
     end
-    it "returns false if attempting castle and there is a queen in the way" do
+    it "returns false if attempting castle and there is a piece in the way" do
       @king.move_count = 0
       @king.position_x = 5
       @king.position_y = 1
 
       @rook = Rook.create(position_x: 1, position_y: 1, game: @g, player: @g.white_player)
       @queen = Queen.create(position_x: 4, position_y: 1, game: @g, player: @g.white_player)
+      expect(@king.is_valid_move?(3, 1)).to eq false
+    end
+    it "should return false if you try to castle and there is no rook" do
       expect(@king.is_valid_move?(3, 1)).to eq false
     end
 
