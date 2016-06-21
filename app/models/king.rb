@@ -20,7 +20,7 @@ class King < Piece
 
 	def get_rook(position_x)	
   	Rook.where("player_id =? AND game_id = ? AND position_x=?", player_id, game_id, position_x).first
-  end
+	end
 
   def is_valid_castle?(dest_x, dest_y)
   	return false if move_count > 0
