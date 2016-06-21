@@ -1,6 +1,94 @@
 require 'rails_helper'
 
 RSpec.describe Piece, type: :model do
+  describe "is_valid_capture? returns true if enemy is on destination" do
+    before :each do
+      @g = FactoryGirl.create(:joined_game)
+      @q = Queen.create(position_x:4, position_y: 4, game: @g, player: @g.white_player)
+    end      
+    it "returns true if enemy on destination" do
+      enemy = Pawn.create(position_x:4,position_y:7,game: @g, player: @g.black_player)
+      expect(@q.is_valid_capture?(4,7)).to eq true
+    end
+
+    it "returns false if no piece is on destination" do
+      expect(@q.is_valid_capture?(4,6)).to eq false
+    end
+
+    it "returns false if player's own piece is on destination" do
+      friend = Pawn.create(position_x: 4, position_y: 2, game: @g, player: @g.white_player)
+      expect(@q.is_valid_capture?(4,2)).to eq false
+    end
+  end
+
+  it "returns true when a non-pawn captures an enemy" do
+    g = FactoryGirl.create(:joined_game)
+    q = Queen.create(position_x: 4, position_y: 4, game: g, player: g.white_player)
+    enemy = Pawn.create(position_x: 4, position_y: 7, game: g, player: g.black_player)
+    expect(q.capture(4,7)).to eq true
+    enemy.reload
+    expect(enemy.is_active).to eq false
+    expect(enemy.position_x).to eq nil
+  end
+
+  it "returns false if non-pawn capture fails" do
+    g = FactoryGirl.create(:joined_game)
+    q = Queen.create(position_x: 4, position_y: 4, game: g, player: g.white_player)
+    friend = Pawn.create(position_x: 4, position_y: 3, game: g, player: g.white_player)
+    expect(q.capture(4,3)).to eq false
+    q.reload
+    expect(q.position_y).to eq 4
+  end
+
+  describe "is_valid_capture returns true when a pawn captures an enemy" do
+    it "returns true for a white pawn capturing" do
+      g = FactoryGirl.create(:joined_game)
+      p = Pawn.create(position_x: 4, position_y: 4, game: g, player: g.white_player)
+      enemy = Queen.create(position_x: 3, position_y: 5, game: g, player: g.black_player)
+      expect(p.capture(3,5)).to eq true
+      enemy.reload
+      expect(enemy.is_active).to eq false
+    end
+
+    it "returns true for a black pawn capturing" do
+      g = FactoryGirl.create(:joined_game)
+      p = Pawn.create(position_x: 4, position_y: 4, game: g, player: g.black_player)
+      enemy = Queen.create(position_x: 3, position_y: 3, game: g, player: g.white_player)
+      expect(p.capture(3,3)).to eq true
+      enemy.reload
+      expect(enemy.is_active).to eq false
+    end
+  end
+
+  describe "is_valid_capture returns false if pawn capture fails" do
+    it "returns false if move is not diagonal and one space" do
+      g = FactoryGirl.create(:joined_game)
+      p = Pawn.create(position_x: 4, position_y: 4, game: g, player: g.black_player)
+      enemy = Queen.create(position_x: 3, position_y: 2, game: g, player: g.white_player)
+      expect(p.capture(3,2)).to eq false
+    end
+
+    it "returns false if there is no enemy present" do
+      g = FactoryGirl.create(:joined_game)
+      p = Pawn.create(position_x: 4, position_y: 4, game: g, player: g.black_player)
+      expect(p.capture(3,3)).to eq false      
+    end
+
+    it "returns false if white pawn tries to capture southwards" do
+      g = FactoryGirl.create(:joined_game)
+      p = Pawn.create(position_x: 4, position_y: 4, game: g, player: g.white_player)
+      enemy = Queen.create(position_x: 3, position_y: 3, game: g, player: g.black_player)
+      expect(p.capture(3,3)).to eq false
+    end
+
+    it "returns false if black pawn tries to capture southwards" do
+      g = FactoryGirl.create(:joined_game)
+      p = Pawn.create(position_x: 4, position_y: 4, game: g, player: g.black_player)
+      enemy = Queen.create(position_x: 5, position_y: 5, game: g, player: g.white_player)
+      expect(p.capture(5,5)).to eq false
+    end
+  end
+
   describe "is_obstructed? returns false if path is not blocked" do
     before :each do
       @g = FactoryGirl.create(:joined_game)
