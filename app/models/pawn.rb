@@ -17,4 +17,23 @@ class Pawn < Piece
 	  end
 	  false
 	end
+
+  def is_valid_capture?(dest_x, dest_y)
+	  # returns true if the destination contains an enemy
+	  # pawns have to check for diagonal
+	  return false if is_obstructed?(dest_x, dest_y)
+	  # white pawn
+		if self.player_id == self.game.white_player_id 
+			if (position_x - dest_x).abs == 1 && (dest_y - position_y) == 1
+				target_piece = self.game.pieces.where(position_x: dest_x, position_y: dest_y).first
+	  		return true if (target_piece && target_piece.player != self.player) 
+			end
+		else
+			if (position_x - dest_x).abs == 1 && (position_y - dest_y) == 1
+				target_piece = self.game.pieces.where(position_x: dest_x, position_y: dest_y).first
+	  		return true if (target_piece && target_piece.player != self.player) 
+	  	end
+		end
+		return false
+	end
 end

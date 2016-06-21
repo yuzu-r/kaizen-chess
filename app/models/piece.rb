@@ -97,6 +97,26 @@ class Piece < ActiveRecord::Base
 		false		
 	end
 
+  def is_valid_capture?(dest_x, dest_y)
+    # returns true if the destination contains an enemy
+    # move is validated elsewhere (is_valid_move)
+    # pawn overrides this since it moves differently when capturing
+    target_piece = self.game.pieces.where(position_x: dest_x, position_y: dest_y).first
+    (!target_piece || target_piece.player == self.player) ? false : true
+  end
+
+  def capture(dest_x, dest_y)
+    # check if valid
+    # set the enemy piece to nil and off the board
+    # moving to the now empty spot, incrementing move_count, updating game.active_player is left to the move method
+    # return true on success, false on fail 
+    if self.is_valid_capture?(dest_x,dest_y)
+      target_piece = self.game.pieces.where(position_x: dest_x, position_y: dest_y).first
+      target_piece.update_attributes(position_x: nil, position_y: nil, is_active: false)
+      return true
+    end
+    return false
+  end
 
 end
 
