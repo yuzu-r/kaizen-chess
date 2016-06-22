@@ -26,11 +26,7 @@
 					<div data-position-y=<%= position_y %> data-position-x=<%= position_x %> class="board_square <%= color_class %>">
 						<% isPiece = @game.pieces.where(position_x: position_x, position_y: position_y).first %>
 						<% if isPiece %>
-							<% if isPiece.is_selected %>
-								<div id="piece-<%=isPiece.id %>" class="piece selected-piece" data-piece-id=<%=isPiece.id %>></div>	
-							<% else %>
-								<div id="piece-<%=isPiece.id%>" class="piece" data-piece-id=<%=isPiece.id %>></div>	
-							<% end %>
+								<div id="piece-<%=isPiece.id %>" class="piece" data-piece-id=<%=isPiece.id %>></div>	
 						<% end %>
 						
 					</div>
@@ -109,20 +105,26 @@
 	}
 	
 	function drawPieces(){
+		$('.piece').html('');
 		$.ajax({
       type: 'GET', 
       url: '<%= get_pieces_path(@game) %>',
       dataType: 'json',
       success: function(pieces) {
         $.each(pieces, function(index, piece){
-        	var piece_color;				
+        	var pieceColor;	
+        	var selectedClass;
+        	if (piece.is_selected == true){
+        		selectedClass = 'selected-piece';
+        	}			
 					if (piece.player_id == <%= @game.white_player_id %>){
-						piece_color = 'white';
+						pieceColor = 'white';
 					}
 					else{
-						piece_color = 'black'
+						pieceColor = 'black'
 					}
-					$('.board_square[data-position-x='+ piece.position_x + '][data-position-y=' + piece.position_y + ']').children('.piece').html(pieceCodes[piece_color][piece.type.toLowerCase()]);
+
+					$('.board_square[data-position-x='+ piece.position_x + '][data-position-y=' + piece.position_y + ']').children('.piece').html(pieceCodes[pieceColor][piece.type.toLowerCase()]).addClass(selectedClass);
 				});
       }, error: function (data) {
         console.log('Chess pieces failed to load!');
@@ -134,20 +136,46 @@
 		drawPieces();
 	});
 
-//mine
-	$(".piece").click(toggleSelect);
 
-	function toggleSelect(e){
-		var pieceId = $(e.target).data('piece-id');
+	$(".piece").on('click', function(){
+		// changing the classes here is an optimistic update, which is faster than waiting for the ajax response
+		var deselect = false;
+		if( $(this).hasClass('selected-piece') ){
+			deselect = true;
+		}
+		$('.piece').removeClass('selected-piece');
+		if ( !deselect ){
+			$(this).addClass('selected-piece');
+		}
+		toggleSelect(this.dataset.pieceId);
+	});
+
+	function toggleSelect(pieceId){
 		// build the url: /games/:game_id/pieces/:id/select
 		var pieceUrl = "/games/" + <%=@game.id%> + "/pieces/" + pieceId + "/select";
 		$.post(pieceUrl, {
 			_method: "PATCH"
 		}).success(function(data){
-			location.reload(true);
-		});
+			// $('.piece').removeClass('selected-piece');
+			// $('div[data-piece-id=' + pieceId + ']').addClass('selected-piece');
+		}).fail(function() {
+	    // we should undo the class selection if there was a failure
+	  });
 	} 
 
-//end
+	function moveSelectedPiece(pieceId, dest_x, dest_y){
+		var data = { 'position_x': dest_x, 'position_y': dest_y };
+		// build the url: /games/:game_id/pieces/:id/select
+		var pieceUrl = "/games/" + <%=@game.id%> + "/pieces/" + pieceId + "/move";
+		$.post(pieceUrl, data, {
+			_method: "PATCH"
+		}).success(function(data){
+			// $('.piece').removeClass('selected-piece');
+			// $('div[data-piece-id=' + pieceId + ']').addClass('selected-piece');
+		}).fail(function() {
+	    // we should undo the class selection if there was a failure
+	  });
+	} 
+
 
 </script>
