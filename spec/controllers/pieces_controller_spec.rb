@@ -27,6 +27,13 @@ RSpec.describe PiecesController, type: :controller do
       expect(@q.position_x).to eq 4
       expect(@q.position_y).to eq 4 
     end
+
+    it "should change the active player to black if white moves" do
+      patch :move, { id: @q.id, game_id: @g.id, position_x: 6, position_y: 6, format: :json}
+      @g.reload
+      expect(@g.active_player).to eq @g.black_player
+    end
+
   end
 
 end

@@ -17,7 +17,7 @@ RSpec.describe Game, type: :model do
 
   context "active_player validation" do
     it "allows active_player to be white player" do
-      g=FactoryGirl.create(:game)
+      g=FactoryGirl.create(:joined_game)
       g.active_player_id = g.white_player_id
       expect(g).to be_valid
       expect(g.active_player_id).to eq g.white_player_id

@@ -34,6 +34,7 @@ class GamesController < ApplicationController
     @game = Game.find(params[:id])
     @game.update_attributes(black_player: current_user)
     @game.setup
+    @game.update_attributes(active_player: @game.white_player)
     redirect_to game_path(@game)
   end
 
