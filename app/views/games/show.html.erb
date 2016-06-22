@@ -150,6 +150,20 @@
 		toggleSelect(this.dataset.pieceId);
 	});
 
+	$(".board_square:not(:has(.piece))").on('click', function(){
+		var selected_piece = $('.selected-piece');
+		if( selected_piece ){
+			var pieceId = selected_piece[0].dataset.pieceId;
+			var dest_x = this.dataset.positionX;
+			var dest_y = this.dataset.positionY;
+			
+			// move piece in db
+			moveSelectedPiece(pieceId, dest_x, dest_y);
+
+			// move piece on screen - clone the piece and update the pos-x and pos-y values
+		}
+	});
+
 	function toggleSelect(pieceId){
 		// build the url: /games/:game_id/pieces/:id/select
 		var pieceUrl = "/games/" + <%=@game.id%> + "/pieces/" + pieceId + "/select";
@@ -159,22 +173,34 @@
 			// $('.piece').removeClass('selected-piece');
 			// $('div[data-piece-id=' + pieceId + ']').addClass('selected-piece');
 		}).fail(function() {
-	    // we should undo the class selection if there was a failure
+	    // we should undo the class selection highlighting if there was a failure
 	  });
 	} 
 
 	function moveSelectedPiece(pieceId, dest_x, dest_y){
-		var data = { 'position_x': dest_x, 'position_y': dest_y };
-		// build the url: /games/:game_id/pieces/:id/select
-		var pieceUrl = "/games/" + <%=@game.id%> + "/pieces/" + pieceId + "/move";
-		$.post(pieceUrl, data, {
-			_method: "PATCH"
-		}).success(function(data){
-			// $('.piece').removeClass('selected-piece');
-			// $('div[data-piece-id=' + pieceId + ']').addClass('selected-piece');
+		var data = { position_x: dest_x, position_y: dest_y, _method: "PATCH" };
+		// build the url: /games/:game_id/pieces/:id/move
+		var pieceUrl = "/games/" + <%=@game.id%> + "/pieces/" + pieceId + "/move"; // /position_x/" + dest_x +"/position_y/"+dest_y;
+		$.post(pieceUrl,  
+			//data		
+			{_method: "PATCH"}
+		).success(function(data){
+			
 		}).fail(function() {
-	    // we should undo the class selection if there was a failure
+	    // we should undo the visual move in js if there was a failure
 	  });
+	 // $.ajax({
+  //     type: 'PATCH', 
+  //     url: pieceUrl,
+  //     //data: data,
+  //     dataType: 'json',
+  //     success: function(pieces) {
+  //       console.log('We have movement!');
+  //     }, error: function (data) {
+  //       console.log('Chess piece failed to move!');
+  //     }
+  //   });
+	 // end test ajax instead of post
 	} 
 
 
