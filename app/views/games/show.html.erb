@@ -23,10 +23,10 @@
 					end
 				%>
 				<td>
-					<div data-position-y=<%= position_y %> data-position-x=<%= position_x %> class="board_square <%= color_class %>">
+					<div data-position-x=<%= position_x %> data-position-y=<%= position_y %> class="board_square <%= color_class %>">
 						<% isPiece = @game.pieces.where(position_x: position_x, position_y: position_y).first %>
 						<% if isPiece %>
-								<div id="piece-<%=isPiece.id %>" class="piece" data-piece-id=<%=isPiece.id %>></div>	
+								<div id="piece-<%=isPiece.id %>" class="piece" data-piece-id=<%=isPiece.id %> data-position-x=<%= isPiece.position_x %> data-position-y=<%= isPiece.position_y %> ></div>	
 						<% end %>
 						
 					</div>
@@ -137,41 +137,50 @@
 	});
 
 
-	$(".piece").on('click', function(){
-		// changing the classes here is an optimistic update, which is faster than waiting for the ajax response
-		var deselect = false;
-		if( $(this).hasClass('selected-piece') ){
-			deselect = true;
-		}
-		$('.piece').removeClass('selected-piece');
-		if ( !deselect ){
-			$(this).addClass('selected-piece');
-		}
+	$('.chess_board_container').on('click', '.piece', function(){
 		toggleSelect(this.dataset.pieceId);
+		console.log(this);
 	});
 
-	$(".board_square:not(:has(.piece))").on('click', function(){
-		var selected_piece = $('.selected-piece');
+	$('.chess_board_container').on('click', '.board_square:not(:has(.piece))', function(){
+		var selected_piece = $('.selected-piece')
+		//console.log(selected_piece);
 		if( selected_piece ){
 			var pieceId = selected_piece[0].dataset.pieceId;
 			var dest_x = this.dataset.positionX;
 			var dest_y = this.dataset.positionY;
 			
 			// move piece in db
-			moveSelectedPiece(pieceId, dest_x, dest_y);
+			//moveSelectedPiece(pieceId, dest_x, dest_y);
 
 			// move piece on screen - clone the piece and update the pos-x and pos-y values
+			$('.board_square[data-position-x='+ selected_piece[0].dataset.positionX + '][data-position-y=' + selected_piece[0].dataset.positionY + ']').empty();
+			var newPiece = selected_piece.clone();
+			newPiece.attr('data-position-x', dest_x);
+			newPiece.attr('data-position-y', dest_y);
+			$('.board_square[data-position-x='+ dest_x + '][data-position-y=' + dest_y + ']').html(newPiece[0]);
+			
+			toggleSelect(pieceId);
 		}
 	});
 
+
 	function toggleSelect(pieceId){
+		// changing the classes here is an optimistic update, which is faster than waiting for the ajax response
+		var deselect = false;
+		if( $('.piece[data-piece-id=' + pieceId + ']').hasClass('selected-piece') ){
+			deselect = true;
+		}
+		$('.piece').removeClass('selected-piece');
+		if ( !deselect ){
+			$('.piece[data-piece-id=' + pieceId + ']').addClass('selected-piece');
+		}
 		// build the url: /games/:game_id/pieces/:id/select
 		var pieceUrl = "/games/" + <%=@game.id%> + "/pieces/" + pieceId + "/select";
 		$.post(pieceUrl, {
 			_method: "PATCH"
 		}).success(function(data){
-			// $('.piece').removeClass('selected-piece');
-			// $('div[data-piece-id=' + pieceId + ']').addClass('selected-piece');
+			
 		}).fail(function() {
 	    // we should undo the class selection highlighting if there was a failure
 	  });
@@ -189,7 +198,7 @@
 		}).fail(function() {
 	    // we should undo the visual move in js if there was a failure
 	  });
-	 // $.ajax({
+	//	$.ajax({
   //     type: 'PATCH', 
   //     url: pieceUrl,
   //     //data: data,
