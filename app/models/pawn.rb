@@ -1,7 +1,10 @@
 class Pawn < Piece
-	# TODO: en passant and adding diagonal movement for capturing
+	# TODO: en passant 
   def is_valid_move?(dest_x, dest_y)	
-  	return false if is_obstructed?(dest_x, dest_y)	
+  	return false if is_obstructed?(dest_x, dest_y)
+  	# is_obstructed normally allows an enemy to be on destination but pawn is special 	
+  	return false if game.is_occupied?(dest_x, dest_y) && is_vertical_move?(dest_x, dest_y)
+  	return true if is_valid_capture?(dest_x, dest_y)	
   	if player_id == game.white_player_id # player white
 	  	if move_count == 0
 	  		return true if (dest_y - position_y == 2 || dest_y - position_y == 1) && is_vertical_move?(dest_x, dest_y)

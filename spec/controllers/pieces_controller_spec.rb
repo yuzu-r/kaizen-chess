@@ -34,6 +34,45 @@ RSpec.describe PiecesController, type: :controller do
       expect(@g.active_player).to eq @g.black_player
     end
 
-  end
+    it "non-pawn should capture a piece if moving to an enemy location" do
+      p = Pawn.create(position_x: 4, position_y: 7, game: @g, player: @g.black_player)
+      patch :move, { id: @q.id, game_id: @g.id, position_x: 4, position_y: 7, format: :json}
+      @q.reload
+      p.reload
+      expect(@q.move_count).to eq 1
+      expect(p.is_active).to eq false
+    end
 
+    it "pawn should capture a piece if moving to an enemy location diagonally" do
+      p = Pawn.create(position_x: 3, position_y: 5, game: @g, player: @g.black_player)
+      patch :move, { id: p.id, game_id: @g.id, position_x: 4, position_y: 4, format: :json}
+      @q.reload
+      p.reload
+      expect(p.move_count).to eq 1
+      expect(@q.is_active).to eq false
+    end
+
+    it "allows a pawn to move forward to an empty space" do
+      p = Pawn.create(position_x: 3, position_y: 5, game: @g, player: @g.black_player)
+      patch :move, { id: p.id, game_id: @g.id, position_x: 3, position_y: 4, format: :json}
+      p.reload
+      expect(p.move_count).to eq 1
+    end
+
+    it "prevents a pawn from moving diagonally to an empty space" do
+      p = Pawn.create(position_x: 3, position_y: 5, game: @g, player: @g.black_player)
+      patch :move, { id: p.id, game_id: @g.id, position_x: 2, position_y: 4, format: :json}
+      p.reload
+      expect(p.move_count).to eq 0     
+    end
+
+    it "prevents a pawn from moving forward when an enemy is in the way" do
+      p = Pawn.create(position_x: 4, position_y: 5, game: @g, player: @g.black_player)
+      patch :move, { id: p.id, game_id: @g.id, position_x: 4, position_y: 4, format: :json}
+      p.reload
+      @q.reload
+      expect(@q.is_active).to eq true
+      expect(p.move_count).to eq 0 
+    end
+  end
 end
