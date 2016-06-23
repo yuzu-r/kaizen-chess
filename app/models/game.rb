@@ -4,6 +4,16 @@ class Game < ActiveRecord::Base
   belongs_to :active_player, class_name: "User"
   has_many :pieces
 
+  validate :valid_active_player?
+
+  def valid_active_player?
+    if active_player
+      if (active_player != white_player) && (active_player != black_player)
+        errors.add(:active_player,'Invalid active player!')
+      end
+    end
+  end
+
 def setup
   (1..8).each do |num|
     Pawn.create(game: self, player: self.white_player, position_x: num, position_y: 2)

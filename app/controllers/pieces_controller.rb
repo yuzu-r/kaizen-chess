@@ -25,6 +25,11 @@ class PiecesController < ApplicationController
       @piece.capture(params[:position_x], params[:position_y])
       @move_count = @piece.move_count + 1
       @piece.update_attributes(position_x: params[:position_x], position_y: params[:position_y], move_count: @move_count, is_selected: false)
+      if @piece.player == @game.white_player
+        @game.update_attributes(active_player: @game.black_player)
+      else
+        @game.update_attributes(active_player: @game.white_player)
+      end
     else
       flash[:alert] = "Invalid Move"
     end

@@ -28,6 +28,12 @@ RSpec.describe PiecesController, type: :controller do
       expect(@q.position_y).to eq 4 
     end
 
+    it "should change the active player to black if white moves" do
+      patch :move, { id: @q.id, game_id: @g.id, position_x: 6, position_y: 6, format: :json}
+      @g.reload
+      expect(@g.active_player).to eq @g.black_player
+    end
+
     it "non-pawn should capture a piece if moving to an enemy location" do
       p = Pawn.create(position_x: 4, position_y: 7, game: @g, player: @g.black_player)
       patch :move, { id: @q.id, game_id: @g.id, position_x: 4, position_y: 7, format: :json}
@@ -68,6 +74,5 @@ RSpec.describe PiecesController, type: :controller do
       expect(@q.is_active).to eq true
       expect(p.move_count).to eq 0 
     end
-
   end
 end
