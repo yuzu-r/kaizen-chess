@@ -139,7 +139,6 @@
 
 	$('.chess_board_container').on('click', '.piece', function(){
 		toggleSelect(this.dataset.pieceId);
-		console.log(this);
 	});
 
 	$('.chess_board_container').on('click', '.board_square:not(:has(.piece))', function(){
@@ -151,7 +150,7 @@
 			var dest_y = this.dataset.positionY;
 			
 			// move piece in db
-			//moveSelectedPiece(pieceId, dest_x, dest_y);
+			moveSelectedPiece(pieceId, dest_x, dest_y);
 
 			// move piece on screen - clone the piece and update the pos-x and pos-y values
 			$('.board_square[data-position-x='+ selected_piece[0].dataset.positionX + '][data-position-y=' + selected_piece[0].dataset.positionY + ']').empty();
@@ -187,28 +186,34 @@
 	} 
 
 	function moveSelectedPiece(pieceId, dest_x, dest_y){
-		var data = { position_x: dest_x, position_y: dest_y, _method: "PATCH" };
+		var data = { /*position_x: dest_x, position_y: dest_y,*/ _method: "PATCH" };
 		// build the url: /games/:game_id/pieces/:id/move
-		var pieceUrl = "/games/" + <%=@game.id%> + "/pieces/" + pieceId + "/move"; // /position_x/" + dest_x +"/position_y/"+dest_y;
-		$.post(pieceUrl,  
-			//data		
-			{_method: "PATCH"}
-		).success(function(data){
-			
-		}).fail(function() {
-	    // we should undo the visual move in js if there was a failure
-	  });
-	//	$.ajax({
-  //     type: 'PATCH', 
-  //     url: pieceUrl,
-  //     //data: data,
-  //     dataType: 'json',
-  //     success: function(pieces) {
-  //       console.log('We have movement!');
-  //     }, error: function (data) {
-  //       console.log('Chess piece failed to move!');
-  //     }
-  //   });
+		var pieceUrl = "/games/" + <%=@game.id%> + "/pieces/" + pieceId + "/move"; 
+		// $.post(pieceUrl,  
+		// 	//data		
+		// 	data
+		// ).success(function(data){
+		// 	console.log('successful move');
+		// }).fail(function() {
+	 //    // we should undo the visual move in js if there was a failure
+	 //    console.log('failed move!');
+	 //  });
+		$.ajax({
+      type: 'patch', 
+      url: pieceUrl,
+      data:
+        {
+            position_x: dest_x,
+            position_y: dest_y,
+            _method: 'PATCH'
+        },
+      dataType: 'json',
+      success: function(pieces) {
+        console.log('We have movement!');
+      }, error: function (data) {
+        console.log('Chess piece failed to move!');
+      }
+    });
 	 // end test ajax instead of post
 	} 
 

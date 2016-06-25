@@ -21,10 +21,13 @@ class PiecesController < ApplicationController
   def move
     @piece = Piece.find(params[:id])
     @game = Game.find(params[:game_id])
-    if @piece.is_valid_move?(params[:position_x], params[:position_y])
-      @piece.capture(params[:position_x], params[:position_y])
+    puts 'param pos x ==' 
+    position_x = params[:position_x].to_i
+    position_y = params[:position_y].to_i
+    if @piece.is_valid_move?(position_x, position_y)
+      @piece.capture(position_x, position_y)
       @move_count = @piece.move_count + 1
-      @piece.update_attributes(position_x: params[:position_x], position_y: params[:position_y], move_count: @move_count, is_selected: false)
+      @piece.update_attributes(position_x: position_x, position_y: position_y, move_count: @move_count, is_selected: false)
     else
       flash[:alert] = "Invalid Move"
     end
