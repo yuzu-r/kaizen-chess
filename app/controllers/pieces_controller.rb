@@ -28,10 +28,13 @@ class PiecesController < ApplicationController
       @piece.capture(position_x, position_y)
       @move_count = @piece.move_count + 1
       @piece.update_attributes(position_x: position_x, position_y: position_y, move_count: @move_count, is_selected: false)
+
+      render :json => { :success => "success", :status_code => "200" }
+
     else
-      flash[:alert] = "Invalid Move"
+      render :status => 400
     end
-    redirect_to game_path(@game)
+    
   end
 
 end
