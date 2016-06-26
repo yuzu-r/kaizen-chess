@@ -14,7 +14,8 @@ class PiecesController < ApplicationController
       end
       @piece.update_attributes(is_selected: true)
     end
-    redirect_to game_path(@game)
+    render :json => { :success => "success", :status_code => "200" }
+    #redirect_to game_path(@game)
 
   end
 
@@ -32,7 +33,7 @@ class PiecesController < ApplicationController
       render :json => { :success => "success", :status_code => "200" }
 
     else
-      render :status => 400
+      render :json => { :errors => "Move not allowed!" }, :status => 200
     end
     
   end

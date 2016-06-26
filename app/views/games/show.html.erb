@@ -124,7 +124,7 @@
 						pieceColor = 'black'
 					}
 
-					$('.board_square[data-position-x='+ piece.position_x + '][data-position-y=' + piece.position_y + ']').children('.piece').html(pieceCodes[pieceColor][piece.type.toLowerCase()]).addClass(selectedClass);
+					$('.board_square[data-position-x='+ piece.position_x + '][data-position-y=' + piece.position_y + ']').children('.piece').html(pieceCodes[pieceColor][piece.type.toLowerCase()]).addClass(selectedClass+' '+ pieceColor);
 				});
       }, error: function (data) {
         console.log('Chess pieces failed to load!');
@@ -148,30 +148,27 @@
 			var pieceId = selectedPiece[0].dataset.pieceId;
 			var dest_x = this.dataset.positionX;
 			var dest_y = this.dataset.positionY;
-			
-			// move piece in db
 			moveSelectedPiece(pieceId, dest_x, dest_y, selectedPiece);
-
 		}
 	});
 
 
 	function toggleSelect(pieceId){
 		// changing the classes here is an optimistic update, which is faster than waiting for the ajax response
-		var deselect = false;
-		if( $('.piece[data-piece-id=' + pieceId + ']').hasClass('selected-piece') ){
-			deselect = true;
-		}
-		$('.piece').removeClass('selected-piece');
-		if ( !deselect ){
-			$('.piece[data-piece-id=' + pieceId + ']').addClass('selected-piece');
-		}
+
 		// build the url: /games/:game_id/pieces/:id/select
 		var pieceUrl = "/games/" + <%=@game.id%> + "/pieces/" + pieceId + "/select";
 		$.post(pieceUrl, {
 			_method: "PATCH"
 		}).success(function(data){
-			
+			var deselect = false;
+			if( $('.piece[data-piece-id=' + pieceId + ']').hasClass('selected-piece') ){
+				deselect = true;
+			}
+			$('.piece').removeClass('selected-piece');
+			if ( !deselect ){
+				$('.piece[data-piece-id=' + pieceId + ']').addClass('selected-piece');
+			}
 		}).fail(function() {
 	    // we should undo the class selection highlighting if there was a failure
 	  });
@@ -184,44 +181,25 @@
 		$.post(pieceUrl, data
 		).success(function(data){
 			// move piece on screen - clone the piece and update the pos-x and pos-y values
-				$('.board_square[data-position-x='+ selectedPiece[0].dataset.positionX + '][data-position-y=' + selectedPiece[0].dataset.positionY + ']').empty();
-				var newPiece = selectedPiece//$('.piece[data-piece-id=' + pieceId + ']');
-				newPiece.attr('data-position-x', dest_x);
-				newPiece.attr('data-position-y', dest_y);
-				$('.board_square[data-position-x='+ dest_x + '][data-position-y=' + dest_y + ']').html(newPiece[0]);
-			
-				toggleSelect(pieceId);
-        console.log('We have movement!');
-			
-		}).fail(function() {
+				if (data.success){
+					$('.board_square[data-position-x='+ selectedPiece[0].dataset.positionX + '][data-position-y=' + selectedPiece[0].dataset.positionY + ']').empty();
+					var newPiece = selectedPiece//$('.piece[data-piece-id=' + pieceId + ']');
+					newPiece.attr('data-position-x', dest_x);
+					newPiece.attr('data-position-y', dest_y);
+					$('.board_square[data-position-x='+ dest_x + '][data-position-y=' + dest_y + ']').html(newPiece[0]);
+				
+					toggleSelect(pieceId);
+	        console.log('We have movement!');
+				}
+				else{
+					console.log('Invalid move!');
+				}
+		}).fail(function(data) {
 	    // we should undo the visual move in js if there was a failure
+	    console.log(data);
 	    console.log('failed move!');
 	  });
 
-		// $.ajax({
-  //     type: 'patch', 
-  //     url: pieceUrl,
-  //     data:
-  //       {
-  //           position_x: dest_x,
-  //           position_y: dest_y,
-  //           _method: 'PATCH'
-  //       },
-  //     dataType: 'json',
-  //     success: function(pieces) {
-  //     	// move piece on screen - clone the piece and update the pos-x and pos-y values
-		// 		$('.board_square[data-position-x='+ selected_piece[0].dataset.positionX + '][data-position-y=' + selected_piece[0].dataset.positionY + ']').empty();
-		// 		var newPiece = $('.piece[data-piece-id=' + pieceId + ']');
-		// 		newPiece.attr('data-position-x', dest_x);
-		// 		newPiece.attr('data-position-y', dest_y);
-		// 		$('.board_square[data-position-x='+ dest_x + '][data-position-y=' + dest_y + ']').html(newPiece[0]);
-			
-		// 		toggleSelect(pieceId);
-  //       console.log('We have movement!');
-  //     }, error: function (data) {
-  //       console.log('Chess piece failed to move!');
-  //     }
-  //   });
 	} 
 
 
