@@ -1,5 +1,14 @@
 <h1><%= @game.name %></h1>
 
+<% if @game.active_player %>
+	<% if @game.active_player == @game.white_player %>
+		<h3>White (<%= @game.active_player.email %>) to move</h3>
+	<% elsif @game.active_player == @game.black_player %>
+		<h3>Black (<%= @game.active_player.email %>) to move</h3>
+	<% end %>
+<% end %>	
+
+<br>
 <div class="chess_board_container">
 	<table class="chess_board_table">
 		
@@ -175,7 +184,6 @@
 
 	function toggleSelect(pieceId, deselect = false){
 		var pieceUrl = "/games/" + <%=@game.id%> + "/pieces/" + pieceId + "/select";
-		console.log(pieceId);
 		$.post(pieceUrl, {
 				_method: "PATCH"
 			}).success(function(data){
@@ -188,6 +196,7 @@
 				}
 		});
 	} 
+
 
 	function moveSelectedPiece(pieceId, dest_x, dest_y, selectedPiece){
 		var data = {position_x: dest_x, position_y: dest_y, _method: 'PATCH'};
@@ -215,6 +224,7 @@
 	  });
 
 	} 
+
 
 
 </script>
