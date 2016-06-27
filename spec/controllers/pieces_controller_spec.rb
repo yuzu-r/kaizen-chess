@@ -10,7 +10,7 @@ RSpec.describe PiecesController, type: :controller do
 
     it "should successfully change a piece's location if the destination is valid" do
       patch :move, { id: @q.id, game_id: @g.id, position_x: 6, position_y: 6, format: :json}
-      expect(response).to redirect_to game_path(@g)
+      #expect(response).to redirect_to game_path(@g)
       @q.reload
       expect(@q.move_count).to eq 1
       expect(@q.is_selected).to eq false
@@ -20,8 +20,8 @@ RSpec.describe PiecesController, type: :controller do
 
     it "should not change a piece's location if the destination is invalid" do
       patch :move, { id: @q.id, game_id: @g.id, position_x: 5, position_y: 6, format: :json}
-      expect(flash[:alert]).to eq "Invalid Move"
-      expect(response).to redirect_to game_path(@g)
+      #expect(flash[:alert]).to eq "Invalid Move"
+      #expect(response).to redirect_to game_path(@g)
       @q.reload
       expect(@q.move_count).to eq 0
       expect(@q.position_x).to eq 4

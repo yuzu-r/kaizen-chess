@@ -22,7 +22,7 @@ $square_size: 50px;
 }
 
 .dark_square{
-	background: #474747;
+	background: #808080;
 }
 
 .light_square{
@@ -53,4 +53,13 @@ $square_size: 50px;
 
 .piece.selected-piece{
   color: red;
+}
+
+.piece{
+	padding-top: 5px;
+	height: 100%;
+}
+
+.piece:hover{
+	cursor: pointer;
 }
