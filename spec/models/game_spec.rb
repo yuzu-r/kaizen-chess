@@ -74,6 +74,7 @@ RSpec.describe Game, type: :model do
       white_king = King.create(position_x: 4, position_y: 4, game: @g, player: @g.white_player)
       black_bishop = Bishop.create(position_x: 3, position_y: 4, game: @g, player: @g.black_player)
       black_pawn = Pawn.create(position_x: nil, position_y: nil, is_active: false, game: @g, player: @g.black_player)
+      black_pawn2 = Pawn.create(position_x: 4, position_y: 5, game: @g, player: @g.black_player)
       black_king = King.create(position_x: 1, position_y: 1, game: @g, player: @g.black_player)
       expect(@g.is_in_check?(@g.black_player)).to eq false
     end
