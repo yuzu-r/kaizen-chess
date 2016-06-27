@@ -15,7 +15,6 @@ class PiecesController < ApplicationController
       @piece.update_attributes(is_selected: true)
     end
     render :json => { :success => "success", :status_code => "200" }
-    #redirect_to game_path(@game)
 
   end
 
