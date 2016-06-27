@@ -140,7 +140,7 @@
 	function getSelectedPiece(){
 		var selectedPiece = $('.selected-piece');
 		if( selectedPiece.length ){
-			return selectedPiece[0];
+			return selectedPiece;
 		}
 		else{
 			return false;
@@ -152,22 +152,20 @@
 		// and can only be selected during that user's turn
 		selectedPiece = getSelectedPiece();
 
-		if ( selectedPiece ){
-			selectedPieceColor = selectedPiece.dataset.pieceColor;
-			if ( this.dataset.pieceColor == selectedPieceColor ){
-				toggleSelect(this.dataset.pieceId);
-			}
-		}
-		else{
+		if ( !selectedPiece ){
 			toggleSelect(this.dataset.pieceId);
 		}
-
+		else{
+			if (this.dataset.pieceId == selectedPiece[0].dataset.pieceId ){
+				toggleSelect(this.dataset.pieceId, true);
+			}
+		}
 	});
 
 	$('.chess_board_container').on('click', '.board_square', function(){
 		var selectedPiece = getSelectedPiece();
 		if( selectedPiece ){
-			var pieceId = selectedPiece.dataset.pieceId;
+			var pieceId = selectedPiece[0].dataset.pieceId;
 			var dest_x = this.dataset.positionX;
 			var dest_y = this.dataset.positionY;
 			moveSelectedPiece(pieceId, dest_x, dest_y, selectedPiece);
@@ -175,13 +173,12 @@
 	});
 
 
-	function toggleSelect(pieceId){
+	function toggleSelect(pieceId, deselect = false){
 		var pieceUrl = "/games/" + <%=@game.id%> + "/pieces/" + pieceId + "/select";
-		
+		console.log(pieceId);
 		$.post(pieceUrl, {
 				_method: "PATCH"
 			}).success(function(data){
-				var deselect = false;
 				if( $('.piece[data-piece-id=' + pieceId + ']').hasClass('selected-piece') ){
 					deselect = true;
 				}
@@ -200,14 +197,13 @@
 			).success(function(data){
 				// move piece on screen - clone the piece and update the pos-x and pos-y values
 				if (data.success){
-					$('.board_square[data-position-x='+ selectedPiece.dataset.positionX + '][data-position-y=' + selectedPiece.dataset.positionY + ']').empty();
-					var newPiece = selectedPiece;
-					console.log(newPiece);
-					// newPiece.attr('data-position-x', dest_x);
-					// newPiece.attr('data-position-y', dest_y);
-					$('.board_square[data-position-x='+ dest_x + '][data-position-y=' + dest_y + ']').html(newPiece);
+					$('.board_square[data-position-x='+ selectedPiece[0].dataset.positionX + '][data-position-y=' + selectedPiece[0].dataset.positionY + ']').empty();
+			
+					selectedPiece.attr('data-position-x', dest_x);
+					selectedPiece.attr('data-position-y', dest_y);
+					$('.board_square[data-position-x='+ dest_x + '][data-position-y=' + dest_y + ']').html(selectedPiece[0]);
 				
-					toggleSelect(pieceId);
+					$('.piece').removeClass('selected-piece');
 	        console.log('We have movement!');
 				}
 				else{
