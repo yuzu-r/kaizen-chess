@@ -38,4 +38,46 @@ RSpec.describe Game, type: :model do
     end
   end
 
+  describe "is_in_check? returns true if player is in check" do
+    before :each do
+      @g = FactoryGirl.create(:joined_game)
+    end   
+    it "is true if white player is in check by pawn" do
+      white_king = King.create(position_x: 4, position_y: 4, game: @g, player: @g.white_player)
+      black_pawn = Pawn.create(position_x: 3, position_y: 5, game: @g, player: @g.black_player)
+      expect(@g.is_in_check?(@g.white_player)).to eq true
+    end
+    it "is true if black player is in check by rook" do
+      black_king = King.create(position_x: 4, position_y: 4, game: @g, player: @g.black_player)
+      white_rook = Rook.create(position_x: 1, position_y: 4, game: @g, player: @g.white_player)
+      expect(@g.is_in_check?(@g.black_player)).to eq true
+    end
+    it "is true if black player is in check by knight" do
+      black_king = King.create(position_x: 4, position_y: 4, game: @g, player: @g.black_player)
+      white_knight = Knight.create(position_x: 6, position_y: 5, game: @g, player: @g.white_player)
+      expect(@g.is_in_check?(@g.black_player)).to eq true
+    end
+  end
+
+  describe "is_in_check? false if player is not in check" do
+    before :each do
+      @g = FactoryGirl.create(:joined_game)
+    end   
+    it "is false if white player can't capture black king (obstructed)" do
+      black_king = King.create(position_x: 4, position_y: 4, game: @g, player: @g.black_player)
+      white_queen = Queen.create(position_x: 1, position_y: 4, game: @g, player: @g.white_player)
+      black_pawn = Pawn.create(position_x: 3, position_y: 4, game: @g, player: @g.black_player)
+      expect(@g.is_in_check?(@g.black_player)).to eq false
+    end
+
+    it "is false if black player can't capture white king (no pieces in range)" do
+      white_king = King.create(position_x: 4, position_y: 4, game: @g, player: @g.white_player)
+      black_bishop = Bishop.create(position_x: 3, position_y: 4, game: @g, player: @g.black_player)
+      black_pawn = Pawn.create(position_x: nil, position_y: nil, is_active: false, game: @g, player: @g.black_player)
+      black_pawn2 = Pawn.create(position_x: 4, position_y: 5, game: @g, player: @g.black_player)
+      black_king = King.create(position_x: 1, position_y: 1, game: @g, player: @g.black_player)
+      expect(@g.is_in_check?(@g.black_player)).to eq false
+    end
+
+  end
 end

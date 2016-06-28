@@ -60,4 +60,26 @@ end
     pieces.where(position_x: dest_x, position_y: dest_y).first.present?
   end 
 
+  def is_in_check?(player)
+    # currently assumes that there is a king on the board for the player in question
+    # also assumes the game has both a white and black player
+    return false if white_player != player && black_player != player
+    if player == white_player
+      king = pieces.where(type: "King", player: white_player).first
+      king_x = king.position_x
+      king_y = king.position_y
+      black_player.pieces.where(is_active: true).each do |piece|
+        return true if piece.is_valid_capture?(king_x, king_y) && piece.is_valid_move?(king_x, king_y)
+      end
+    else
+      king = pieces.where(type: "King", player: black_player).first
+      king_x = king.position_x
+      king_y = king.position_y
+      white_player.pieces.where(is_active: true).each do |piece|
+        return true if piece.is_valid_capture?(king_x, king_y) && piece.is_valid_move?(king_x, king_y)
+      end
+    end
+    return false
+  end
+
 end
