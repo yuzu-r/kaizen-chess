@@ -6,13 +6,20 @@ class PiecesController < ApplicationController
     # add validation to make sure the piece selected belongs to player whose turn it is 
     @piece = Piece.find(params[:id])
     @game = Game.find(params[:game_id])
-    if @piece.is_selected
-      @piece.update_attributes(is_selected: false)
-    else
-      @game.pieces.each do |p|
-        p.update_attributes(is_selected: false) if p.is_selected
+    if current_user != @piece.player
+      #error
+    elsif
+      @game.active_player != current_user
+      #error
+    else  
+      if  @piece.is_selected
+          @piece.update_attributes(is_selected: false)
+      else
+          @game.pieces.each do |p|
+          p.update_attributes(is_selected: false) if p.is_selected
+        end
+        @piece.update_attributes(is_selected: true)
       end
-      @piece.update_attributes(is_selected: true)
     end
     render :json => { :success => "success", :status_code => "200" }
   end
