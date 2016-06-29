@@ -194,6 +194,9 @@
 				if ( !deselect ){
 					$('.piece[data-piece-id=' + pieceId + ']').addClass('selected-piece');
 				}
+		}).fail(function(xhr){
+			var errors = $.parseJSON(xhr.responseText).errors;
+			console.log(errors);
 		});
 	} 
 
