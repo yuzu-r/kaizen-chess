@@ -20,7 +20,7 @@ RSpec.describe King, type: :model do
     	expect(@king.is_valid_move?(2,2)).to eq true
     end
     
-    # castling
+    # castling: is_valid_move?
     it "returns false if attempting castle and king has moved" do
       @king.move_count = 3
       @king.position_x = 5
@@ -65,6 +65,36 @@ RSpec.describe King, type: :model do
       expect(@king.is_valid_move?(3, 1)).to eq false
     end
     it "should return false if you try to castle and there is no rook" do
+      expect(@king.is_valid_move?(3, 1)).to eq false
+    end
+
+    it "should return false when king is in check" do
+      @king.move_count = 0
+      @king.position_x = 5
+      @king.position_y = 1
+
+      @rook = Rook.create(position_x: 1, position_y: 1, game: @g, player: @g.white_player)
+      @queen = Queen.create(position_x: 5, position_y: 3, game: @g, player: @g.black_player)
+      expect(@king.is_valid_move?(3, 1)).to eq false
+    end
+
+    it "should return false when castling moves king through check" do
+      @king.move_count = 0
+      @king.position_x = 5
+      @king.position_y = 1
+
+      @rook = Rook.create(position_x: 1, position_y: 1, game: @g, player: @g.white_player)
+      @queen = Queen.create(position_x: 4, position_y: 3, game: @g, player: @g.black_player)
+      expect(@king.is_valid_move?(3, 1)).to eq false
+    end
+
+    it "should return false when castling moves king into check" do
+      @king.move_count = 0
+      @king.position_x = 5
+      @king.position_y = 1
+
+      @rook = Rook.create(position_x: 1, position_y: 1, game: @g, player: @g.white_player)
+      @enemy_rook = Rook.create(position_x: 3, position_y: 8, game: @g, player: @g.black_player)
       expect(@king.is_valid_move?(3, 1)).to eq false
     end
 

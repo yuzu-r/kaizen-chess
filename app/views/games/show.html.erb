@@ -201,6 +201,13 @@
 	function moveSelectedPiece(pieceId, dest_x, dest_y, selectedPiece){
 		var data = {position_x: dest_x, position_y: dest_y, _method: 'PATCH'};
 		var pieceUrl = "/games/" + <%=@game.id%> + "/pieces/" + pieceId + "/move"; 
+		var castleMove;
+		if (selectedPiece.html().indexOf('♔') === 0 && Math.abs(selectedPiece[0].dataset.positionX - dest_x) == 2 && selectedPiece[0].dataset.positionY == dest_y){
+			castleMove = true;
+		}
+		else {
+			castleMove = false;
+		}
 		
 		$.post(pieceUrl, data
 			).success(function(data){
@@ -213,6 +220,22 @@
 					$('.board_square[data-position-x='+ dest_x + '][data-position-y=' + dest_y + ']').html(selectedPiece[0]);
 				
 					$('.piece').removeClass('selected-piece');
+
+					if (castleMove) {
+						if (dest_x == 7) {
+							selectedRook = $('.board_square[data-position-x="8"][data-position-y=' + dest_y + ']').children();
+							$('.board_square[data-position-x="8"][data-position-y=' + dest_y + ']').empty();
+							selectedRook.attr('data-position-x', 6);
+							$('.board_square[data-position-x="6"][data-position-y=' + dest_y + ']').html(selectedRook[0])
+						}
+						else {
+							selectedRook = $('.board_square[data-position-x="1"][data-position-y=' + dest_y + ']').children();
+							$('.board_square[data-position-x="1"][data-position-y=' + dest_y + ']').empty();
+							selectedRook.attr('data-position-x', 4);
+							$('.board_square[data-position-x="4"][data-position-y=' + dest_y + ']').html(selectedRook[0])
+						}
+					}
+
 	        console.log('We have movement!');
 				}
 				else{
