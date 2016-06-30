@@ -33,9 +33,9 @@
 				%>
 				<td>
 					<div data-position-x=<%= position_x %> data-position-y=<%= position_y %> class="board_square <%= color_class %>">
-						<% isPiece = @game.pieces.where(position_x: position_x, position_y: position_y).first %>
-						<% if isPiece %>
-								<div id="piece-<%=isPiece.id %>" class="piece" data-piece-id=<%=isPiece.id %> data-position-x=<%= isPiece.position_x %> data-position-y=<%= isPiece.position_y %> ></div>	
+						<% is_piece = @game.pieces.where(position_x: position_x, position_y: position_y).first %>
+						<% if is_piece %>
+								<div id="piece-<%=is_piece.id %>" class="piece" data-piece-id=<%=is_piece.id %> data-position-x=<%= is_piece.position_x %> data-position-y=<%= is_piece.position_y %> ></div>	
 						<% end %>
 						
 					</div>
@@ -89,7 +89,6 @@
 <% end %>
 <br />
 <br />
-
 <script>
 	
 	var pieceCodes = {
@@ -122,10 +121,6 @@
       success: function(pieces) {
         $.each(pieces, function(index, piece){
         	var pieceColor;	
-        	var selectedClass;
-        	if (piece.is_selected == true){
-        		selectedClass = 'selected-piece';
-        	}			
 					if (piece.player_id == <%= @game.white_player_id %>){
 						pieceColor = 'white';
 					}
@@ -133,7 +128,7 @@
 						pieceColor = 'black'
 					}
 
-					drawnPiece = $('.board_square[data-position-x='+ piece.position_x + '][data-position-y=' + piece.position_y + ']').children('.piece').html(pieceCodes[pieceColor][piece.type.toLowerCase()]).addClass(selectedClass+' '+ pieceColor);
+					drawnPiece = $('.board_square[data-position-x='+ piece.position_x + '][data-position-y=' + piece.position_y + ']').children('.piece').html(pieceCodes[pieceColor][piece.type.toLowerCase()]).addClass(pieceColor);
 					drawnPiece.attr('data-piece-color', pieceColor);
 				});
       }, error: function (data) {
@@ -144,62 +139,26 @@
 
 	$(document).ready(function(){
 		drawPieces();
+		$('.dark_square').droppable({drop: dropPiece});
+		$('.light_square').droppable({drop: dropPiece});
+		$('.piece').draggable({revert: true});
 	});
 
-	function getSelectedPiece(){
-		var selectedPiece = $('.selected-piece');
-		if( selectedPiece.length ){
-			return selectedPiece;
-		}
-		else{
-			return false;
-		}
+	$('.piece').on('drag',(function(){
+		$(this).css('color', 'blue');
+	}));
+
+	$('.piece').on( "dragstop", function() {
+		$(this).css('color', 'black');
+	} );
+
+	function dropPiece(event, ui) {
+		var dest_x = $(this).data('position-x');
+		var dest_y = $(this).data('position-y');
+		var piece = ui.draggable;
+		moveSelectedPiece(piece.data('piece-id'), dest_x, dest_y, piece);	
+		$('.piece').draggable({revert: true});
 	}
-
-	$('.chess_board_container').on('click', '.piece', function(){
-		// TODO: should have check to make sure that only the active user's pieces are selected
-		// and can only be selected during that user's turn
-		selectedPiece = getSelectedPiece();
-
-		if ( !selectedPiece ){
-			toggleSelect(this.dataset.pieceId);
-		}
-		else{
-			if (this.dataset.pieceId == selectedPiece[0].dataset.pieceId ){
-				toggleSelect(this.dataset.pieceId, true);
-			}
-		}
-	});
-
-	$('.chess_board_container').on('click', '.board_square', function(){
-		var selectedPiece = getSelectedPiece();
-		if( selectedPiece ){
-			var pieceId = selectedPiece[0].dataset.pieceId;
-			var dest_x = this.dataset.positionX;
-			var dest_y = this.dataset.positionY;
-			moveSelectedPiece(pieceId, dest_x, dest_y, selectedPiece);
-		}
-	});
-
-
-	function toggleSelect(pieceId, deselect = false){
-		var pieceUrl = "/games/" + <%=@game.id%> + "/pieces/" + pieceId + "/select";
-		$.post(pieceUrl, {
-				_method: "PATCH"
-			}).success(function(data){
-				if( $('.piece[data-piece-id=' + pieceId + ']').hasClass('selected-piece') ){
-					deselect = true;
-				}
-				$('.piece').removeClass('selected-piece');
-				if ( !deselect ){
-					$('.piece[data-piece-id=' + pieceId + ']').addClass('selected-piece');
-				}
-		}).fail(function(xhr){
-			var errors = $.parseJSON(xhr.responseText).errors;
-			console.log(errors);
-		});
-	} 
-
 
 	function moveSelectedPiece(pieceId, dest_x, dest_y, selectedPiece){
 		var data = {position_x: dest_x, position_y: dest_y, _method: 'PATCH'};
@@ -220,10 +179,9 @@
 			
 					selectedPiece.attr('data-position-x', dest_x);
 					selectedPiece.attr('data-position-y', dest_y);
+
 					$('.board_square[data-position-x='+ dest_x + '][data-position-y=' + dest_y + ']').html(selectedPiece[0]);
 				
-					$('.piece').removeClass('selected-piece');
-
 					if (castleMove) {
 						if (dest_x == 7) {
 							selectedRook = $('.board_square[data-position-x="8"][data-position-y=' + dest_y + ']').children();
@@ -239,6 +197,7 @@
 						}
 					}
 
+					$('.piece').draggable({revert: true});
 	        console.log('We have movement!');
 				}
 				else{
@@ -246,9 +205,11 @@
 				}
 			}).fail(function(data) {
 		    // we should undo the visual move in js if there was a failure
+
 		    console.log('failed move!');
 	  });
-
+		selectedPiece.css("color", "black");
+		$('.piece').draggable({revert: true});
 	} 
 
 

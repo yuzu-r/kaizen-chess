@@ -7,7 +7,6 @@ Rails.application.routes.draw do
     end
     resources :pieces, only: [:update] do
       member do
-        patch :select
         patch :move
       end
     end

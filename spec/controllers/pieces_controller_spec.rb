@@ -13,7 +13,6 @@ RSpec.describe PiecesController, type: :controller do
       #expect(response).to redirect_to game_path(@g)
       @q.reload
       expect(@q.move_count).to eq 1
-      expect(@q.is_selected).to eq false
       expect(@q.position_x).to eq 6
       expect(@q.position_y).to eq 6 
     end
