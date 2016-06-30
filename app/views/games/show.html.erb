@@ -82,9 +82,9 @@
 <br />
 <br />
 <h1>Black Player</h1>
-<% if @game.black_player == nil %>
+<% if @game.black_player == nil && @game.white_player_id != current_user.id %>
 	<%= link_to 'Join Game', join_game_path(@game), method: :patch, class: 'btn btn-success' %>
-<% else %>
+<% elsif @game.black_player != nil %>
 	<p><%= @game.black_player.email %></p>
 <% end %>
 <br />
