@@ -69,7 +69,7 @@ end
       king = pieces.where(type: "King", player: white_player).first
       king_x = king.position_x
       king_y = king.position_y
-      black_player.pieces.where(is_active: true).each do |piece|
+      black_player.pieces.where(game: self, is_active: true).each do |piece|
         if piece.type != "King"
           return true if piece.is_valid_capture?(king_x, king_y) && piece.is_valid_move?(king_x, king_y)
         end
@@ -78,7 +78,7 @@ end
       king = pieces.where(type: "King", player: black_player).first
       king_x = king.position_x
       king_y = king.position_y
-      white_player.pieces.where(is_active: true).each do |piece|
+      white_player.pieces.where(game: self, is_active: true).each do |piece|
         if piece.type != "King"
           return true if piece.is_valid_capture?(king_x, king_y) && piece.is_valid_move?(king_x, king_y)
         end
