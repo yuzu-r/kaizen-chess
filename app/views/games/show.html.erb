@@ -170,6 +170,14 @@
 		else {
 			castleMove = false;
 		}
+		var enPassante;
+		if ( (selectedPiece.html().indexOf('♙') === 0 || selectedPiece.html().indexOf('♟') === 0) && $('.board_square[data-position-x='+ dest_x + '][data-position-y=' + dest_y + ']').children().length < 1 && Math.abs(selectedPiece[0].dataset.positionX - dest_x) == 1 && Math.abs(selectedPiece[0].dataset.positionY - dest_y) == 1  ){
+			console.log("hi")
+			enPassante = true;
+		}
+		else {
+			enPassante = false;
+		}
 		
 		$.post(pieceUrl, data
 			).success(function(data){
@@ -194,6 +202,15 @@
 							$('.board_square[data-position-x="1"][data-position-y=' + dest_y + ']').empty();
 							selectedRook.attr('data-position-x', 4);
 							$('.board_square[data-position-x="4"][data-position-y=' + dest_y + ']').html(selectedRook[0])
+						}
+					}
+
+					if (enPassante) {
+						if (dest_y == 6) {
+							$('.board_square[data-position-x='+ dest_x +'][data-position-y="5"]').empty();
+						}
+						else {
+							$('.board_square[data-position-x='+ dest_x +'][data-position-y="3"]').empty();
 						}
 					}
 

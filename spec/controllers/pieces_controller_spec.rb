@@ -32,6 +32,22 @@ RSpec.describe PiecesController, type: :controller do
       expect(@r.position_y).to eq 1 
     end
 
+    it "should advance white pawn diagonally & inactivate black pawn if is_valid_enpassant?" do
+      @bp1 = Pawn.create(position_x: 4, position_y: 5, game: @g, player: @g.black_player, move_count: 1)
+      @wp1 = Pawn.create(position_x: 3, position_y: 5, game: @g, player: @g.white_player)
+      @g.update_attributes(last_moved_piece: @bp1)
+      patch :move, { id: @wp1.id, game_id: @g.id, position_x: 4, position_y: 6, format: :json}
+      @bp1.reload
+      @wp1.reload
+      expect(@wp1.move_count).to eq 1 
+      expect(@wp1.position_x).to eq 4
+      expect(@wp1.position_y).to eq 6 
+      
+      expect(@bp1.position_x).to eq nil
+      expect(@bp1.position_y).to eq nil
+      expect(@bp1.is_active).to eq false
+    end
+
     it "should not change a piece's location if the destination is invalid" do
       patch :move, { id: @q.id, game_id: @g.id, position_x: 5, position_y: 6, format: :json}
       #expect(flash[:alert]).to eq "Invalid Move"

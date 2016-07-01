@@ -17,6 +17,7 @@ class PiecesController < ApplicationController
         @game.update_attributes(active_player: @game.white_player)
       end
 
+      @game.update_attributes(last_moved_piece: @piece)
       render :json => { :success => "success", :status_code => "200" }
     else
       render :json => { :errors => "Move not allowed!" }, :status => 200

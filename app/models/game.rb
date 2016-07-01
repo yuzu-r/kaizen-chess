@@ -2,6 +2,7 @@ class Game < ActiveRecord::Base
   belongs_to :white_player, class_name: "User"
   belongs_to :black_player, class_name: "User"
   belongs_to :active_player, class_name: "User"
+  belongs_to :last_moved_piece, class_name: "Piece", foreign_key: "last_moved_piece_id"
   has_many :pieces
 
   validate :valid_active_player?

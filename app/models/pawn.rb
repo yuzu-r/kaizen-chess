@@ -1,6 +1,10 @@
 class Pawn < Piece
-	# TODO: en passant 
+
   def is_valid_move?(dest_x, dest_y)	
+ 	  if is_valid_enpassant?(dest_x, dest_y)
+ 	  	enpassant(dest_x, dest_y)
+ 	  	return true 
+ 	  end
   	return false if is_obstructed?(dest_x, dest_y)
   	# is_obstructed normally allows an enemy to be on destination but pawn is special 	
   	return false if game.is_occupied?(dest_x, dest_y) && is_vertical_move?(dest_x, dest_y)
@@ -39,4 +43,38 @@ class Pawn < Piece
 		end
 		return false
 	end
+
+	def is_valid_enpassant?(dest_x, dest_y)
+
+		if player_id == game.white_player_id
+			enemy = game.black_player_id
+			return false if position_y > 5
+		else
+			enemy = game.white_player_id
+			return false if position_y < 4
+		end 
+
+		target_pawn = game.pieces.where(type: "Pawn", player: enemy, position_x: dest_x, position_y: position_y).first
+		return false if !target_pawn
+		return false if target_pawn != game.last_moved_piece
+		return false if target_pawn.move_count > 1
+
+
+		if player_id == game.white_player_id
+			return false if dest_y != 6
+			return false if target_pawn.position_x != dest_x
+		else
+			return false if dest_y != 3
+			return false if target_pawn.position_x != dest_x
+		end
+		
+		true
+	end 
+
+  def enpassant(dest_x, dest_y)
+    player_id == game.white_player_id ? enemy = game.black_player_id : enemy = game.white_player_id
+    target_pawn = game.pieces.where(type: "Pawn", player: enemy, position_x: dest_x, position_y: position_y).first
+    target_pawn.update_attributes(position_x: nil, position_y: nil, is_active: false)
+  end
+
 end
