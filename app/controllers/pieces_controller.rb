@@ -1,27 +1,4 @@
 class PiecesController < ApplicationController
-  def select
-    # toggles is_selected for the piece in question (select/de-select)
-    # if a piece is selected, any previously selected piece is de-selected
-    @piece = Piece.find(params[:id])
-    @game = Game.find(params[:game_id])
-    if current_user != @piece.player
-      render :json => { :errors => "Not your piece!"}, :status => :unprocessable_entity
-    elsif
-      @game.active_player != current_user
-      render :json => { :errors => "Not your turn!"}, :status => :unprocessable_entity
-    else  
-      if  @piece.is_selected
-          @piece.update_attributes(is_selected: false)
-      else
-          @game.pieces.each do |p|
-          p.update_attributes(is_selected: false) if p.is_selected
-        end
-        @piece.update_attributes(is_selected: true)
-      end
-      render :json => { :success => "success", :status_code => "200" }
-    end
-  end
-
   def move
     @piece = Piece.find(params[:id])
     @game = Game.find(params[:game_id])
@@ -32,7 +9,7 @@ class PiecesController < ApplicationController
       @piece.capture(position_x, position_y)
       @move_count = @piece.move_count + 1
 
-      @piece.update_attributes(position_x: position_x, position_y: position_y, move_count: @move_count, is_selected: false)
+      @piece.update_attributes(position_x: position_x, position_y: position_y, move_count: @move_count)
 
       if @piece.player == @game.white_player
         @game.update_attributes(active_player: @game.black_player)
