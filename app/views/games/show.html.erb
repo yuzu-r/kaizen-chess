@@ -148,7 +148,7 @@
 		$(this).css('color', 'blue');
 	}));
 
-	$('.piece').on( "dragstop", function() {
+	$('.piece').on('dragstop', function() {
 		$(this).css('color', 'black');
 	} );
 
@@ -197,7 +197,6 @@
 						}
 					}
 
-					$('.piece').draggable({revert: true});
 	        console.log('We have movement!');
 				}
 				else{
@@ -205,13 +204,10 @@
 				}
 			}).fail(function(data) {
 		    // we should undo the visual move in js if there was a failure
-
 		    console.log('failed move!');
 	  });
 		selectedPiece.css("color", "black");
 		$('.piece').draggable({revert: true});
 	} 
-
-
 
 </script>
