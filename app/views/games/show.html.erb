@@ -2,9 +2,9 @@
 
 <% if @game.active_player %>
 	<% if @game.active_player == @game.white_player %>
-		<h3>White (<%= @game.active_player.email %>) to move</h3>
+		<h3 id="active-player">White (<%= @game.active_player.email %>) to move</h3>
 	<% elsif @game.active_player == @game.black_player %>
-		<h3>Black (<%= @game.active_player.email %>) to move</h3>
+		<h3 id="active-player">Black (<%= @game.active_player.email %>) to move</h3>
 	<% end %>
 <% end %>	
 
@@ -198,6 +198,13 @@
 					}
 
 	        console.log('We have movement!');
+	        if (selectedPiece.attr('data-piece-color') === 'black') {
+	        	$('#active-player').text('White\'s move');
+	        }
+	        else {
+	        	$('#active-player').text('Black\'s move');		
+	        }
+	        
 				}
 				else{
 					console.log('Invalid move!');
