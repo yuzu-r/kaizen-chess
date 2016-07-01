@@ -164,7 +164,7 @@
 		var data = {position_x: dest_x, position_y: dest_y, _method: 'PATCH'};
 		var pieceUrl = "/games/" + <%=@game.id%> + "/pieces/" + pieceId + "/move"; 
 		var castleMove;
-		if (selectedPiece.html().indexOf('♔') === 0 && Math.abs(selectedPiece[0].dataset.positionX - dest_x) == 2 && selectedPiece[0].dataset.positionY == dest_y){
+		if ((selectedPiece.html().indexOf('♔') === 0 || selectedPiece.html().indexOf('♚') === 0) && Math.abs(selectedPiece[0].dataset.positionX - dest_x) == 2 && selectedPiece[0].dataset.positionY == dest_y){
 			castleMove = true;
 		}
 		else {

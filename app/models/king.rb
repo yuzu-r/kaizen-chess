@@ -27,7 +27,7 @@ class King < Piece
   def will_be_in_check?(dest_x, dest_y) 
   # If a king moves to dest_x & dest_y, this method will see if that puts the King in check.
     if player == game.white_player
-      game.black_player.pieces.where(is_active: true).each do |piece|
+      game.black_player.pieces.where(game: game, is_active: true).each do |piece|
         if piece.type == "Pawn"
           return true if (dest_x - piece.position_x).abs == 1 && piece.position_y - dest_y == 1
         elsif piece.type != "King"
@@ -36,7 +36,7 @@ class King < Piece
         end
       end
     else
-      game.white_player.pieces.where(is_active: true).each do |piece|
+      game.white_player.pieces.where(game: game, is_active: true).each do |piece|
         if piece.type == "Pawn"
           return true if (dest_x - piece.position_x).abs == 1 && dest_y - piece.position_y == 1
         elsif piece.type != "King"
