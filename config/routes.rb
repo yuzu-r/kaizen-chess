@@ -7,7 +7,7 @@ Rails.application.routes.draw do
     end
     resources :pieces, only: [:update] do
       member do
-        # patch :promote
+        patch :promote
         patch :move
       end
     end

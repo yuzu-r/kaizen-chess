@@ -25,12 +25,13 @@ class PiecesController < ApplicationController
     
   end
 
-  # def promote
-  #   @piece = Piece.find(params[:id])
-  #   @game = Game.find(params[:game_id])
+
+  def promote
+    @piece = Piece.find(params[:id])
+    @game = Game.find(params[:game_id])
     
-  #   @piece.update_attributes(type: params[:type])
-  #   render :json => { :success => "success", :status_code => "200" }
-  # end
+    @piece.update_attributes(type: params[:type])
+    render :json => { :success => "success", :status_code => "200" }
+  end
 
 end
