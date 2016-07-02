@@ -1,5 +1,6 @@
 class King < Piece
 	def is_valid_move?(dest_x, dest_y)
+    return false if will_be_in_check?(dest_x, dest_y)
 		return false if is_obstructed?(dest_x, dest_y) 
 		if moves_only_one_space?(dest_x, dest_y)
 			return true
@@ -33,6 +34,7 @@ class King < Piece
         elsif piece.type != "King"
           return true if piece.is_valid_move?(dest_x, dest_y)
         else
+          return true if moves_only_one_space?(dest_x, dest_y)
         end
       end
     else
@@ -42,6 +44,7 @@ class King < Piece
         elsif piece.type != "King"
           return true if piece.is_valid_move?(dest_x, dest_y)
         else
+          return true if moves_only_one_space?(dest_x, dest_y)
         end
       end
     end

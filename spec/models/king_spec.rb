@@ -97,6 +97,65 @@ RSpec.describe King, type: :model do
       @enemy_rook = Rook.create(position_x: 3, position_y: 8, game: @g, player: @g.black_player)
       expect(@king.is_valid_move?(3, 1)).to eq false
     end
+  end
 
+  describe "will_be_in_check?" do
+    before :each do
+      @g = FactoryGirl.create(:joined_game)
+      @king = King.create(position_x: 4, position_y: 4, game: @g, player: @g.white_player)
+    end
+
+    it "should return true if moving to a square that will put it in check" do
+      @rook1 = Rook.create(position_x: 1, position_y: 5, game: @g, player: @g.black_player)
+      @rook2 = Rook.create(position_x: 1, position_y: 3, game: @g, player: @g.black_player)
+      @rook3 = Rook.create(position_x: 3, position_y: 8, game: @g, player: @g.black_player)
+      @rook4 = Rook.create(position_x: 5, position_y: 8, game: @g, player: @g.black_player)
+      expect(@king.will_be_in_check?(5, 4)).to eq true
+      expect(@king.will_be_in_check?(5, 5)).to eq true
+      expect(@king.will_be_in_check?(4, 5)).to eq true
+      expect(@king.will_be_in_check?(3, 5)).to eq true
+      expect(@king.will_be_in_check?(3, 4)).to eq true
+      expect(@king.will_be_in_check?(3, 3)).to eq true
+      expect(@king.will_be_in_check?(4, 3)).to eq true
+      expect(@king.will_be_in_check?(5, 3)).to eq true
+    end
+
+    it "should return true if moving to a square that will put it in check by a pawn" do
+      @pawn1 = Pawn.create(position_x: 6, position_y: 5, game: @g, player: @g.black_player)
+      @pawn2 = Pawn.create(position_x: 6, position_y: 6, game: @g, player: @g.black_player)
+      @pawn3 = Pawn.create(position_x: 5, position_y: 6, game: @g, player: @g.black_player)
+      @pawn4 = Pawn.create(position_x: 2, position_y: 6, game: @g, player: @g.black_player)
+      @pawn5 = Pawn.create(position_x: 2, position_y: 5, game: @g, player: @g.black_player)
+      @pawn6 = Pawn.create(position_x: 2, position_y: 4, game: @g, player: @g.black_player)
+      @pawn7 = Pawn.create(position_x: 5, position_y: 4, game: @g, player: @g.black_player)
+      @pawn8 = Pawn.create(position_x: 6, position_y: 4, game: @g, player: @g.black_player)
+      expect(@king.will_be_in_check?(5, 4)).to eq true
+      expect(@king.will_be_in_check?(5, 5)).to eq true
+      expect(@king.will_be_in_check?(4, 5)).to eq true
+      expect(@king.will_be_in_check?(3, 5)).to eq true
+      expect(@king.will_be_in_check?(3, 4)).to eq true
+      expect(@king.will_be_in_check?(3, 3)).to eq true
+      expect(@king.will_be_in_check?(4, 3)).to eq true
+      expect(@king.will_be_in_check?(5, 3)).to eq true
+    end
+
+    it "should return true if moving to a square that will put it in check by another Kingimag" do
+      @king1 = King.create(position_x: 6, position_y: 5, game: @g, player: @g.black_player)
+      @king2 = King.create(position_x: 6, position_y: 6, game: @g, player: @g.black_player)
+      @king3 = King.create(position_x: 5, position_y: 6, game: @g, player: @g.black_player)
+      @king4 = King.create(position_x: 2, position_y: 6, game: @g, player: @g.black_player)
+      @king5 = King.create(position_x: 2, position_y: 5, game: @g, player: @g.black_player)
+      @king6 = King.create(position_x: 2, position_y: 4, game: @g, player: @g.black_player)
+      @king7 = King.create(position_x: 5, position_y: 4, game: @g, player: @g.black_player)
+      @king8 = King.create(position_x: 6, position_y: 4, game: @g, player: @g.black_player)
+      expect(@king.will_be_in_check?(5, 4)).to eq true
+      expect(@king.will_be_in_check?(5, 5)).to eq true
+      expect(@king.will_be_in_check?(4, 5)).to eq true
+      expect(@king.will_be_in_check?(3, 5)).to eq true
+      expect(@king.will_be_in_check?(3, 4)).to eq true
+      expect(@king.will_be_in_check?(3, 3)).to eq true
+      expect(@king.will_be_in_check?(4, 3)).to eq true
+      expect(@king.will_be_in_check?(5, 3)).to eq true
+    end
   end
 end
