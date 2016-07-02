@@ -27,7 +27,6 @@ ActiveRecord::Schema.define(version: 20160630231112) do
     t.integer  "last_moved_piece_id"
   end
 
-  add_index "games", ["black_player_id"], name: "index_games_on_black_player_id", using: :btree
   add_index "games", ["white_player_id"], name: "index_games_on_white_player_id", using: :btree
 
   create_table "pieces", force: :cascade do |t|
@@ -36,11 +35,11 @@ ActiveRecord::Schema.define(version: 20160630231112) do
     t.integer  "position_y"
     t.integer  "game_id"
     t.integer  "player_id"
-    t.boolean  "is_active",   default: true
-    t.integer  "move_count",  default: 0
-    t.boolean  "is_selected", default: false
-    t.datetime "created_at",                  null: false
-    t.datetime "updated_at",                  null: false
+    t.boolean  "is_active"
+    t.integer  "move_count"
+    t.boolean  "is_selected"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
   end
 
   create_table "users", force: :cascade do |t|
