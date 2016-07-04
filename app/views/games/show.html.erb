@@ -76,6 +76,19 @@
 		
 	</table>
 </div> <!-- close chess_board_container div -->
+<div class="whitepromotion" style="display: none;">
+	<div class="choosepiece" data-piece-type="Rook">♖</div>
+	<div class="choosepiece" data-piece-type="Knight">♘</div>
+	<div class="choosepiece" data-piece-type="Bishop">♗</div>
+	<div class="choosepiece" data-piece-type="Queen">♕</div>
+</div>
+
+<div class="blackpromotion" style="display: none;">
+	<div class="choosepiece" data-piece-type="Rook">♜</div>
+	<div class="choosepiece" data-piece-type="Knight">♞</div>
+	<div class="choosepiece" data-piece-type="Bishop">♝</div>
+	<div class="choosepiece" data-piece-type="Queen">♛</div> 
+</div>
 
 <h1>White Player</h1>
 <p><%= @game.white_player.email %></p>
@@ -160,6 +173,21 @@
 		$('.piece').draggable({revert: true});
 	}
 
+	function promotePawn(pieceId){
+		var choosePiece = $('.choosepiece');
+		choosePiece.click(function(event){
+		var pieceType = $(event.target).data('piece-type');
+			var data = {type:pieceType, _method: 'PATCH'};
+			var pieceUrl = "/games/" + <%=@game.id%> + "/pieces/" + pieceId + "/promote"; 
+			$.post(pieceUrl, data
+				).success(function(data){
+					$('.whitepromotion').css("display", "none");
+					$('.blackpromotion').css("display", "none");
+					drawPieces();
+				});
+		});		
+	}
+						
 	function moveSelectedPiece(pieceId, dest_x, dest_y, selectedPiece){
 		var data = {position_x: dest_x, position_y: dest_y, _method: 'PATCH'};
 		var pieceUrl = "/games/" + <%=@game.id%> + "/pieces/" + pieceId + "/move"; 
@@ -177,6 +205,17 @@
 		}
 		else {
 			enPassante = false;
+		}
+
+		var promotion; 
+		if (selectedPiece.html().indexOf('♙') === 0 && dest_y === 8) {
+			promotion = true;
+		}
+		else if (selectedPiece.html().indexOf('♟') === 0 && dest_y === 1) {
+			promotion = true;
+		}
+		else {
+			promotion = false;
 		}
 		
 		$.post(pieceUrl, data
@@ -214,6 +253,17 @@
 						}
 					}
 
+					if (promotion) {
+						if (selectedPiece.html().indexOf('♙') === 0 ) {
+							$('.whitepromotion').css("display", "block");
+							promotePawn(pieceId);
+						}
+						else {
+							$('.blackpromotion').css("display", "block");
+						 	promotePawn(pieceId);
+						}
+					}
+					
 	        console.log('We have movement!');
 	        if (selectedPiece.attr('data-piece-color') === 'black') {
 	        	$('#active-player').text('White\'s move');
