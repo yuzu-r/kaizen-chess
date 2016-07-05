@@ -31,20 +31,20 @@ class King < Piece
       game.black_player.pieces.where(game: game, is_active: true).each do |piece|
         if piece.type == "Pawn"
           return true if (dest_x - piece.position_x).abs == 1 && piece.position_y - dest_y == 1
-        elsif piece.type != "King"
-          return true if piece.is_valid_move?(dest_x, dest_y)
+        elsif piece.type == "King"
+          return true if piece.moves_only_one_space?(dest_x, dest_y)
         else
-          return true if moves_only_one_space?(dest_x, dest_y)
+          return true if piece.is_valid_move?(dest_x, dest_y)
         end
       end
     else
       game.white_player.pieces.where(game: game, is_active: true).each do |piece|
         if piece.type == "Pawn"
           return true if (dest_x - piece.position_x).abs == 1 && dest_y - piece.position_y == 1
-        elsif piece.type != "King"
-          return true if piece.is_valid_move?(dest_x, dest_y)
+        elsif piece.type == "King"
+          return true if piece.moves_only_one_space?(dest_x, dest_y)
         else
-          return true if moves_only_one_space?(dest_x, dest_y)
+          return true if piece.is_valid_move?(dest_x, dest_y)
         end
       end
     end
