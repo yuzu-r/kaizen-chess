@@ -200,7 +200,6 @@
 		}
 		var enPassante;
 		if ( (selectedPiece.html().indexOf('♙') === 0 || selectedPiece.html().indexOf('♟') === 0) && $('.board_square[data-position-x='+ dest_x + '][data-position-y=' + dest_y + ']').children().length < 1 && Math.abs(selectedPiece[0].dataset.positionX - dest_x) == 1 && Math.abs(selectedPiece[0].dataset.positionY - dest_y) == 1  ){
-			console.log("hi")
 			enPassante = true;
 		}
 		else {
@@ -249,7 +248,7 @@
 							$('.board_square[data-position-x='+ dest_x +'][data-position-y="5"]').empty();
 						}
 						else {
-							$('.board_square[data-position-x='+ dest_x +'][data-position-y="3"]').empty();
+							$('.board_square[data-position-x='+ dest_x +'][data-position-y="4"]').empty();
 						}
 					}
 
