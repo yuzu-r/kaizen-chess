@@ -113,42 +113,30 @@
 
 	$( "#dummy" ).click(function() {
 		console.log('hi');
-	  gameRef.push({
-	  	id: <%= @game.id %>,
-   		white_player_id: <%= @game.white_player_id %>, 
-   		black_player_id: <%= @game.black_player_id %>,
-   		active_player_id: <%= @game.active_player_id %>
-	  });
+	  //gameRef.push({
+	  //	id: <%= @game.id %>,
+   	//	white_player_id: <%= @game.white_player_id %>, 
+   //		black_player_id: <%= @game.black_player_id %>,
+   //		active_player_id: <%= @game.active_player_id %>
+	 // });
+		gameRef.child(<%=@game.id %>).set({
+			active_player_id: "2"
+		})
 	});
 
 	$( "#turn").click(function() {
 		console.log('turn');
-		gameRef.on("child_added", function(snap) {
+		//gameRef.on("child_added", function(snap) {
 	    //set the new value
-	    gameRef.child(snap.key()).set({
-	        "active_player_id" : "2"
-	     });
+	  //  gameRef.child(snap.key()).set({
+	  //      "active_player_id" : "2"
+	  //   });
+		var gameId= gameRef.child(<%=@game.id %>);
+		gameId.update({
+			"active_player_id" : "1"
+		})
 		});
-	});
-
-	gameRef.on("value", function(snapshot) {
-    var data = snapshot.val();
-    console.log(data);
-    var list = [];
-    for (var key in data) {
-        if (data.hasOwnProperty(key)) {
-            name = data[key].name ? data[key].name : '';
-            if (name.trim().length > 0) {
-                list.push({
-                    name: name,
-                    key: key
-                })
-            }
-        }
-    }
-    // refresh the UI
-    //refreshUI(list);
-	});
+	
 
 	var pieceCodes = {
 		white: 
@@ -312,9 +300,15 @@
 	        console.log('We have movement!');
 	        if (selectedPiece.attr('data-piece-color') === 'black') {
 	        	$('#active-player').text('White\'s move');
+	        	gameRef.child(<%=@game.id %>).set({
+	        		active_player_id: <%=@game.white_player_id %>
+	        	});
 	        }
 	        else {
 	        	$('#active-player').text('Black\'s move');		
+	        	gameRef.child(<%=@game.id %>).set({
+	        		active_player_id: <%=@game.black_player_id %>
+	        	});
 	        }
 	        
 				}
