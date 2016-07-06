@@ -1,3 +1,5 @@
+
+
 <h1><%= @game.name %></h1>
 
 <% if @game.active_player %>
@@ -102,8 +104,52 @@
 <% end %>
 <br />
 <br />
+<button class="btn btn-default" id="dummy">Create Game in FB </button>
+<button class="btn btn-default" id="turn">Update Game in FB </button>
+<script src="https://www.gstatic.com/firebasejs/3.1.0/firebase.js"></script>
 <script>
-	
+	var dbRef = new Firebase('https://rtod2-caa01.firebaseio.com/');
+	var gameRef = dbRef.child('game');
+
+	$( "#dummy" ).click(function() {
+		console.log('hi');
+	  gameRef.push({
+	  	id: <%= @game.id %>,
+   		white_player_id: <%= @game.white_player_id %>, 
+   		black_player_id: <%= @game.black_player_id %>,
+   		active_player_id: <%= @game.active_player_id %>
+	  });
+	});
+
+	$( "#turn").click(function() {
+		console.log('turn');
+		gameRef.on("child_added", function(snap) {
+	    //set the new value
+	    gameRef.child(snap.key()).set({
+	        "active_player_id" : "2"
+	     });
+		});
+	});
+
+	gameRef.on("value", function(snapshot) {
+    var data = snapshot.val();
+    console.log(data);
+    var list = [];
+    for (var key in data) {
+        if (data.hasOwnProperty(key)) {
+            name = data[key].name ? data[key].name : '';
+            if (name.trim().length > 0) {
+                list.push({
+                    name: name,
+                    key: key
+                })
+            }
+        }
+    }
+    // refresh the UI
+    //refreshUI(list);
+	});
+
 	var pieceCodes = {
 		white: 
 		{
