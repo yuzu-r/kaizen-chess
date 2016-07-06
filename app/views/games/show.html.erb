@@ -2,9 +2,9 @@
 
 <% if @game.active_player %>
 	<% if @game.active_player == @game.white_player %>
-		<h3>White (<%= @game.active_player.email %>) to move</h3>
+		<h3 id="active-player">White (<%= @game.active_player.email %>) to move</h3>
 	<% elsif @game.active_player == @game.black_player %>
-		<h3>Black (<%= @game.active_player.email %>) to move</h3>
+		<h3 id="active-player">Black (<%= @game.active_player.email %>) to move</h3>
 	<% end %>
 <% end %>	
 
@@ -33,9 +33,9 @@
 				%>
 				<td>
 					<div data-position-x=<%= position_x %> data-position-y=<%= position_y %> class="board_square <%= color_class %>">
-						<% isPiece = @game.pieces.where(position_x: position_x, position_y: position_y).first %>
-						<% if isPiece %>
-								<div id="piece-<%=isPiece.id %>" class="piece" data-piece-id=<%=isPiece.id %> data-position-x=<%= isPiece.position_x %> data-position-y=<%= isPiece.position_y %> ></div>	
+						<% is_piece = @game.pieces.where(position_x: position_x, position_y: position_y).first %>
+						<% if is_piece %>
+								<div id="piece-<%=is_piece.id %>" class="piece" data-piece-id=<%=is_piece.id %> data-position-x=<%= is_piece.position_x %> data-position-y=<%= is_piece.position_y %> ></div>	
 						<% end %>
 						
 					</div>
@@ -76,6 +76,19 @@
 		
 	</table>
 </div> <!-- close chess_board_container div -->
+<div class="whitepromotion" style="display: none;">
+	<div class="choosepiece" data-piece-type="Rook">♖</div>
+	<div class="choosepiece" data-piece-type="Knight">♘</div>
+	<div class="choosepiece" data-piece-type="Bishop">♗</div>
+	<div class="choosepiece" data-piece-type="Queen">♕</div>
+</div>
+
+<div class="blackpromotion" style="display: none;">
+	<div class="choosepiece" data-piece-type="Rook">♜</div>
+	<div class="choosepiece" data-piece-type="Knight">♞</div>
+	<div class="choosepiece" data-piece-type="Bishop">♝</div>
+	<div class="choosepiece" data-piece-type="Queen">♛</div> 
+</div>
 
 <h1>White Player</h1>
 <p><%= @game.white_player.email %></p>
@@ -89,7 +102,6 @@
 <% end %>
 <br />
 <br />
-
 <script>
 	
 	var pieceCodes = {
@@ -122,10 +134,6 @@
       success: function(pieces) {
         $.each(pieces, function(index, piece){
         	var pieceColor;	
-        	var selectedClass;
-        	if (piece.is_selected == true){
-        		selectedClass = 'selected-piece';
-        	}			
 					if (piece.player_id == <%= @game.white_player_id %>){
 						pieceColor = 'white';
 					}
@@ -133,7 +141,7 @@
 						pieceColor = 'black'
 					}
 
-					drawnPiece = $('.board_square[data-position-x='+ piece.position_x + '][data-position-y=' + piece.position_y + ']').children('.piece').html(pieceCodes[pieceColor][piece.type.toLowerCase()]).addClass(selectedClass+' '+ pieceColor);
+					drawnPiece = $('.board_square[data-position-x='+ piece.position_x + '][data-position-y=' + piece.position_y + ']').children('.piece').html(pieceCodes[pieceColor][piece.type.toLowerCase()]).addClass(pieceColor);
 					drawnPiece.attr('data-piece-color', pieceColor);
 				});
       }, error: function (data) {
@@ -144,63 +152,70 @@
 
 	$(document).ready(function(){
 		drawPieces();
+		$('.dark_square').droppable({drop: dropPiece});
+		$('.light_square').droppable({drop: dropPiece});
+		$('.piece').draggable({revert: true});
 	});
 
-	function getSelectedPiece(){
-		var selectedPiece = $('.selected-piece');
-		if( selectedPiece.length ){
-			return selectedPiece;
-		}
-		else{
-			return false;
-		}
+	$('.piece').on('drag',(function(){
+		$(this).css('color', 'blue');
+	}));
+
+	$('.piece').on('dragstop', function() {
+		$(this).css('color', 'black');
+	} );
+
+	function dropPiece(event, ui) {
+		var dest_x = $(this).data('position-x');
+		var dest_y = $(this).data('position-y');
+		var piece = ui.draggable;
+		moveSelectedPiece(piece.data('piece-id'), dest_x, dest_y, piece);	
+		$('.piece').draggable({revert: true});
 	}
 
-	$('.chess_board_container').on('click', '.piece', function(){
-		// TODO: should have check to make sure that only the active user's pieces are selected
-		// and can only be selected during that user's turn
-		selectedPiece = getSelectedPiece();
-
-		if ( !selectedPiece ){
-			toggleSelect(this.dataset.pieceId);
-		}
-		else{
-			if (this.dataset.pieceId == selectedPiece[0].dataset.pieceId ){
-				toggleSelect(this.dataset.pieceId, true);
-			}
-		}
-	});
-
-	$('.chess_board_container').on('click', '.board_square', function(){
-		var selectedPiece = getSelectedPiece();
-		if( selectedPiece ){
-			var pieceId = selectedPiece[0].dataset.pieceId;
-			var dest_x = this.dataset.positionX;
-			var dest_y = this.dataset.positionY;
-			moveSelectedPiece(pieceId, dest_x, dest_y, selectedPiece);
-		}
-	});
-
-
-	function toggleSelect(pieceId, deselect = false){
-		var pieceUrl = "/games/" + <%=@game.id%> + "/pieces/" + pieceId + "/select";
-		$.post(pieceUrl, {
-				_method: "PATCH"
-			}).success(function(data){
-				if( $('.piece[data-piece-id=' + pieceId + ']').hasClass('selected-piece') ){
-					deselect = true;
-				}
-				$('.piece').removeClass('selected-piece');
-				if ( !deselect ){
-					$('.piece[data-piece-id=' + pieceId + ']').addClass('selected-piece');
-				}
-		});
-	} 
-
-
+	function promotePawn(pieceId){
+		var choosePiece = $('.choosepiece');
+		choosePiece.click(function(event){
+		var pieceType = $(event.target).data('piece-type');
+			var data = {type:pieceType, _method: 'PATCH'};
+			var pieceUrl = "/games/" + <%=@game.id%> + "/pieces/" + pieceId + "/promote"; 
+			$.post(pieceUrl, data
+				).success(function(data){
+					$('.whitepromotion').css("display", "none");
+					$('.blackpromotion').css("display", "none");
+					drawPieces();
+				});
+		});		
+	}
+						
 	function moveSelectedPiece(pieceId, dest_x, dest_y, selectedPiece){
 		var data = {position_x: dest_x, position_y: dest_y, _method: 'PATCH'};
 		var pieceUrl = "/games/" + <%=@game.id%> + "/pieces/" + pieceId + "/move"; 
+		var castleMove;
+		if ((selectedPiece.html().indexOf('♔') === 0 || selectedPiece.html().indexOf('♚') === 0) && Math.abs(selectedPiece[0].dataset.positionX - dest_x) == 2 && selectedPiece[0].dataset.positionY == dest_y){
+			castleMove = true;
+		}
+		else {
+			castleMove = false;
+		}
+		var enPassante;
+		if ( (selectedPiece.html().indexOf('♙') === 0 || selectedPiece.html().indexOf('♟') === 0) && $('.board_square[data-position-x='+ dest_x + '][data-position-y=' + dest_y + ']').children().length < 1 && Math.abs(selectedPiece[0].dataset.positionX - dest_x) == 1 && Math.abs(selectedPiece[0].dataset.positionY - dest_y) == 1  ){
+			enPassante = true;
+		}
+		else {
+			enPassante = false;
+		}
+
+		var promotion; 
+		if (selectedPiece.html().indexOf('♙') === 0 && dest_y === 8) {
+			promotion = true;
+		}
+		else if (selectedPiece.html().indexOf('♟') === 0 && dest_y === 1) {
+			promotion = true;
+		}
+		else {
+			promotion = false;
+		}
 		
 		$.post(pieceUrl, data
 			).success(function(data){
@@ -210,10 +225,52 @@
 			
 					selectedPiece.attr('data-position-x', dest_x);
 					selectedPiece.attr('data-position-y', dest_y);
+
 					$('.board_square[data-position-x='+ dest_x + '][data-position-y=' + dest_y + ']').html(selectedPiece[0]);
 				
-					$('.piece').removeClass('selected-piece');
+					if (castleMove) {
+						if (dest_x == 7) {
+							selectedRook = $('.board_square[data-position-x="8"][data-position-y=' + dest_y + ']').children();
+							$('.board_square[data-position-x="8"][data-position-y=' + dest_y + ']').empty();
+							selectedRook.attr('data-position-x', 6);
+							$('.board_square[data-position-x="6"][data-position-y=' + dest_y + ']').html(selectedRook[0])
+						}
+						else {
+							selectedRook = $('.board_square[data-position-x="1"][data-position-y=' + dest_y + ']').children();
+							$('.board_square[data-position-x="1"][data-position-y=' + dest_y + ']').empty();
+							selectedRook.attr('data-position-x', 4);
+							$('.board_square[data-position-x="4"][data-position-y=' + dest_y + ']').html(selectedRook[0])
+						}
+					}
+
+					if (enPassante) {
+						if (dest_y == 6) {
+							$('.board_square[data-position-x='+ dest_x +'][data-position-y="5"]').empty();
+						}
+						else {
+							$('.board_square[data-position-x='+ dest_x +'][data-position-y="4"]').empty();
+						}
+					}
+
+					if (promotion) {
+						if (selectedPiece.html().indexOf('♙') === 0 ) {
+							$('.whitepromotion').css("display", "block");
+							promotePawn(pieceId);
+						}
+						else {
+							$('.blackpromotion').css("display", "block");
+						 	promotePawn(pieceId);
+						}
+					}
+					
 	        console.log('We have movement!');
+	        if (selectedPiece.attr('data-piece-color') === 'black') {
+	        	$('#active-player').text('White\'s move');
+	        }
+	        else {
+	        	$('#active-player').text('Black\'s move');		
+	        }
+	        
 				}
 				else{
 					console.log('Invalid move!');
@@ -222,9 +279,8 @@
 		    // we should undo the visual move in js if there was a failure
 		    console.log('failed move!');
 	  });
-
+		selectedPiece.css("color", "black");
+		$('.piece').draggable({revert: true});
 	} 
-
-
 
 </script>

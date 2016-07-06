@@ -2,6 +2,7 @@ class Game < ActiveRecord::Base
   belongs_to :white_player, class_name: "User"
   belongs_to :black_player, class_name: "User"
   belongs_to :active_player, class_name: "User"
+  belongs_to :last_moved_piece, class_name: "Piece", foreign_key: "last_moved_piece_id"
   has_many :pieces
 
   validate :valid_active_player?
@@ -68,15 +69,19 @@ end
       king = pieces.where(type: "King", player: white_player).first
       king_x = king.position_x
       king_y = king.position_y
-      black_player.pieces.where(is_active: true).each do |piece|
-        return true if piece.is_valid_capture?(king_x, king_y) && piece.is_valid_move?(king_x, king_y)
+      black_player.pieces.where(game: self, is_active: true).each do |piece|
+        if piece.type != "King"
+          return true if piece.is_valid_capture?(king_x, king_y) && piece.is_valid_move?(king_x, king_y)
+        end
       end
     else
       king = pieces.where(type: "King", player: black_player).first
       king_x = king.position_x
       king_y = king.position_y
-      white_player.pieces.where(is_active: true).each do |piece|
-        return true if piece.is_valid_capture?(king_x, king_y) && piece.is_valid_move?(king_x, king_y)
+      white_player.pieces.where(game: self, is_active: true).each do |piece|
+        if piece.type != "King"
+          return true if piece.is_valid_capture?(king_x, king_y) && piece.is_valid_move?(king_x, king_y)
+        end
       end
     end
     return false

@@ -1,23 +1,4 @@
 class PiecesController < ApplicationController
-  def select
-    # toggles is_selected for the piece in question (select/de-select)
-    # if a piece is selected, any previously selected piece is de-selected
-    # note: this does NOT currently check whose turn it is!
-    # add validation to make sure the piece selected belongs to player whose turn it is 
-    @piece = Piece.find(params[:id])
-    @game = Game.find(params[:game_id])
-    if @piece.is_selected
-      @piece.update_attributes(is_selected: false)
-    else
-      @game.pieces.each do |p|
-        p.update_attributes(is_selected: false) if p.is_selected
-      end
-      @piece.update_attributes(is_selected: true)
-    end
-    render :json => { :success => "success", :status_code => "200" }
-
-  end
-
   def move
     @piece = Piece.find(params[:id])
     @game = Game.find(params[:game_id])
@@ -28,7 +9,7 @@ class PiecesController < ApplicationController
       @piece.capture(position_x, position_y)
       @move_count = @piece.move_count + 1
 
-      @piece.update_attributes(position_x: position_x, position_y: position_y, move_count: @move_count, is_selected: false)
+      @piece.update_attributes(position_x: position_x, position_y: position_y, move_count: @move_count)
 
       if @piece.player == @game.white_player
         @game.update_attributes(active_player: @game.black_player)
@@ -36,11 +17,21 @@ class PiecesController < ApplicationController
         @game.update_attributes(active_player: @game.white_player)
       end
 
+      @game.update_attributes(last_moved_piece: @piece)
       render :json => { :success => "success", :status_code => "200" }
     else
       render :json => { :errors => "Move not allowed!" }, :status => 200
     end
     
+  end
+
+
+  def promote
+    @piece = Piece.find(params[:id])
+    @game = Game.find(params[:game_id])
+    
+    @piece.update_attributes(type: params[:type])
+    render :json => { :success => "success", :status_code => "200" }
   end
 
 end
