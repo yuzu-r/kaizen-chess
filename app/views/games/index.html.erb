@@ -25,6 +25,30 @@
       <% end %>
     <% end %>
   </div>
+
+  <h1>Your Completed Games</h1>
+  <% if user_signed_in? %>
+    <div class='col-xs-4 col-xs-offset-1'>
+      <h3>Games Won</h3>
+      <% @games.each do |game| %>
+        <% if game.status == "finished" %>
+          <% if game.winning_player == current_user.id %>
+            <p><%= link_to game.name, game_path(game.id) %></p>
+          <% end %>
+        <% end %>
+      <% end %>
+    </div>
+    <div class='col-xs-4 col-xs-offset-1'>
+      <h3>Games Lost</h3>
+      <% @games.each do |game| %>
+        <% if game.status == "finished" %>
+          <% if game.losing_player == current_user.id %>
+            <p><%= link_to game.name, game_path(game.id) %></p>
+          <% end %>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
 <% end %>
 
 <div class='col-xs-10 col-xs-offset-1 col-sm-2 col-sm-offset-1'>
@@ -35,33 +59,4 @@
 
 <div class="clearfix"></div>
 
-<h1>Your Completed Games</h1>
-<% if user_signed_in? %>
-  <div class='col-xs-4 col-xs-offset-1'>
-    <h3>Games Won</h3>
-    <% @games.each do |game| %>
-      <% if game.status != nil %>
-        <% if game.status == "white_player" && game.white_player_id == current_user.id %>
-          <p><%= link_to game.name, game_path(game.id) %></p>
-        <% end %>
-        <% if game.status == "black_player" && game.black_player_id == current_user.id %>
-          <p><%= link_to game.name, game_path(game.id) %></p>
-        <% end %>
-      <% end %>
-    <% end %>
-  </div>
-  <div class='col-xs-4 col-xs-offset-1'>
-    <h3>Games Lost</h3>
-    <% @games.each do |game| %>
-      <% if game.status != nil %>
-        <% if game.status == "white_player" && game.white_player_id != current_user.id %>
-          <p><%= link_to game.name, game_path(game.id) %></p>
-        <% end %>
-        <% if game.status == "black_player" && game.black_player_id != current_user.id %>
-          <p><%= link_to game.name, game_path(game.id) %></p>
-        <% end %>
-      <% end %>
-    <% end %>
-  </div>
-<% end %>
 

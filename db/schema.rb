@@ -24,6 +24,8 @@ ActiveRecord::Schema.define(version: 20160630231112) do
     t.integer  "black_player_id"
     t.string   "status"
     t.integer  "active_player_id"
+    t.integer  "winning_player"
+    t.integer  "losing_player"
     t.integer  "last_moved_piece_id"
   end
 
