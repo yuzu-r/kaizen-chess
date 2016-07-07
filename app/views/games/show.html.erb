@@ -8,6 +8,8 @@
 	<% end %>
 <% end %>	
 
+
+<h3 class="checkalert" style="display:none;"></h3> 
 <br>
 <div class="chess_board_container">
 	<table class="chess_board_table">
@@ -150,8 +152,30 @@
     });
 	}
 
+	function gameStatus(){
+		var checkAlert = $('.checkalert')
+		$.ajax({
+      type: 'GET', 
+      url: '<%= status_game_path(@game) %>',
+      dataType: 'json',
+      success: function(data) {
+      	if (data.is_in_check === true) {
+      		checkAlert.css("display", "block");
+      		var checkMessage = data.current_color_in_check + ' (' + data.current_player_in_check + ') in check';
+      		checkAlert.html(checkMessage);
+      	}
+      	else {
+      		checkAlert.css("display", "none");
+      	}
+      }, error: function (data) {
+        console.log('Status failed to load!');
+      }
+    });
+	}
+
 	$(document).ready(function(){
 		drawPieces();
+		gameStatus();
 		$('.dark_square').droppable({drop: dropPiece});
 		$('.light_square').droppable({drop: dropPiece});
 		$('.piece').draggable({revert: true});
@@ -262,6 +286,8 @@
 						 	promotePawn(pieceId);
 						}
 					}
+
+					gameStatus();
 					
 	        console.log('We have movement!');
 	        if (selectedPiece.attr('data-piece-color') === 'black') {
