@@ -25,7 +25,6 @@ class PiecesController < ApplicationController
     
   end
 
-
   def promote
     @piece = Piece.find(params[:id])
     @game = Game.find(params[:game_id])
