@@ -1,6 +1,6 @@
-
-
 <h1><%= @game.name %></h1>
+
+<h3 id="firebase-player">FB messages here</h3>
 
 <% if @game.active_player %>
 	<% if @game.active_player == @game.white_player %>
@@ -113,18 +113,6 @@
 	var dbRef = new Firebase('https://rtod2-caa01.firebaseio.com/');
 	var gameRef = dbRef.child('game');
 
-	$( "#dummy" ).click(function() {
-		console.log('hi');
-	  gameRef.push({
-	  	id: <%= @game.id %>,
-   		white_player_id: <%= @game.white_player_id %>, 
-   		black_player_id: <%= @game.black_player_id %>,
-   		active_player_id: <%= @game.active_player_id %>,
-   		// status: null,
-   		// check: null
-	  });
-	});
-
 	$( "#turn").click(function() {
 		console.log('turn');
 		gameRef.on("child_added", function(snap) {
@@ -153,6 +141,14 @@
     // refresh the UI
     //refreshUI(list);
 	});
+
+	gameRef.on('value', function(dataSnapshot) {
+        //console.log(dataSnapshot.val());
+        var onlyMyGame = dataSnapshot.child(<%= @game.id %>).val();
+        console.log(onlyMyGame.active_player_id);
+        $('#firebase-player').text(onlyMyGame.active_player_id);
+        drawPieces();
+  });
 
 	var pieceCodes = {
 		white: 
@@ -224,6 +220,9 @@
 	$(document).ready(function(){
 		drawPieces();
 		gameStatus();
+		if (<%= @game.status %> == "pending") {
+			intializeFB();
+		};
 		$('.dark_square').droppable({drop: dropPiece});
 		$('.light_square').droppable({drop: dropPiece});
 		$('.piece').draggable({revert: true});
@@ -236,6 +235,18 @@
 	$('.piece').on('dragstop', function() {
 		$(this).css('color', 'black');
 	} );
+
+	function initializeFB() {
+		var dbRef = new Firebase('https://rtod2-caa01.firebaseio.com/');
+		var gameRef = dbRef.child('game');
+		console.log('initializeFB');
+		 gameRef.push({
+		 	id: <%= @game.id %>,
+	   	active_player_id: <%= @game.white_player_id %>,
+	   	status: <%= @game.status %>
+		 });
+	};
+	
 
 	function dropPiece(event, ui) {
 		var dest_x = $(this).data('position-x');
@@ -338,15 +349,21 @@
 					gameStatus();
 					
 	        console.log('We have movement!');
-	        if (selectedPiece.attr('data-piece-color') === 'black') {
-	        	$('#active-player').text('White\'s move');
-	        }
-	        else {
-	        	$('#active-player').text('Black\'s move');		
-	        }
-	        
-				}
-				else{
+	         if (selectedPiece.attr('data-piece-color') === 'black') {
+                $('#active-player').text('White\'s move');
+                gameRef.child(<%=@game.id %>).set({
+                    active_player_id: <%=@game.white_player_id %>
+                });
+            }
+            else {
+                $('#active-player').text('Black\'s move');        
+                gameRef.child(<%=@game.id %>).set({
+                    active_player_id: <%=@game.black_player_id %>
+                });
+            }
+            
+                }
+                else{
 					console.log('Invalid move!');
 				}
 			}).fail(function(data) {
