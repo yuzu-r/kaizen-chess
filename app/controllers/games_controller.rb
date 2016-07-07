@@ -38,6 +38,23 @@ class GamesController < ApplicationController
     redirect_to game_path(@game)
   end
 
+  def status
+    @game = Game.find(params[:id])
+    if @game.pieces.present?
+      @is_in_check = @game.is_in_check?(@game.black_player) ||  @game.is_in_check?(@game.white_player) 
+      if @is_in_check
+        if @game.is_in_check?(@game.black_player)
+          @current_player_in_check = @game.black_player.email
+          @current_color_in_check = "Black"
+        else
+          @current_player_in_check = @game.white_player.email
+          @current_color_in_check = "White"
+        end 
+      end
+    end
+    render :json => { :success => "success", :status_code => "200", :is_in_check => @is_in_check, :current_player_in_check => @current_player_in_check, :current_color_in_check => @current_color_in_check }
+  end
+
 
   private
     def game_params
