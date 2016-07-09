@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <script src='https://cdn.firebase.com/js/client/2.2.1/firebase.js'></script>
   <title>RtoD2Chess</title>
   <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
   <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
@@ -53,16 +52,18 @@
 <%= yield %>
 
 </body>
+
 <script src="https://www.gstatic.com/firebasejs/3.1.0/firebase.js"></script>
+
 <script>
   // Initialize Firebase
-  var config = {
-    apiKey: "AIzaSyCC2MZPApT577ulM1MkmMJsKLi-pnExpWE",
-    authDomain: "rtod2-caa01.firebaseapp.com",
-    databaseURL: "https://rtod2-caa01.firebaseio.com",
-    storageBucket: "",
-  };
-  firebase.initializeApp(config);
+//  var config = {
+//    apiKey: "AIzaSyCC2MZPApT577ulM1MkmMJsKLi-pnExpWE",
+//    authDomain: "rtod2-caa01.firebaseapp.com",
+//    databaseURL: "https://rtod2-caa01.firebaseio.com",
+//    storageBucket: "",
+//  };
+//  firebase.initializeApp(config);
 </script>
 
 </html>

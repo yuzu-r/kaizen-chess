@@ -35,7 +35,10 @@ class GamesController < ApplicationController
     @game.update_attributes(black_player: current_user)
     @game.setup
     @game.update_attributes(active_player: @game.white_player)
-    redirect_to game_path(@game)
+    @game.update_attributes(status: 'active');
+    #redirect_to game_path(@game)
+    render :json => { :success => "success", :status_code => "200" }
+
   end
 
   def status
