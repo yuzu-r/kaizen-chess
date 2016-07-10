@@ -17,6 +17,11 @@ class GamesController < ApplicationController
     render json: @pieces
   end
 
+  def getActivePlayer
+    @game = Game.find(params[:id])
+    render json: @game.active_player_id
+  end
+
   def create
     @game = current_user.games_as_white.create(game_params)
     if @game.valid?
