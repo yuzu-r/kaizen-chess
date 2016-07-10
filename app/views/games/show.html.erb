@@ -328,10 +328,10 @@
 					gameStatus();
 					
 	        if (selectedPiece.attr('data-piece-color') === 'black') {
-	        	$('#active-player').text('White\'s (' + '<%= @game.active_player.email %>' + ') move');
+	        	$('#active-player').text('White\'s (' + '<%= @game.white_player.email %>' + ') move');
 	        }
 	        else {
-	        	$('#active-player').text('Black\'s (' + '<%= @game.active_player.email %>' + ') move');		
+	        	$('#active-player').text('Black\'s (' + '<%= @game.black_player.email %>' + ') move');		
 	        }
 
 	        updateActivePlayer();
