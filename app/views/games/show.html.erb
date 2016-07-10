@@ -266,7 +266,6 @@
 		$(this).css('color', 'black');
 	} );
 
-<<<<<<< HEAD
 	$('#join-game').on('click', function(){
 		joinGame(<%=@game.id %>);
 	})
@@ -333,7 +332,9 @@
     	if (onlyMyGame.check_message !== null) {
     		$('#firebase-checkalert').text(onlyMyGame.check_message);
     	}
+      console.log('calling drawPieces and updateActivePlayer from the FB listener event');
     	drawPieces();
+      updateActivePlayer();
     }  
     else {
     	console.log('listening for changes, cant find game');
@@ -478,7 +479,9 @@
               gameRef.child(<%=@game.id %>).update({
                 active_player_id: "<%=@game.black_player_id %>"
               });
-          }           
+          }
+          console.log('calling updateActivePlayer from within moveSelectedPiece');
+          updateActivePlayer();           
         }
 	      else{
 					console.log('Invalid move!');
