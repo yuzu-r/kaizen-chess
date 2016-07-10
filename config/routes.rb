@@ -14,6 +14,7 @@ Rails.application.routes.draw do
     end
   end
   get '/games/:id/getPieces', to: 'games#getPieces', as: 'get_pieces'
+  get '/games/:id/getActivePlayer', to: 'games#getActivePlayer', as: 'get_active_player'
   get '/open' => 'games#open', :as => :open
   root 'games#index'
   

@@ -191,7 +191,7 @@
 		gameStatus();
 		$('.dark_square').droppable({drop: dropPiece});
 		$('.light_square').droppable({drop: dropPiece});
-		$('.piece').draggable({revert: true});
+		updateActivePlayer();
 	});
 
 	$('.piece').on('drag',(function(){
@@ -202,12 +202,37 @@
 		$(this).css('color', 'black');
 	} );
 
+	function updateActivePlayer(){
+		$.ajax({
+      type: 'GET', 
+      url: '<%= get_active_player_path(@game) %>',
+      dataType: 'json',
+      success: function(active_player_id) {
+        var current_user_id = <%= current_user.id %>;
+        var black_player_id = <%= @game.black_player_id %>;
+        if(current_user_id == active_player_id){
+        	if( active_player_id == black_player_id ){
+        		$('.black').draggable({revert: true});
+        	}
+        	else{
+        		$('.white').draggable({revert: true});
+        	}
+        }
+        else{
+        	$('.piece').draggable({ disabled: true });
+        }
+      }, error: function (data) {
+        console.log('Failed to get active player!');
+      }
+    });
+	}
+
 	function dropPiece(event, ui) {
 		var dest_x = $(this).data('position-x');
 		var dest_y = $(this).data('position-y');
 		var piece = ui.draggable;
 		moveSelectedPiece(piece.data('piece-id'), dest_x, dest_y, piece);	
-		$('.piece').draggable({revert: true});
+	  //updateActivePlayer();
 	}
 
 	function promotePawn(pieceId){
@@ -264,7 +289,7 @@
 					selectedPiece.attr('data-position-y', dest_y);
 
 					$('.board_square[data-position-x='+ dest_x + '][data-position-y=' + dest_y + ']').html(selectedPiece[0]);
-				
+
 					if (castleMove) {
 						if (dest_x == 7) {
 							selectedRook = $('.board_square[data-position-x="8"][data-position-y=' + dest_y + ']').children();
@@ -302,24 +327,24 @@
 
 					gameStatus();
 					
-	        console.log('We have movement!');
 	        if (selectedPiece.attr('data-piece-color') === 'black') {
-	        	$('#active-player').text('White\'s move');
+	        	$('#active-player').text('White\'s (' + '<%= @game.active_player.email %>' + ') move');
 	        }
 	        else {
-	        	$('#active-player').text('Black\'s move');		
+	        	$('#active-player').text('Black\'s (' + '<%= @game.active_player.email %>' + ') move');		
 	        }
+
+	        updateActivePlayer();
 	        
 				}
 				else{
 					console.log('Invalid move!');
 				}
 			}).fail(function(data) {
-		    // we should undo the visual move in js if there was a failure
 		    console.log('failed move!');
 	  });
 		selectedPiece.css("color", "black");
-		$('.piece').draggable({revert: true});
+		//$('.piece').draggable({revert: true});
 	} 
 
 </script>
