@@ -209,9 +209,14 @@
       dataType: 'json',
       success: function(active_player_id) {
         var current_user_id = <%= current_user.id %>;
+        var black_player_id = <%= @game.black_player_id %>;
         if(current_user_id == active_player_id){
-        	console.log('it is your turn!');
-        	$('.piece').draggable({revert: true});
+        	if( active_player_id == black_player_id ){
+        		$('.black').draggable({revert: true});
+        	}
+        	else{
+        		$('.white').draggable({revert: true});
+        	}
         }
         else{
         	$('.piece').draggable({ disabled: true });
@@ -227,7 +232,7 @@
 		var dest_y = $(this).data('position-y');
 		var piece = ui.draggable;
 		moveSelectedPiece(piece.data('piece-id'), dest_x, dest_y, piece);	
-	  updateActivePlayer();
+	  //updateActivePlayer();
 	}
 
 	function promotePawn(pieceId){
