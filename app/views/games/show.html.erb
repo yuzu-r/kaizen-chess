@@ -157,13 +157,12 @@
 	}
 	
 	function drawPieces(){
-		$('.piece').html('');
 		$.ajax({
       type: 'GET', 
       url: '<%= get_pieces_path(@game) %>',
       dataType: 'json',
       success: function(pieces) {
-        console.log('drawPieces function ran!');
+      	console.log(pieces);
         $.each(pieces, function(index, piece){
         	var pieceColor;	
 					if (piece.player_id == <%= @game.white_player_id %>){
@@ -315,7 +314,7 @@
 	gameRef.on('value', function(dataSnapshot) {
     var onlyMyGame = dataSnapshot.child(<%= @game.id %>).val();
     if (onlyMyGame) {
-    	console.log('in listener');
+    	//console.log('in listener');
     	if (onlyMyGame.active_player_id) {
 	    	if (onlyMyGame.active_player_id == whitePlayerId) {
 	    		$('#firebase-turn').text('White\'s Move');	
@@ -353,10 +352,11 @@
     	if (onlyMyGame.check_message !== null) {
     		$('#firebase-checkalert').text(onlyMyGame.check_message);
     	}
-      console.log('calling drawPieces and updateActivePlayer from the FB listener event');
+      //console.log('calling drawPieces and updateActivePlayer from the FB listener event');
     	
     	//drawSelectedPiece(selectedPiece, dest_x, dest_y);
       updateActivePlayer();
+      drawPieces();
     }  
     else {
     	console.log('listening for changes, cant find game');
@@ -369,10 +369,8 @@
       url: '<%= get_active_player_path(@game) %>',
       dataType: 'json',
       success: function(active_player_id) {
-        console.log('updateActivePlayer function ran!');
         var current_user_id = <%= current_user.id %>;
         var black_player_id = <%= @game.black_player_id %>;
-        drawPieces();
         if(current_user_id == active_player_id){
           if( active_player_id == black_player_id ){
             $('.black').draggable({disabled: false});
