@@ -161,29 +161,53 @@
 	}
 	
 	function drawPieces(){
-    console.log('starting drawPieces');
-		$('.piece').html('');
 		$.ajax({
       type: 'GET', 
       url: '<%= get_pieces_path(@game) %>',
       dataType: 'json',
       success: function(pieces) {
         $.each(pieces, function(index, piece){
-        	var pieceColor;	
-					if (piece.player_id == <%= @game.white_player_id %>){
-						pieceColor = 'white';
-					}
-					else{
-						pieceColor = 'black'
-					}
+        	if( isPieceOnBoard(piece.position_x, piece.position_y) ){
+        		var pieceColor;	
+						if (piece.player_id == <%= @game.white_player_id %>){
+							pieceColor = 'white';
+						}
+						else{
+							pieceColor = 'black'
+						}
+						
+						// get rid of old piece
+						$('.piece[data-piece-id=' + piece.id + ']').empty();
 
-					drawnPiece = $('.board_square[data-position-x='+ piece.position_x + '][data-position-y=' + piece.position_y + ']').children('.piece').html(pieceCodes[pieceColor][piece.type.toLowerCase()]).addClass(pieceColor);
-					drawnPiece.attr('data-piece-color', pieceColor);
+						clonedPiece = $('<div class="piece"></div>'); 
+						clonedPiece.attr('data-piece-id', piece.id);
+						clonedPiece.attr('data-piece-color', pieceColor);
+						clonedPiece.attr('data-piece-position-x', piece.position_x);
+						clonedPiece.attr('data-piece-position-y', piece.position_y);
+						clonedPiece.addClass(pieceColor);
+						clonedPiece.html(pieceCodes[pieceColor][piece.type.toLowerCase()]);
+						$('.board_square[data-position-x='+ piece.position_x + '][data-position-y=' + piece.position_y + ']').html(clonedPiece);
+						updateActivePlayer();
+        	}
+				
 				});
       }, error: function (data) {
         console.log('Chess pieces failed to load!');
       }
     });
+	}
+
+	function isPieceOnBoard(x,y){
+		return ( x > 0 && x <= 8 && y > 0 && y <= 8 );
+	}
+
+	function isEmptyBoardSquare(x,y){
+		if( $('.board_square[data-position-x='+ x + '][data-position-y=' + y + ']').find('.piece').length > 0 ){
+			return true;
+		}
+		else{
+			return false;
+		}
 	}
 
 	function gameStatus(){
@@ -354,8 +378,8 @@
     	if (gameData.check_message !== null) {
     		$('#firebase-checkalert').text(gameData.check_message);
     	}
-    	drawPieces();
       updateActivePlayer();
+      drawPieces();
     }  
     else {
     	console.log('listening for changes, cant find game- gameRef ' + gameRef);
@@ -372,10 +396,10 @@
         var black_player_id = '<%= @game.black_player_id %>';
         if(current_user_id == active_player_id){
           if( active_player_id == black_player_id ){
-            $('.black').draggable({revert: true});
+            $('.black').draggable({disabled: false});
           }
           else{
-            $('.white').draggable({revert: true});
+            $('.white').draggable({disabled: false});
           }
         }
         else{
@@ -392,7 +416,6 @@
 		var dest_y = $(this).data('position-y');
 		var piece = ui.draggable;
 		moveSelectedPiece(piece.data('piece-id'), dest_x, dest_y, piece);	
-	  //updateActivePlayer();
 	}
 
 	function promotePawn(pieceId){
@@ -443,12 +466,6 @@
 			).success(function(data){
 				// move piece on screen - clone the piece and update the pos-x and pos-y values
 				if (data.success){
-					$('.board_square[data-position-x='+ selectedPiece[0].dataset.positionX + '][data-position-y=' + selectedPiece[0].dataset.positionY + ']').empty();
-			
-					selectedPiece.attr('data-position-x', dest_x);
-					selectedPiece.attr('data-position-y', dest_y);
-
-					$('.board_square[data-position-x='+ dest_x + '][data-position-y=' + dest_y + ']').html(selectedPiece[0]);
 
 					if (castleMove) {
 						if (dest_x == 7) {
@@ -504,13 +521,13 @@
           updateActivePlayer();           
         }
 	      else{
+	      	$('.piece').draggable({revert: true});
 					console.log('Invalid move!');
 				}
 			}).fail(function(data) {
 		    console.log('failed move!');
 	  });
 		selectedPiece.css("color", "black");
-		//$('.piece').draggable({revert: true});
 	} 
 
 </script>
