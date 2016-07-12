@@ -157,7 +157,7 @@
 	}
 	
 	function drawPieces(){
-		//$('.piece').empty();
+		$('.board_square').empty(); // temp until we have a function to undraw empty squares
 		$.ajax({
       type: 'GET', 
       url: '<%= get_pieces_path(@game) %>',
@@ -172,10 +172,16 @@
 						else{
 							pieceColor = 'black'
 						}
-						$('#piece-'+piece.id).empty();
-						drawnPiece = $('.board_square[data-position-x='+ piece.position_x + '][data-position-y=' + piece.position_y + ']').children('.piece').html(pieceCodes[pieceColor][piece.type.toLowerCase()]).addClass(pieceColor);
-						drawnPiece.attr('data-piece-color', pieceColor);
-						console.log('drew piece id=' + piece.id + ', at location: ' +piece.position_x+','+piece.position_y);
+						
+						clonedPiece = $('<div class="piece"></div>'); 
+						clonedPiece.attr('data-piece-id', piece.id);
+						clonedPiece.attr('data-piece-color', pieceColor);
+						clonedPiece.attr('data-piece-position-x', piece.position_x);
+						clonedPiece.attr('data-piece-position-y', piece.position_y);
+						clonedPiece.addClass(pieceColor);
+						clonedPiece.html(pieceCodes[pieceColor][piece.type.toLowerCase()]);
+						$('.board_square[data-position-x='+ piece.position_x + '][data-position-y=' + piece.position_y + ']').html(clonedPiece);
+						updateActivePlayer();
         	}
 				
 				});
@@ -349,9 +355,7 @@
     	if (onlyMyGame.check_message !== null) {
     		$('#firebase-checkalert').text(onlyMyGame.check_message);
     	}
-      //console.log('calling drawPieces and updateActivePlayer from the FB listener event');
-    	
-    	//drawSelectedPiece(selectedPiece, dest_x, dest_y);
+     
       updateActivePlayer();
       drawPieces();
     }  
@@ -407,14 +411,6 @@
 				});
 		});		
 	}
-
-	function drawSelectedPiece(selectedPiece, dest_x, dest_y){
-		$('.board_square[data-position-x='+ selectedPiece[0].dataset.positionX + '][data-position-y=' + selectedPiece[0].dataset.positionY + ']').empty();
-		selectedPiece.attr('data-position-x', dest_x);
-		selectedPiece.attr('data-position-y', dest_y);
-		$('.board_square[data-position-x='+ dest_x + '][data-position-y=' + dest_y + ']').html(selectedPiece[0]);
-		$('.piece').draggable({revert: true});
-	}
 	
 	function moveSelectedPiece(pieceId, dest_x, dest_y, selectedPiece){
 		var data = {position_x: dest_x, position_y: dest_y, _method: 'PATCH'};
@@ -449,9 +445,6 @@
 			).success(function(data){
 				// move piece on screen - clone the piece and update the pos-x and pos-y values
 				if (data.success){
-					
-					
-					//drawSelectedPiece(selectedPiece, dest_x, dest_y);
 
 					if (castleMove) {
 						if (dest_x == 7) {
@@ -507,6 +500,7 @@
           updateActivePlayer();           
         }
 	      else{
+	      	$('.piece').draggable({revert: true});
 					console.log('Invalid move!');
 				}
 			}).fail(function(data) {
