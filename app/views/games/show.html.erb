@@ -121,19 +121,19 @@
 <br />
 <script src="https://www.gstatic.com/firebasejs/3.1.0/firebase.js"></script>
 <script>
-  //var config = {
-  //  apiKey: "AIzaSyCC2MZPApT577ulM1MkmMJsKLi-pnExpWE",
-  //  authDomain: "rtod2-caa01.firebaseapp.com",
-  //  databaseURL: "https://rtod2-caa01.firebaseio.com",
-  // storageBucket: ""
-  //};
-
   var config = {
-    apiKey: "AIzaSyDl-eYmZdYvQQO3vs2JqK9tYjg_L2t8n2I",
-    authDomain: "yuzu-rtod2.firebaseapp.com",
-    databaseURL: "https://yuzu-rtod2.firebaseio.com",
-    storageBucket: "",
-  }; 
+    apiKey: "AIzaSyCC2MZPApT577ulM1MkmMJsKLi-pnExpWE",
+    authDomain: "rtod2-caa01.firebaseapp.com",
+    databaseURL: "https://rtod2-caa01.firebaseio.com",
+   storageBucket: ""
+  };
+
+  //var config = {
+  //  apiKey: "AIzaSyDl-eYmZdYvQQO3vs2JqK9tYjg_L2t8n2I",
+  //  authDomain: "yuzu-rtod2.firebaseapp.com",
+  //  databaseURL: "https://yuzu-rtod2.firebaseio.com",
+  //  storageBucket: "",
+  //}; 
   firebase.initializeApp(config);
   var dbRef = firebase.database().ref();
 	var gamesRef = dbRef.child('game'); 
@@ -265,7 +265,9 @@
     console.log('starting initialize FB');
     var gameId = <%= @game.id %>;
     gameRef.once('value', function(snapshot) {
+      console.log('in initial, gameRef: ' + gameRef);
       if (!snapshot.child('game_status').exists()) {
+        console.log('setting the game status from initilaize');
         gameRef.update({
           game_status: "<%= @game.status %>"         
         });                    
@@ -281,8 +283,8 @@
   }
 
 	$(document).ready(function(){
-    initializeFirebase().then(gameStatus(),drawPieces(), updateActivePlayer());
-		//drawPieces();
+    initializeFirebase().then(gameStatus());
+		drawPieces();
 		//gameStatus();
 		$('.dark_square').droppable({drop: dropPiece});
 		$('.light_square').droppable({drop: dropPiece});
@@ -378,7 +380,6 @@
     	if (gameData.check_message !== null) {
     		$('#firebase-checkalert').text(gameData.check_message);
     	}
-      updateActivePlayer();
       drawPieces();
     }  
     else {
@@ -407,7 +408,7 @@
         }
       }, error: function (data) {
         console.log('Failed to get active player!');
-      }
+        }     
     });
   }
 
