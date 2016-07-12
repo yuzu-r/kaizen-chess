@@ -2,16 +2,14 @@
 
 <div class="panel panel-default col-xs-10 col-xs-offset-1">
   <div class="panel-heading">
-    <h4 class="panel-title">Firebase Info</h4>
+    <h4 class="panel-title" id="game-status-panel-title"><%= @game.name %></h4>
   </div>
   <div class="panel-body">
-		<h4 id="firebase-status">firebase status</h4>
 		<h4 id="firebase-turn">firebase turn</h4>
 		<h4 id="firebase-checkalert"></h4>  
   </div>
 </div>
 <div class="clearfix"></div>
-<h1><%= @game.name %></h1>
 
 <h3 class="checkalert" style="display:none;"></h3> 
 <br>
@@ -123,18 +121,24 @@
 <br />
 <script src="https://www.gstatic.com/firebasejs/3.1.0/firebase.js"></script>
 <script>
+  //var config = {
+  //  apiKey: "AIzaSyCC2MZPApT577ulM1MkmMJsKLi-pnExpWE",
+  //  authDomain: "rtod2-caa01.firebaseapp.com",
+  //  databaseURL: "https://rtod2-caa01.firebaseio.com",
+  // storageBucket: ""
+  //};
+
   var config = {
-    apiKey: "AIzaSyCC2MZPApT577ulM1MkmMJsKLi-pnExpWE",
-    authDomain: "rtod2-caa01.firebaseapp.com",
-    databaseURL: "https://rtod2-caa01.firebaseio.com",
-    storageBucket: ""
-  };
+    apiKey: "AIzaSyDl-eYmZdYvQQO3vs2JqK9tYjg_L2t8n2I",
+    authDomain: "yuzu-rtod2.firebaseapp.com",
+    databaseURL: "https://yuzu-rtod2.firebaseio.com",
+    storageBucket: "",
+  }; 
   firebase.initializeApp(config);
   var dbRef = firebase.database().ref();
-	var gameRef = dbRef.child('game');
-	console.log('at start: gameRef: ' + gameRef);
-	var whitePlayerId = <%= @game.white_player_id %>;
-
+	var gamesRef = dbRef.child('game'); 
+  var gameRef = gamesRef.child(<%= @game.id %>);
+  var whitePlayerId = <%= @game.white_player_id %>;
 	var pieceCodes = {
 		white: 
 		{
@@ -157,6 +161,7 @@
 	}
 	
 	function drawPieces(){
+    console.log('starting drawPieces');
 		$('.piece').html('');
 		$.ajax({
       type: 'GET', 
@@ -183,7 +188,7 @@
 
 	function gameStatus(){
 		var checkAlert = $('.checkalert')
-		var gameId = <%= @game.id %>;
+    console.log('starting gameStatus');
 		$.ajax({
       type: 'GET', 
       url: '<%= status_game_path(@game) %>',
@@ -193,15 +198,19 @@
       		checkAlert.css("display", "block");
       		var checkMessage = data.current_color_in_check + ' (' + data.current_player_in_check + ') in check';
       		checkAlert.html(checkMessage);
-					gameRef.child(gameId).update({
-            check_message: checkMessage,
-            });      		
+          if (gameRef) {
+  					gameRef.update({
+              check_message: checkMessage,
+              });
+          }      		
       	}
       	else {
       		checkAlert.css("display", "none");
-					gameRef.child(gameId).update({
-            check_message: "",
-            });
+          if (gameRef) {
+  					gameRef.update({
+              check_message: "",
+              });
+          }
       	}
       }, error: function (data) {
         console.log('Status failed to load!');
@@ -209,53 +218,51 @@
     });
 	}
 
-	function initializeFirebase(){
+	var initializeFirebase = function (){
 		// check if there is a key for the game already
 		// if there is none, the game is new and should be set to pending
-		// if there is a key, this doesn't need to be done any more and 
+		// if there is a child game already, this doesn't need to be done any more and 
 		// should be skipped (or the game may move from active back to pending)
-		var gameId = <%= @game.id %>;
-		gameRef.once('value',function(snapshot){
-			if (snapshot.child(gameId).exists()) {
-				console.log('game exists');
-				var thisGame = snapshot.child(gameId).val();
+    var deferred = new $.Deferred();
 
-	    	switch (thisGame.game_status) {
-	    		case 'pending':
-	    			$('#firebase-status').text('Waiting for an opponent');
-	    			break;
-	    		case 'active':
-	    			$('#firebase-status').text('Active');
-	    			break;
-	    		case 'finished':
-	    			$('#firebase-status').text('Game concluded');
-	    			break;
-	    	  default:
-	    	  	$('#firebase-status').text(snapshot.child(gameId).game_status);				
-				}
-	    	if (thisGame.check_message) {
-	    		$('#firebase-checkalert').text(thisGame.check_message);
-	    	}
-			}
-			else {
-				// set the game in firebase, game should already be pending in db
-				console.log('initializing game in firebase');
-				gameRef.child(gameId).set({
-					active_player_id: "<%= @game.white_player_id %>",
-					game_status: "<%= @game.status %>"
-				});
-				$('#firebase-status').text('Waiting for an opponent');
-			}
-		});
-	}
+    // if this is truly initializing, shouldnt I be able to start all FB stuff from here?
+    //var config = {
+    //  apiKey: "AIzaSyDl-eYmZdYvQQO3vs2JqK9tYjg_L2t8n2I",
+    //  authDomain: "yuzu-rtod2.firebaseapp.com",
+    //  databaseURL: "https://yuzu-rtod2.firebaseio.com",
+    //  storageBucket: "",
+    //}; 
+    //firebase.initializeApp(config);
+    //var dbRef = firebase.database().ref();
+    //var gamesRef = dbRef.child('game'); 
+    //var gameRef = gamesRef.child(<%= @game.id %>);
+    //var whitePlayerId = <%= @game.white_player_id %>;
+
+    console.log('starting initialize FB');
+    var gameId = <%= @game.id %>;
+    gameRef.once('value', function(snapshot) {
+      if (!snapshot.child('game_status').exists()) {
+        gameRef.update({
+          game_status: "<%= @game.status %>"         
+        });                    
+      }
+      if (!snapshot.child('active_player_id').exists()) {
+        gameRef.update({
+          active_player_id: "<%=@game.active_player_id %>"
+        });
+      }
+      deferred.resolve(gameRef);
+    }); 
+    return deferred.promise();
+  }
 
 	$(document).ready(function(){
-		initializeFirebase();
-		drawPieces();
-		gameStatus();
+    initializeFirebase().then(gameStatus(),drawPieces(), updateActivePlayer());
+		//drawPieces();
+		//gameStatus();
 		$('.dark_square').droppable({drop: dropPiece});
 		$('.light_square').droppable({drop: dropPiece});
-		updateActivePlayer();
+		//updateActivePlayer();
 	});
 
 	$('.piece').on('drag',(function(){
@@ -276,11 +283,12 @@
 		$.post(joinUrl, data)
 			.done(function(data){
 				console.log('successfully joined!');
-				gameRef.child(<%=@game.id %>).update({
+        console.log(data);
+				gameRef.update({
                     active_player_id: "<%=@game.white_player_id %>",
                     game_status: 'active'
         });	
-				location.reload(true);	// how to redirect back to path in json format?		
+        drawPieces();
 			})
 			.fail(function(xhr, textStatus, errorThrown) {
 				console.log('failed to join!');
@@ -290,16 +298,19 @@
 			});
 	}
 
-	// firebase listener
+	// FIREBASE LISTENER
 	gameRef.on('value', function(dataSnapshot) {
-    var onlyMyGame = dataSnapshot.child(<%= @game.id %>).val();
-    if (onlyMyGame) {
+    var gameData = dataSnapshot.val();
+    if (gameData) {
     	console.log('in listener');
-    	if (onlyMyGame.active_player_id) {
-	    	if (onlyMyGame.active_player_id == whitePlayerId) {
+      if (gameData.active_player_id === '<%= current_user.id %>') {
+        $('#firebase-turn').text('It is your turn.');  
+      }
+    	else if (gameData.active_player_id) {
+	    	if (gameData.active_player_id == whitePlayerId) {
 	    		$('#firebase-turn').text('White\'s Move');	
 	    	}
-	    	else if (onlyMyGame.active_player_id !== "") {
+	    	else if (gameData.active_player_id !== "") {
 	    		$('#firebase-turn').text('Black\'s Move');		
 	    	}
 	    	else { 
@@ -310,34 +321,44 @@
 				// have to do this because initializer isn't the first thing that is running ;_;
 				$('#firebase-turn').text('');
 			}
-			if (onlyMyGame.game_status) {    	
-	    	switch (onlyMyGame.game_status) {
-	    		case 'pending':
-	    			$('#firebase-status').text('Waiting for an opponent');
-	    			break;
-	    		case 'active':
-	    			$('#firebase-status').text('Active');
-	    			break;
-	    		case 'finished':
-	    			$('#firebase-status').text('Game concluded');
-	    			break;
-	    	  default:
-	    	  	$('#firebase-status').text(onlyMyGame.game_status);
-	    	}
-	    }
+      var gameStatusMsg = "<%= @game.name %>: ";
+			if (gameData.game_status) { 
+        switch (gameData.game_status) {
+          case 'pending':
+            gameStatusMsg += 'waiting for an opponent';
+            break;
+          case 'active':
+            gameStatusMsg += 'active';
+            break;
+          case 'finished':
+            var winnerId;
+            winnerId = "<%= @game.winning_player %>";
+            if (winnerId !==""){
+              if (winnerId === "<%= @game.white_player.id %>") {
+                gameStatusMsg += "<%= @game.white_player.email %> won";
+              }
+              else {
+                gameStatusMsg += "the black player who doesn't exist at start of game won";
+              }
+            }
+            break;
+          default:
+            gameStatusMsg += gameData.game_status;
+        }
+      }       
 	    else {
 	    	// have to do this because initializer isn't the first thing that is running ;_;
-	    	$('#firebase-status').text('');
+	    	//$('#firebase-status').text('');
 	    }
-    	if (onlyMyGame.check_message !== null) {
-    		$('#firebase-checkalert').text(onlyMyGame.check_message);
+      $('#game-status-panel-title').text(gameStatusMsg);
+    	if (gameData.check_message !== null) {
+    		$('#firebase-checkalert').text(gameData.check_message);
     	}
-      console.log('calling drawPieces and updateActivePlayer from the FB listener event');
     	drawPieces();
       updateActivePlayer();
     }  
     else {
-    	console.log('listening for changes, cant find game');
+    	console.log('listening for changes, cant find game- gameRef ' + gameRef);
     }
   });
 
@@ -348,7 +369,7 @@
       dataType: 'json',
       success: function(active_player_id) {
         var current_user_id = <%= current_user.id %>;
-        var black_player_id = <%= @game.black_player_id %>;
+        var black_player_id = '<%= @game.black_player_id %>';
         if(current_user_id == active_player_id){
           if( active_player_id == black_player_id ){
             $('.black').draggable({revert: true});
@@ -365,7 +386,6 @@
       }
     });
   }
-
 
 	function dropPiece(event, ui) {
 		var dest_x = $(this).data('position-x');
@@ -471,12 +491,12 @@
 
          if (selectedPiece.attr('data-piece-color') === 'black') {
               console.log('updating active player to white');
-              gameRef.child(<%=@game.id %>).update({
+              gameRef.update({
               	active_player_id: "<%=@game.white_player_id %>"
               });
           }
           else {
-              gameRef.child(<%=@game.id %>).update({
+              gameRef.update({
                 active_player_id: "<%=@game.black_player_id %>"
               });
           }
