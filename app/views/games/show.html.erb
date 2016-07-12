@@ -157,7 +157,6 @@
 	}
 	
 	function drawPieces(){
-		$('.board_square').empty(); // temp until we have a function to undraw empty squares
 		$.ajax({
       type: 'GET', 
       url: '<%= get_pieces_path(@game) %>',
@@ -173,6 +172,9 @@
 							pieceColor = 'black'
 						}
 						
+						// get rid of old piece
+						$('.piece[data-piece-id=' + piece.id + ']').empty();
+
 						clonedPiece = $('<div class="piece"></div>'); 
 						clonedPiece.attr('data-piece-id', piece.id);
 						clonedPiece.attr('data-piece-color', pieceColor);
