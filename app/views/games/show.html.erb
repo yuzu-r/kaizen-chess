@@ -157,28 +157,36 @@
 	}
 	
 	function drawPieces(){
+		//$('.piece').empty();
 		$.ajax({
       type: 'GET', 
       url: '<%= get_pieces_path(@game) %>',
       dataType: 'json',
       success: function(pieces) {
         $.each(pieces, function(index, piece){
-        	var pieceColor;	
-					if (piece.player_id == <%= @game.white_player_id %>){
-						pieceColor = 'white';
-					}
-					else{
-						pieceColor = 'black'
-					}
-
-					drawnPiece = $('.board_square[data-position-x='+ piece.position_x + '][data-position-y=' + piece.position_y + ']').children('.piece').html(pieceCodes[pieceColor][piece.type.toLowerCase()]).addClass(pieceColor);
-					drawnPiece.attr('data-piece-color', pieceColor);
+        	if( isPieceOnBoard(piece.position_x, piece.position_y) ){
+        		var pieceColor;	
+						if (piece.player_id == <%= @game.white_player_id %>){
+							pieceColor = 'white';
+						}
+						else{
+							pieceColor = 'black'
+						}
+						$('#piece-'+piece.id).empty();
+						drawnPiece = $('.board_square[data-position-x='+ piece.position_x + '][data-position-y=' + piece.position_y + ']').children('.piece').html(pieceCodes[pieceColor][piece.type.toLowerCase()]).addClass(pieceColor);
+						drawnPiece.attr('data-piece-color', pieceColor);
+						console.log('drew piece id=' + piece.id + ', at location: ' +piece.position_x+','+piece.position_y);
+        	}
 				
 				});
       }, error: function (data) {
         console.log('Chess pieces failed to load!');
       }
     });
+	}
+
+	function isPieceOnBoard(x,y){
+		return ( x > 0 && x <= 8 && y > 0 && y <= 8 );
 	}
 
 	function isEmptyBoardSquare(x,y){
@@ -400,12 +408,13 @@
 		});		
 	}
 
-	// function drawSelectedPiece(selectedPiece, dest_x, dest_y){
-	// 	$('.board_square[data-position-x='+ selectedPiece[0].dataset.positionX + '][data-position-y=' + selectedPiece[0].dataset.positionY + ']').empty();
-	// 	selectedPiece.attr('data-position-x', dest_x);
-	// 	selectedPiece.attr('data-position-y', dest_y);
-	// 	$('.board_square[data-position-x='+ dest_x + '][data-position-y=' + dest_y + ']').html(selectedPiece[0]);
-	// }
+	function drawSelectedPiece(selectedPiece, dest_x, dest_y){
+		$('.board_square[data-position-x='+ selectedPiece[0].dataset.positionX + '][data-position-y=' + selectedPiece[0].dataset.positionY + ']').empty();
+		selectedPiece.attr('data-position-x', dest_x);
+		selectedPiece.attr('data-position-y', dest_y);
+		$('.board_square[data-position-x='+ dest_x + '][data-position-y=' + dest_y + ']').html(selectedPiece[0]);
+		$('.piece').draggable({revert: true});
+	}
 	
 	function moveSelectedPiece(pieceId, dest_x, dest_y, selectedPiece){
 		var data = {position_x: dest_x, position_y: dest_y, _method: 'PATCH'};
