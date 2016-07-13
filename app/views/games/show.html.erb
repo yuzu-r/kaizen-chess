@@ -487,6 +487,7 @@
 
 					gameStatus();
 					
+<<<<<<< HEAD
 	        console.log('We have movement!');
 
          if (selectedPiece.attr('data-piece-color') === 'black') {
@@ -504,6 +505,22 @@
           updateActivePlayer();           
         }
 	      else{
+=======
+					<% if @game.white_player && @game.black_player %>
+	        if (selectedPiece.attr('data-piece-color') === 'black') {
+	        	$('#active-player').text('White\'s (' + '<%= @game.white_player.email %>' + ') move');
+	        }
+	        else {
+	        	$('#active-player').text('Black\'s (' + '<%= @game.black_player.email %>' + ') move');		
+	        }
+
+	        <% end %>
+
+	        updateActivePlayer();
+	        
+				}
+				else{
+>>>>>>> ebbb4b2771e8eb41cb7689abf78cb6c92b389a28
 					console.log('Invalid move!');
 				}
 			}).fail(function(data) {
