@@ -189,8 +189,8 @@
 						$('.board_square[data-position-x='+ piece.position_x + '][data-position-y=' + piece.position_y + ']').html(clonedPiece);
 						//updateActivePlayer();
         	}
-				  updateActivePlayer();
 				});
+        updateActivePlayer();
       }, error: function (data) {
         console.log('Chess pieces failed to load!');
       }
