@@ -433,7 +433,6 @@
 					$('.whitepromotion').css("display", "none");
 					$('.blackpromotion').css("display", "none");
 					drawPieces();
-//
           if (pieceColor === 'black'){
             gameRef.update({
               active_player_id: "<%=@game.white_player_id %>"
@@ -444,7 +443,6 @@
               active_player_id: "<%=@game.black_player_id %>"
             });
           }
-//
 				});
 		});		
 	}
