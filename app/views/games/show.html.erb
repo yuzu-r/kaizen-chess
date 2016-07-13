@@ -187,9 +187,9 @@
 						clonedPiece.addClass(pieceColor);
 						clonedPiece.html(pieceCodes[pieceColor][piece.type.toLowerCase()]);
 						$('.board_square[data-position-x='+ piece.position_x + '][data-position-y=' + piece.position_y + ']').html(clonedPiece);
-						updateActivePlayer();
+						//updateActivePlayer();
         	}
-				
+				  updateActivePlayer();
 				});
       }, error: function (data) {
         console.log('Chess pieces failed to load!');
@@ -315,6 +315,8 @@
                     game_status: 'active'
         });	
         drawPieces();
+        updateActivePlayer;
+        $('#join-game').hide();
 			})
 			.fail(function(xhr, textStatus, errorThrown) {
 				console.log('failed to join!');
