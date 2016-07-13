@@ -40,7 +40,13 @@ class GamesController < ApplicationController
     @game.update_attributes(black_player: current_user)
     @game.setup
     @game.update_attributes(active_player: @game.white_player)
-    redirect_to game_path(@game)
+    @game.update_attributes(status: 'active');
+    if request.xhr?
+      render :json => {:location => url_for(:controller => 'games', :action => 'show', id: @game)}
+    else
+      redirect_to game_path(@game)
+    end
+
   end
 
   def status

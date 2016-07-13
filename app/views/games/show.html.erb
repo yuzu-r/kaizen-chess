@@ -1,13 +1,15 @@
-<h1><%= @game.name %></h1>
 
-<% if @game.active_player %>
-	<% if @game.active_player == @game.white_player %>
-		<h3 id="active-player">White (<%= @game.active_player.email %>) to move</h3>
-	<% elsif @game.active_player == @game.black_player %>
-		<h3 id="active-player">Black (<%= @game.active_player.email %>) to move</h3>
-	<% end %>
-<% end %>	
 
+<div class="panel panel-default col-xs-10 col-xs-offset-1">
+  <div class="panel-heading">
+    <h4 class="panel-title" id="game-status-panel-title"><%= @game.name %></h4>
+  </div>
+  <div class="panel-body">
+		<h4 id="firebase-turn">firebase turn</h4>
+		<h4 id="firebase-checkalert"></h4>  
+  </div>
+</div>
+<div class="clearfix"></div>
 
 <h3 class="checkalert" style="display:none;"></h3> 
 <br>
@@ -111,14 +113,32 @@
 <br />
 <h1>Black Player</h1>
 <% if @game.black_player == nil && @game.white_player_id != current_user.id %>
-	<%= link_to 'Join Game', join_game_path(@game), method: :patch, class: 'btn btn-success' %>
+	<button class="btn btn-primary" id="join-game">Join Game</button>
 <% elsif @game.black_player != nil %>
 	<p><%= @game.black_player.email %></p>
 <% end %>
 <br />
 <br />
+<script src="https://www.gstatic.com/firebasejs/3.1.0/firebase.js"></script>
 <script>
-	
+  var config = {
+    apiKey: "AIzaSyCC2MZPApT577ulM1MkmMJsKLi-pnExpWE",
+    authDomain: "rtod2-caa01.firebaseapp.com",
+    databaseURL: "https://rtod2-caa01.firebaseio.com",
+   storageBucket: ""
+  };
+
+  //var config = {
+  //  apiKey: "AIzaSyDl-eYmZdYvQQO3vs2JqK9tYjg_L2t8n2I",
+  //  authDomain: "yuzu-rtod2.firebaseapp.com",
+  //  databaseURL: "https://yuzu-rtod2.firebaseio.com",
+  //  storageBucket: "",
+  //}; 
+  firebase.initializeApp(config);
+  var dbRef = firebase.database().ref();
+	var gamesRef = dbRef.child('game'); 
+  var gameRef = gamesRef.child(<%= @game.id %>);
+  var whitePlayerId = <%= @game.white_player_id %>;
 	var pieceCodes = {
 		white: 
 		{
@@ -141,23 +161,35 @@
 	}
 	
 	function drawPieces(){
-		$('.piece').html('');
 		$.ajax({
       type: 'GET', 
       url: '<%= get_pieces_path(@game) %>',
       dataType: 'json',
       success: function(pieces) {
         $.each(pieces, function(index, piece){
-        	var pieceColor;	
-					if (piece.player_id == <%= @game.white_player_id %>){
-						pieceColor = 'white';
-					}
-					else{
-						pieceColor = 'black'
-					}
+        	if( isPieceOnBoard(piece.position_x, piece.position_y) ){
+        		var pieceColor;	
+						if (piece.player_id == <%= @game.white_player_id %>){
+							pieceColor = 'white';
+						}
+						else{
+							pieceColor = 'black'
+						}
+						
+						// get rid of old piece
+						$('.piece[data-piece-id=' + piece.id + ']').empty();
 
-					drawnPiece = $('.board_square[data-position-x='+ piece.position_x + '][data-position-y=' + piece.position_y + ']').children('.piece').html(pieceCodes[pieceColor][piece.type.toLowerCase()]).addClass(pieceColor);
-					drawnPiece.attr('data-piece-color', pieceColor);
+						clonedPiece = $('<div class="piece"></div>'); 
+						clonedPiece.attr('data-piece-id', piece.id);
+						clonedPiece.attr('data-piece-color', pieceColor);
+						clonedPiece.attr('data-piece-position-x', piece.position_x);
+						clonedPiece.attr('data-piece-position-y', piece.position_y);
+						clonedPiece.addClass(pieceColor);
+						clonedPiece.html(pieceCodes[pieceColor][piece.type.toLowerCase()]);
+						$('.board_square[data-position-x='+ piece.position_x + '][data-position-y=' + piece.position_y + ']').html(clonedPiece);
+						//updateActivePlayer();
+        	}
+				  updateActivePlayer();
 				});
       }, error: function (data) {
         console.log('Chess pieces failed to load!');
@@ -165,8 +197,22 @@
     });
 	}
 
+	function isPieceOnBoard(x,y){
+		return ( x > 0 && x <= 8 && y > 0 && y <= 8 );
+	}
+
+	function isEmptyBoardSquare(x,y){
+		if( $('.board_square[data-position-x='+ x + '][data-position-y=' + y + ']').find('.piece').length > 0 ){
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+
 	function gameStatus(){
 		var checkAlert = $('.checkalert')
+    console.log('starting gameStatus');
 		$.ajax({
       type: 'GET', 
       url: '<%= status_game_path(@game) %>',
@@ -176,9 +222,19 @@
       		checkAlert.css("display", "block");
       		var checkMessage = data.current_color_in_check + ' (' + data.current_player_in_check + ') in check';
       		checkAlert.html(checkMessage);
+          if (gameRef) {
+  					gameRef.update({
+              check_message: checkMessage,
+              });
+          }      		
       	}
       	else {
       		checkAlert.css("display", "none");
+          if (gameRef) {
+  					gameRef.update({
+              check_message: "",
+              });
+          }
       	}
       }, error: function (data) {
         console.log('Status failed to load!');
@@ -186,12 +242,53 @@
     });
 	}
 
+	var initializeFirebase = function (){
+		// check if there is a key for the game already
+		// if there is none, the game is new and should be set to pending
+		// if there is a child game already, this doesn't need to be done any more and 
+		// should be skipped (or the game may move from active back to pending)
+    var deferred = new $.Deferred();
+
+    // if this is truly initializing, shouldnt I be able to start all FB stuff from here?
+    //var config = {
+    //  apiKey: "AIzaSyDl-eYmZdYvQQO3vs2JqK9tYjg_L2t8n2I",
+    //  authDomain: "yuzu-rtod2.firebaseapp.com",
+    //  databaseURL: "https://yuzu-rtod2.firebaseio.com",
+    //  storageBucket: "",
+    //}; 
+    //firebase.initializeApp(config);
+    //var dbRef = firebase.database().ref();
+    //var gamesRef = dbRef.child('game'); 
+    //var gameRef = gamesRef.child(<%= @game.id %>);
+    //var whitePlayerId = <%= @game.white_player_id %>;
+
+    console.log('starting initialize FB');
+    var gameId = <%= @game.id %>;
+    gameRef.once('value', function(snapshot) {
+      console.log('in initial, gameRef: ' + gameRef);
+      if (!snapshot.child('game_status').exists()) {
+        console.log('setting the game status from initilaize');
+        gameRef.update({
+          game_status: "<%= @game.status %>"         
+        });                    
+      }
+      if (!snapshot.child('active_player_id').exists()) {
+        gameRef.update({
+          active_player_id: "<%=@game.active_player_id %>"
+        });
+      }
+      deferred.resolve(gameRef);
+    }); 
+    return deferred.promise();
+  }
+
 	$(document).ready(function(){
+    initializeFirebase().then(gameStatus());
 		drawPieces();
-		gameStatus();
+		//gameStatus();
 		$('.dark_square').droppable({drop: dropPiece});
 		$('.light_square').droppable({drop: dropPiece});
-		updateActivePlayer();
+		//updateActivePlayer();
 	});
 
 	$('.piece').on('drag',(function(){
@@ -202,37 +299,126 @@
 		$(this).css('color', 'black');
 	} );
 
-	function updateActivePlayer(){
-		$.ajax({
+	$('#join-game').on('click', function(){
+		joinGame(<%=@game.id %>);
+	})
+
+	function joinGame(gameId) {
+		var joinUrl = "/games/" + <%=@game.id %> + "/join";
+		var data = {_method: 'PATCH'};
+		$.post(joinUrl, data)
+			.done(function(data){
+				console.log('successfully joined!');
+        console.log(data);
+				gameRef.update({
+                    active_player_id: "<%=@game.white_player_id %>",
+                    game_status: 'active'
+        });	
+        drawPieces();
+        updateActivePlayer;
+        $('#join-game').hide();
+			})
+			.fail(function(xhr, textStatus, errorThrown) {
+				console.log('failed to join!');
+				console.log(xhr.statusText);
+				console.log(textStatus);
+				console.log(errorThrown);
+			});
+	}
+
+	// FIREBASE LISTENER
+	gameRef.on('value', function(dataSnapshot) {
+    var gameData = dataSnapshot.val();
+    if (gameData) {
+    	console.log('in listener');
+      if (gameData.active_player_id === '<%= current_user.id %>') {
+        $('#firebase-turn').text('It is your turn.');  
+      }
+    	else if (gameData.active_player_id) {
+	    	if (gameData.active_player_id == whitePlayerId) {
+	    		$('#firebase-turn').text('White\'s Move');	
+	    	}
+	    	else if (gameData.active_player_id !== "") {
+	    		$('#firebase-turn').text('Black\'s Move');		
+	    	}
+	    	else { 
+					$('#firebase-turn').text('');		
+	    	}
+			}
+			else {
+				// have to do this because initializer isn't the first thing that is running ;_;
+				$('#firebase-turn').text('');
+			}
+      var gameStatusMsg = "<%= @game.name %>: ";
+			if (gameData.game_status) { 
+        switch (gameData.game_status) {
+          case 'pending':
+            gameStatusMsg += 'waiting for an opponent';
+            break;
+          case 'active':
+            gameStatusMsg += 'active';
+            break;
+          case 'finished':
+            var winnerId;
+            winnerId = "<%= @game.winning_player %>";
+            if (winnerId !==""){
+              if (winnerId === "<%= @game.white_player.id %>") {
+                gameStatusMsg += "<%= @game.white_player.email %> won";
+              }
+              else {
+                gameStatusMsg += "the black player who doesn't exist at start of game won";
+              }
+            }
+            break;
+          default:
+            gameStatusMsg += gameData.game_status;
+        }
+      }       
+	    else {
+	    	// have to do this because initializer isn't the first thing that is running ;_;
+	    	//$('#firebase-status').text('');
+	    }
+      $('#game-status-panel-title').text(gameStatusMsg);
+    	if (gameData.check_message !== null) {
+    		$('#firebase-checkalert').text(gameData.check_message);
+    	}
+      drawPieces();
+    }  
+    else {
+    	console.log('listening for changes, cant find game- gameRef ' + gameRef);
+    }
+  });
+
+  function updateActivePlayer(){
+    $.ajax({
       type: 'GET', 
       url: '<%= get_active_player_path(@game) %>',
       dataType: 'json',
       success: function(active_player_id) {
         var current_user_id = <%= current_user.id %>;
-        var black_player_id = <%= @game.black_player_id %>;
+        var black_player_id = '<%= @game.black_player_id %>';
         if(current_user_id == active_player_id){
-        	if( active_player_id == black_player_id ){
-        		$('.black').draggable({revert: true});
-        	}
-        	else{
-        		$('.white').draggable({revert: true});
-        	}
+          if( active_player_id == black_player_id ){
+            $('.black').draggable({disabled: false});
+          }
+          else{
+            $('.white').draggable({disabled: false});
+          }
         }
         else{
-        	$('.piece').draggable({ disabled: true });
+          $('.piece').draggable({ disabled: true });
         }
       }, error: function (data) {
         console.log('Failed to get active player!');
-      }
+        }     
     });
-	}
+  }
 
 	function dropPiece(event, ui) {
 		var dest_x = $(this).data('position-x');
 		var dest_y = $(this).data('position-y');
 		var piece = ui.draggable;
 		moveSelectedPiece(piece.data('piece-id'), dest_x, dest_y, piece);	
-	  //updateActivePlayer();
 	}
 
 	function promotePawn(pieceId){
@@ -249,7 +435,7 @@
 				});
 		});		
 	}
-						
+	
 	function moveSelectedPiece(pieceId, dest_x, dest_y, selectedPiece){
 		var data = {position_x: dest_x, position_y: dest_y, _method: 'PATCH'};
 		var pieceUrl = "/games/" + <%=@game.id%> + "/pieces/" + pieceId + "/move"; 
@@ -283,12 +469,6 @@
 			).success(function(data){
 				// move piece on screen - clone the piece and update the pos-x and pos-y values
 				if (data.success){
-					$('.board_square[data-position-x='+ selectedPiece[0].dataset.positionX + '][data-position-y=' + selectedPiece[0].dataset.positionY + ']').empty();
-			
-					selectedPiece.attr('data-position-x', dest_x);
-					selectedPiece.attr('data-position-y', dest_y);
-
-					$('.board_square[data-position-x='+ dest_x + '][data-position-y=' + dest_y + ']').html(selectedPiece[0]);
 
 					if (castleMove) {
 						if (dest_x == 7) {
@@ -327,27 +507,30 @@
 
 					gameStatus();
 					
-					<% if @game.white_player && @game.black_player %>
-	        if (selectedPiece.attr('data-piece-color') === 'black') {
-	        	$('#active-player').text('White\'s (' + '<%= @game.white_player.email %>' + ') move');
-	        }
-	        else {
-	        	$('#active-player').text('Black\'s (' + '<%= @game.black_player.email %>' + ') move');		
-	        }
+	        console.log('We have movement!');
 
-	        <% end %>
-
-	        updateActivePlayer();
-	        
-				}
-				else{
+         if (selectedPiece.attr('data-piece-color') === 'black') {
+              console.log('updating active player to white');
+              gameRef.update({
+              	active_player_id: "<%=@game.white_player_id %>"
+              });
+          }
+          else {
+              gameRef.update({
+                active_player_id: "<%=@game.black_player_id %>"
+              });
+          }
+          console.log('calling updateActivePlayer from within moveSelectedPiece');
+          updateActivePlayer();           
+        }
+	      else{
+	      	$('.piece').draggable({revert: true});
 					console.log('Invalid move!');
 				}
 			}).fail(function(data) {
 		    console.log('failed move!');
 	  });
 		selectedPiece.css("color", "black");
-		//$('.piece').draggable({revert: true});
 	} 
 
 </script>
