@@ -425,6 +425,7 @@
 		var choosePiece = $('.choosepiece');
 		choosePiece.click(function(event){
 		var pieceType = $(event.target).data('piece-type');
+    var pieceColor = $(event.target).data('piece-color');
 			var data = {type:pieceType, _method: 'PATCH'};
 			var pieceUrl = "/games/" + <%=@game.id%> + "/pieces/" + pieceId + "/promote"; 
 			$.post(pieceUrl, data
@@ -432,6 +433,18 @@
 					$('.whitepromotion').css("display", "none");
 					$('.blackpromotion').css("display", "none");
 					drawPieces();
+//
+          if (pieceColor === 'black'){
+            gameRef.update({
+              active_player_id: "<%=@game.white_player_id %>"
+            });
+          }
+          else {
+            gameRef.update({
+              active_player_id: "<%=@game.black_player_id %>"
+            });
+          }
+//
 				});
 		});		
 	}
@@ -509,17 +522,21 @@
 					
 	        console.log('We have movement!');
 
-         if (selectedPiece.attr('data-piece-color') === 'black') {
-              console.log('updating active player to white');
-              gameRef.update({
-              	active_player_id: "<%=@game.white_player_id %>"
-              });
+          if (!promotion) {
+            // only update active turn if it's not a promotion
+           if (selectedPiece.attr('data-piece-color') === 'black') {
+                console.log('updating active player to white');
+                gameRef.update({
+                	active_player_id: "<%=@game.white_player_id %>"
+                });
+            }
+            else {
+                gameRef.update({
+                  active_player_id: "<%=@game.black_player_id %>"
+                });
+            }
           }
-          else {
-              gameRef.update({
-                active_player_id: "<%=@game.black_player_id %>"
-              });
-          }
+
           console.log('calling updateActivePlayer from within moveSelectedPiece');
           updateActivePlayer();           
         }
