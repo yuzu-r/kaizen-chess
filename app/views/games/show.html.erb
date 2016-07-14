@@ -119,6 +119,12 @@
 <% end %>
 <br />
 <br />
+
+<% if @game.active_player_id == current_user.id %>
+  <button class="btn btn-danger" id="forfeit-game">Forfeit Game</button>
+<% end %>
+
+
 <script src="https://www.gstatic.com/firebasejs/3.1.0/firebase.js"></script>
 <script>
 //  var config = {
@@ -138,6 +144,7 @@
   var dbRef = firebase.database().ref();
 	var gamesRef = dbRef.child('games'); 
   var gameRef = gamesRef.child('<%= @game.firebase_game_id %>');
+  console.log('at the start: ' +gameRef);
   var whitePlayerId = <%= @game.white_player_id %>;
 	var pieceCodes = {
 		white: 
@@ -190,6 +197,7 @@
 						//updateActivePlayer();
         	}
 				});
+        console.log('calling updateActivePlayer from drawPieces');
         updateActivePlayer();
       }, error: function (data) {
         console.log('Chess pieces failed to load!');
@@ -237,7 +245,7 @@
 		gameStatus();
 		$('.dark_square').droppable({drop: dropPiece});
 		$('.light_square').droppable({drop: dropPiece});
-		//updateActivePlayer();
+		updateActivePlayer();
 	});
 
 	$('.piece').on('drag',(function(){
@@ -258,6 +266,7 @@
 		$.post(joinUrl, data)
 			.done(function(data){
 				console.log('successfully joined!');
+        console.log('calling drawPieces and updateActivePlayer from joinGame');
         drawPieces();
         updateActivePlayer();
         $('#join-game').hide();
@@ -270,11 +279,35 @@
 			});
 	}
 
+  $('#forfeit-game').on('click', function() {
+  forfeitGame(<%=@game.id %>);
+  })
+
+  function forfeitGame(gameId) {
+    var forfeitUrl = "/games/" + <%=@game.id %> + "/forfeit";
+    var data = {_method: 'PATCH'};
+    $.post(forfeitUrl, data)
+      .done(function(data){
+        console.log('forfeited game!');
+        console.log(data);
+      })
+      .fail(function(xhr, testStatus, errorThrown) {
+        console.log('failed to forfeit');
+        console.log(xhr.statusText);
+        console.log(textStatus);
+        console.log(errorThrown);
+      });
+  }
+
 	// FIREBASE LISTENER
-	gameRef.on('value', function(dataSnapshot) {
-    var gameData = dataSnapshot.val();
+  // the below line should refer to the current game in browser, but is changing
+  // in responese to a different browser going to a different game
+	gameRef.on('value', function(dataSnapshot) { 
+    var gameData = dataSnapshot.val(); //this snapshot is potentially incorrect
+    console.log(gameRef);
+    console.log('gameId from snapshot: ' + gameData.id + ' compare to game id <%= @game.id %> ');
     if (gameData) {
-    	console.log('in listener, <%= current_user.id %>');
+    	//console.log('in listener, <%= current_user.id %>');
       if (gameData.active_player_id == '<%= current_user.id %>') {
         $('#firebase-turn').text('It is your turn.');  
       }
@@ -289,36 +322,14 @@
 					$('#firebase-turn').text('');		
 	    	}
 			}
-      var gameStatusMsg = "<%= @game.name %>: ";
-			if (gameData.game_status) { 
-        switch (gameData.game_status) {
-          case 'pending':
-            gameStatusMsg += 'waiting for an opponent';
-            break;
-          case 'active':
-            gameStatusMsg += 'active';
-            break;
-          case 'finished':
-            var winnerId;
-            winnerId = "<%= @game.winning_player %>";
-            if (winnerId !==""){
-              if (winnerId === "<%= @game.white_player.id %>") {
-                gameStatusMsg += "<%= @game.white_player.email %> won";
-              }
-              else {
-                gameStatusMsg += "the black player who doesn't exist at start of game won";
-              }
-            }
-            break;
-          default:
-            gameStatusMsg += gameData.game_status;
-        }
-      }       
-      $('#game-status-panel-title').text(gameStatusMsg);
+      console.log(gameData.status_message);
+      
+      $('#game-status-panel-title').text(gameData.status_message);
   		$('#firebase-checkalert').text(gameData.check_message);
 
       console.log('calling drawPieces from listener');
       drawPieces();
+      console.log('calling updateActivePlayer from listener');
       updateActivePlayer();
     }  
     else {
@@ -355,7 +366,8 @@
 		var dest_x = $(this).data('position-x');
 		var dest_y = $(this).data('position-y');
 		var piece = ui.draggable;
-		moveSelectedPiece(piece.data('piece-id'), dest_x, dest_y, piece);	
+		moveSelectedPiece(piece.data('piece-id'), dest_x, dest_y, piece);
+    drawPieces();	
 	}
 
 	function promotePawn(pieceId){

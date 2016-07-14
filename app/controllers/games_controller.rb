@@ -72,6 +72,22 @@ class GamesController < ApplicationController
     render :json => { :success => "success", :status_code => "200", :is_in_check => @is_in_check, :current_player_in_check => @current_player_in_check, :current_color_in_check => @current_color_in_check }
   end
 
+  def forfeit
+    @game = Game.find(params[:id])
+    if @game.active_player.id == @game.white_player_id
+      @game.update_attributes(winning_player: @game.black_player_id, losing_player: @game.white_player_id, status: "finished")
+      @game.forfeit_firebase(@game.white_player_id)
+    else
+      @game.update_attributes(winning_player: @game.white_player_id, losing_player: @game.black_player_id, status: "finished")
+      @game.forfeit_firebase(@game.black_player_id)
+    end
+
+    if request.xhr?
+      render :json => {:location => url_for(:controller => 'games', :action => 'show', id:@game)}
+    else
+      redirect_to game_path(@game)
+    end
+  end
 
   private
     def game_params
