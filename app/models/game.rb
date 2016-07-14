@@ -87,4 +87,15 @@ end
     return false
   end
 
+  def initialize_firebase
+    games_uri = 'https://yuzu-rtod2.firebaseio.com/games'
+    firebase = Firebase::Client.new(games_uri)
+    response = firebase.push(games_uri, {id: self.id, status: self.status})
+    self.update_attribute(:firebase_game_id, response.body["name"]) if response.success?
+    logger.info "This game is #{response.body["name"]}"
+  end
+
+  def join_firebase
+  end
+
 end

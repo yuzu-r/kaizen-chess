@@ -121,19 +121,19 @@
 <br />
 <script src="https://www.gstatic.com/firebasejs/3.1.0/firebase.js"></script>
 <script>
-  var config = {
-    apiKey: "AIzaSyCC2MZPApT577ulM1MkmMJsKLi-pnExpWE",
-    authDomain: "rtod2-caa01.firebaseapp.com",
-    databaseURL: "https://rtod2-caa01.firebaseio.com",
-   storageBucket: ""
-  };
+//  var config = {
+//    apiKey: "AIzaSyCC2MZPApT577ulM1MkmMJsKLi-pnExpWE",
+//    authDomain: "rtod2-caa01.firebaseapp.com",
+//    databaseURL: "https://rtod2-caa01.firebaseio.com",
+//   storageBucket: ""
+//  };
 
-  //var config = {
-  //  apiKey: "AIzaSyDl-eYmZdYvQQO3vs2JqK9tYjg_L2t8n2I",
-  //  authDomain: "yuzu-rtod2.firebaseapp.com",
-  //  databaseURL: "https://yuzu-rtod2.firebaseio.com",
-  //  storageBucket: "",
-  //}; 
+  var config = {
+    apiKey: "AIzaSyDl-eYmZdYvQQO3vs2JqK9tYjg_L2t8n2I",
+    authDomain: "yuzu-rtod2.firebaseapp.com",
+    databaseURL: "https://yuzu-rtod2.firebaseio.com",
+    storageBucket: "",
+  }; 
   firebase.initializeApp(config);
   var dbRef = firebase.database().ref();
 	var gamesRef = dbRef.child('game'); 
@@ -248,19 +248,6 @@
 		// if there is a child game already, this doesn't need to be done any more and 
 		// should be skipped (or the game may move from active back to pending)
     var deferred = new $.Deferred();
-
-    // if this is truly initializing, shouldnt I be able to start all FB stuff from here?
-    //var config = {
-    //  apiKey: "AIzaSyDl-eYmZdYvQQO3vs2JqK9tYjg_L2t8n2I",
-    //  authDomain: "yuzu-rtod2.firebaseapp.com",
-    //  databaseURL: "https://yuzu-rtod2.firebaseio.com",
-    //  storageBucket: "",
-    //}; 
-    //firebase.initializeApp(config);
-    //var dbRef = firebase.database().ref();
-    //var gamesRef = dbRef.child('game'); 
-    //var gameRef = gamesRef.child(<%= @game.id %>);
-    //var whitePlayerId = <%= @game.white_player_id %>;
 
     console.log('starting initialize FB');
     var gameId = <%= @game.id %>;

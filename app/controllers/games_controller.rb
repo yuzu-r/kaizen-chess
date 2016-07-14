@@ -25,6 +25,7 @@ class GamesController < ApplicationController
   def create
     @game = current_user.games_as_white.create(game_params)
     if @game.valid?
+      @game.initialize_firebase
       redirect_to root_path
     else
       render :new, status: :unprocessable_entity
