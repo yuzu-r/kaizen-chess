@@ -5,7 +5,7 @@
     <h4 class="panel-title" id="game-status-panel-title"><%= @game.name %></h4>
   </div>
   <div class="panel-body">
-		<h4 id="firebase-turn">firebase turn</h4>
+		<h4 id="firebase-turn"></h4>
 		<h4 id="firebase-checkalert"></h4>  
   </div>
 </div>
@@ -222,19 +222,9 @@
       		checkAlert.css("display", "block");
       		var checkMessage = data.current_color_in_check + ' (' + data.current_player_in_check + ') in check';
       		checkAlert.html(checkMessage);
-          if (gameRef) {
-  					gameRef.update({
-              check_message: checkMessage,
-              });
-          }      		
       	}
       	else {
       		checkAlert.css("display", "none");
-          if (gameRef) {
-  					gameRef.update({
-              check_message: "",
-              });
-          }
       	}
       }, error: function (data) {
         console.log('Status failed to load!');
@@ -284,8 +274,8 @@
 	gameRef.on('value', function(dataSnapshot) {
     var gameData = dataSnapshot.val();
     if (gameData) {
-    	console.log('in listener');
-      if (gameData.active_player_id === '<%= current_user.id %>') {
+    	console.log('in listener, <%= current_user.id %>');
+      if (gameData.active_player_id == '<%= current_user.id %>') {
         $('#firebase-turn').text('It is your turn.');  
       }
     	else if (gameData.active_player_id) {
@@ -325,9 +315,9 @@
         }
       }       
       $('#game-status-panel-title').text(gameStatusMsg);
-    	if (gameData.check_message !== null) {
-    		$('#firebase-checkalert').text(gameData.check_message);
-    	}
+  		$('#firebase-checkalert').text(gameData.check_message);
+
+      console.log('calling drawPieces from listener');
       drawPieces();
       updateActivePlayer();
     }  
@@ -372,24 +362,14 @@
 		var choosePiece = $('.choosepiece');
 		choosePiece.click(function(event){
 		var pieceType = $(event.target).data('piece-type');
-    var pieceColor = $(event.target).data('piece-color');
 			var data = {type:pieceType, _method: 'PATCH'};
 			var pieceUrl = "/games/" + <%=@game.id%> + "/pieces/" + pieceId + "/promote"; 
 			$.post(pieceUrl, data
 				).success(function(data){
 					$('.whitepromotion').css("display", "none");
 					$('.blackpromotion').css("display", "none");
+          console.log('successful promotion, redraw pieces');
 					drawPieces();
-          if (pieceColor === 'black'){
-            gameRef.update({
-              active_player_id: "<%=@game.white_player_id %>"
-            });
-          }
-          else {
-            gameRef.update({
-              active_player_id: "<%=@game.black_player_id %>"
-            });
-          }
 				});
 		});		
 	}
@@ -422,7 +402,7 @@
 		else {
 			promotion = false;
 		}
-		
+
 		$.post(pieceUrl, data
 			).success(function(data){
 				// move piece on screen - clone the piece and update the pos-x and pos-y values
@@ -453,6 +433,7 @@
 					}
 
 					if (promotion) {
+            console.log('promoting!');
 						if (selectedPiece.html().indexOf('♙') === 0 ) {
 							$('.whitepromotion').css("display", "block");
 							promotePawn(pieceId);
@@ -466,22 +447,6 @@
 					gameStatus();
 					
 	        console.log('We have movement!');
-
-          if (!promotion) {
-            // only update active turn if it's not a promotion
-           if (selectedPiece.attr('data-piece-color') === 'black') {
-                console.log('updating active player to white');
-                gameRef.update({
-                	active_player_id: "<%=@game.white_player_id %>"
-                });
-            }
-            else {
-                gameRef.update({
-                  active_player_id: "<%=@game.black_player_id %>"
-                });
-            }
-          }
-
           console.log('calling updateActivePlayer from within moveSelectedPiece');
           updateActivePlayer();           
         }

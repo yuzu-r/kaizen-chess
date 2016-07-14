@@ -13,8 +13,10 @@ class PiecesController < ApplicationController
 
       if @piece.player == @game.white_player
         @game.update_attributes(active_player: @game.black_player)
+        @game.update_active_player_firebase(@game.black_player)
       else
         @game.update_attributes(active_player: @game.white_player)
+        @game.update_active_player_firebase(@game.white_player)
       end
 
       @game.update_attributes(last_moved_piece: @piece)

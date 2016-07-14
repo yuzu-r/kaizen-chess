@@ -99,4 +99,28 @@ end
     FB.update(games_uri, {game_status: self.status, active_player_id: white_player.id})
   end
 
+  def in_check_firebase(player = nil)
+    games_uri = 'https://yuzu-rtod2.firebaseio.com/games/' + self.firebase_game_id
+    if player
+      if player == white_player
+        check_message = "White (" + white_player.email + ") in check"
+      else
+        check_message = "Black (" + black_player.email + ") in check"
+      end
+    else
+      check_message = ""
+    end
+    FB.update(games_uri, {check_message: check_message})
+  end
+
+  def update_active_player_firebase(player)
+    # sets active player to the specified player
+    games_uri = 'https://yuzu-rtod2.firebaseio.com/games/' + self.firebase_game_id
+    if player == white_player
+      FB.update(games_uri, {active_player_id: white_player.id})
+    else
+      FB.update(games_uri, {active_player_id: black_player.id})
+    end
+  end
+
 end
