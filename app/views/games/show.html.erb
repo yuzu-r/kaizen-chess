@@ -136,8 +136,8 @@
   }; 
   firebase.initializeApp(config);
   var dbRef = firebase.database().ref();
-	var gamesRef = dbRef.child('game'); 
-  var gameRef = gamesRef.child(<%= @game.id %>);
+	var gamesRef = dbRef.child('games'); 
+  var gameRef = gamesRef.child('<%= @game.firebase_game_id %>');
   var whitePlayerId = <%= @game.white_player_id %>;
 	var pieceCodes = {
 		white: 
@@ -242,37 +242,9 @@
     });
 	}
 
-	var initializeFirebase = function (){
-		// check if there is a key for the game already
-		// if there is none, the game is new and should be set to pending
-		// if there is a child game already, this doesn't need to be done any more and 
-		// should be skipped (or the game may move from active back to pending)
-    var deferred = new $.Deferred();
-
-    console.log('starting initialize FB');
-    var gameId = <%= @game.id %>;
-    gameRef.once('value', function(snapshot) {
-      console.log('in initial, gameRef: ' + gameRef);
-      if (!snapshot.child('game_status').exists()) {
-        console.log('setting the game status from initilaize');
-        gameRef.update({
-          game_status: "<%= @game.status %>"         
-        });                    
-      }
-      if (!snapshot.child('active_player_id').exists()) {
-        gameRef.update({
-          active_player_id: "<%=@game.active_player_id %>"
-        });
-      }
-      deferred.resolve(gameRef);
-    }); 
-    return deferred.promise();
-  }
-
 	$(document).ready(function(){
-    initializeFirebase().then(gameStatus());
 		drawPieces();
-		//gameStatus();
+		gameStatus();
 		$('.dark_square').droppable({drop: dropPiece});
 		$('.light_square').droppable({drop: dropPiece});
 		//updateActivePlayer();
@@ -296,13 +268,8 @@
 		$.post(joinUrl, data)
 			.done(function(data){
 				console.log('successfully joined!');
-        console.log(data);
-				gameRef.update({
-                    active_player_id: "<%=@game.white_player_id %>",
-                    game_status: 'active'
-        });	
         drawPieces();
-        updateActivePlayer;
+        updateActivePlayer();
         $('#join-game').hide();
 			})
 			.fail(function(xhr, textStatus, errorThrown) {
@@ -332,10 +299,6 @@
 					$('#firebase-turn').text('');		
 	    	}
 			}
-			else {
-				// have to do this because initializer isn't the first thing that is running ;_;
-				$('#firebase-turn').text('');
-			}
       var gameStatusMsg = "<%= @game.name %>: ";
 			if (gameData.game_status) { 
         switch (gameData.game_status) {
@@ -361,15 +324,12 @@
             gameStatusMsg += gameData.game_status;
         }
       }       
-	    else {
-	    	// have to do this because initializer isn't the first thing that is running ;_;
-	    	//$('#firebase-status').text('');
-	    }
       $('#game-status-panel-title').text(gameStatusMsg);
     	if (gameData.check_message !== null) {
     		$('#firebase-checkalert').text(gameData.check_message);
     	}
       drawPieces();
+      updateActivePlayer();
     }  
     else {
     	console.log('listening for changes, cant find game- gameRef ' + gameRef);

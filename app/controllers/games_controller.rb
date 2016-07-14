@@ -41,7 +41,8 @@ class GamesController < ApplicationController
     @game.update_attributes(black_player: current_user)
     @game.setup
     @game.update_attributes(active_player: @game.white_player)
-    @game.update_attributes(status: 'active');
+    @game.update_attributes(status: 'active')
+    @game.join_firebase
     if request.xhr?
       render :json => {:location => url_for(:controller => 'games', :action => 'show', id: @game)}
     else
