@@ -88,21 +88,20 @@ end
   end
 
   def initialize_firebase
-    games_uri = 'https://yuzu-rtod2.firebaseio.com/games'
     game_status_msg = self.name + ': waiting for opponent'
-    response = FB.push(games_uri, {id: self.id, game_status: self.status, status_message: game_status_msg, check_message: ""})
+    response = FB.push(GAMES_URI, {id: self.id, game_status: self.status, status_message: game_status_msg, check_message: ""})
     self.update_attribute(:firebase_game_id, response.body["name"]) if response.success?
     logger.info "This game is #{response.body["name"]}"
   end
 
   def join_firebase
-    games_uri = 'https://yuzu-rtod2.firebaseio.com/games/' + self.firebase_game_id
+    game_uri = GAMES_URI + self.firebase_game_id
     game_status_msg = self.name + ': active'
-    FB.update(games_uri, {game_status: self.status, active_player_id: white_player.id, status_message: game_status_msg})
+    FB.update(game_uri, {game_status: self.status, active_player_id: white_player.id, status_message: game_status_msg})
   end
 
   def in_check_firebase(player = nil)
-    games_uri = 'https://yuzu-rtod2.firebaseio.com/games/' + self.firebase_game_id
+    game_uri = GAMES_URI + self.firebase_game_id
     if player
       if player == white_player
         check_message = "White (" + white_player.email + ") in check"
@@ -112,28 +111,28 @@ end
     else
       check_message = ""
     end
-    FB.update(games_uri, {check_message: check_message})
+    FB.update(game_uri, {check_message: check_message})
   end
 
   def update_active_player_firebase(player)
     # sets active player to the specified player
-    games_uri = 'https://yuzu-rtod2.firebaseio.com/games/' + self.firebase_game_id
+    game_uri = GAMES_URI + self.firebase_game_id
     if player == white_player
-      FB.update(games_uri, {active_player_id: white_player.id})
+      FB.update(game_uri, {active_player_id: white_player.id})
     else
-      FB.update(games_uri, {active_player_id: black_player.id})
+      FB.update(game_uri, {active_player_id: black_player.id})
     end
   end
 
   def forfeit_firebase(player_id)
     # the player is the losing player in the game
-    games_uri = 'https://yuzu-rtod2.firebaseio.com/games/' + self.firebase_game_id
+    game_uri = GAMES_URI + self.firebase_game_id
     if player_id == self.white_player.id
-      game_status_msg = self.name + ': finished, (' + self.black_player.email + ') won'
+      game_status_msg = self.name + ': finished, ' + self.black_player.email + ' won'
     else
-      game_status_msg = self.name + ': finished, (' + self.white_player.email + ') won'
+      game_status_msg = self.name + ': finished, ' + self.white_player.email + ' won'
     end
-    FB.update(games_uri, {game_status: 'finished', active_player_id: "", status_message: game_status_msg})
+    FB.update(game_uri, {game_status: 'finished', active_player_id: "", status_message: game_status_msg})
   end
 
 end
