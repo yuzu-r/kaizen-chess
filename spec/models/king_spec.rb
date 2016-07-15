@@ -139,7 +139,7 @@ RSpec.describe King, type: :model do
       expect(@king.will_be_in_check?(5, 3)).to eq true
     end
 
-    it "should return true if moving to a square that will put it in check by another Kingimag" do
+    it "should return true if moving to a square that will put it in check by another King" do
       @king1 = King.create(position_x: 6, position_y: 5, game: @g, player: @g.black_player)
       @king2 = King.create(position_x: 6, position_y: 6, game: @g, player: @g.black_player)
       @king3 = King.create(position_x: 5, position_y: 6, game: @g, player: @g.black_player)
