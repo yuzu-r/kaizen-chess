@@ -95,13 +95,13 @@ end
   end
 
   def join_firebase
-    game_uri = GAMES_URI + self.firebase_game_id
+    game_uri = GAMES_URI + self.firebase_game_id.to_s
     game_status_msg = self.name + ': active'
     FB.update(game_uri, {game_status: self.status, active_player_id: white_player.id, status_message: game_status_msg})
   end
 
   def in_check_firebase(player = nil)
-    game_uri = GAMES_URI + self.firebase_game_id
+    game_uri = GAMES_URI + self.firebase_game_id.to_s
     if player
       if player == white_player
         check_message = "White (" + white_player.email + ") in check"
@@ -116,7 +116,7 @@ end
 
   def update_active_player_firebase(player)
     # sets active player to the specified player
-    game_uri = GAMES_URI + self.firebase_game_id
+    game_uri = GAMES_URI + self.firebase_game_id.to_s
     if player == white_player
       FB.update(game_uri, {active_player_id: white_player.id})
     else
@@ -126,7 +126,7 @@ end
 
   def forfeit_firebase(player_id)
     # the player is the losing player in the game
-    game_uri = GAMES_URI + self.firebase_game_id
+    game_uri = GAMES_URI + self.firebase_game_id.to_s
     if player_id == self.white_player.id
       game_status_msg = self.name + ': finished, ' + self.black_player.email + ' won'
     else
