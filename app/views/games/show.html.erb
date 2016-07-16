@@ -136,11 +136,12 @@
 
   function firebaseStuff(){
     var config = {
-      apiKey: "AIzaSyCM2KQUHWR-GStRCYGpYQJFLmeaaHtSX3w",
-      authDomain: "yuzu-aka.firebaseapp.com",
-      databaseURL: "https://yuzu-aka.firebaseio.com",
-     storageBucket: "yuzu-aka.appspot.com", 
+      apiKey: "AIzaSyCC2MZPApT577ulM1MkmMJsKLi-pnExpWE",
+      authDomain: "rtod2-caa01.firebaseapp.com",
+      databaseURL: "https://rtod2-caa01.firebaseio.com",
+      storageBucket: "rtod2-caa01.appspot.com",
     };
+
     firebase.initializeApp(config);
     var dbRef = firebase.database().ref();
     var gamesRef = dbRef.child('games'); 
@@ -408,8 +409,8 @@
 		else {
 			castleMove = false;
 		}
+
 		var enPassante;
-    console.log('dest x : ' +dest_x + ' Y: ' + dest_y);
     
 		if ( (selectedPiece.html().indexOf('♙') === 0 || selectedPiece.html().indexOf('♟') === 0) && $('.board_square[data-position-x='+ dest_x + '][data-position-y=' + dest_y + ']').children().length < 1 && Math.abs(selectedPiece[0].dataset.positionX - dest_x) == 1 && Math.abs(selectedPiece[0].dataset.positionY - dest_y) == 1  ){
 			enPassante = true;
@@ -417,10 +418,6 @@
 		else {
 			enPassante = false;
 		}
-
-    if (selectedPiece.html().indexOf('♙') === 0 || selectedPiece.html().indexOf('♟') === 0) {
-      console.log(selectedPiece[0].dataset.positionX + selectedPiece[0].dataset.positionY);  
-    }
 
     console.log('enpassant: '+ enPassante);
 		var promotion; 
@@ -467,12 +464,12 @@
             console.log('promoting!');
 						if (selectedPiece.html().indexOf('♙') === 0 ) {
 							$('.whitepromotion').css("display", "block");
-              $('.white').draggable({disabled: true});
+              //$('.white').draggable({disabled: true});
 							promotePawn(pieceId);
 						}
 						else {
 							$('.blackpromotion').css("display", "block");
-              $('.black').draggable({disabled: true});
+              //$('.black').draggable({disabled: true});
 						 	promotePawn(pieceId);
 						}
 					}
