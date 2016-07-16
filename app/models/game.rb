@@ -103,7 +103,7 @@ end
         end
       end
 
-      # Finds the opposing side's pieces that can block the threatening piece from checking the king
+      # Finds the friendly pieces that can block the threatening piece from checking the king
       white_player.pieces.where(game: self, is_active: true).each do |piece|
         return false if valid_check_block?(threatening_piece, piece, king) && piece.type != "King"
       end
@@ -122,7 +122,7 @@ end
         end
       end
 
-      # Finds the opposing side's pieces that can block the threatening piece from checking the king
+      # Finds the friendly pieces that can block the threatening piece from checking the king
       black_player.pieces.where(game: self, is_active: true).each do |piece|
         return false if valid_check_block?(threatening_piece, piece, king) && piece.type != "King"
       end
@@ -141,25 +141,25 @@ end
       if threatening_piece_x < king_x && threatening_piece_y < king_y # Northeast
         (threatening_piece_x + 1).upto(king_x - 1) do |x|
           (threatening_piece_y + 1).upto(king_y - 1) do |y|
-            return true if piece.is_valid_move?(x, y) && (x - threatening_piece_x).abs == (y - threatening_piece_y).abs
+            return true if piece.is_valid_move?(x, y) && (x - threatening_piece.position_x).abs == (y - threatening_piece.position_y).abs
           end 
         end 
       elsif threatening_piece_x > king_x && threatening_piece_y < king_y # Northwest
         (threatening_piece_x - 1).downto(king_x + 1) do |x|
           (threatening_piece_y + 1).upto(king_y - 1) do |y|
-            return true if piece.is_valid_move?(x, y) && (x - threatening_piece_x).abs == (y - threatening_piece_y).abs
+            return true if piece.is_valid_move?(x, y) && (x - threatening_piece.position_x).abs == (y - threatening_piece.position_y).abs
           end 
         end 
       elsif threatening_piece_x < king_x && threatening_piece_y > king_y # Southeast
         (threatening_piece_x + 1).upto(king_x - 1) do |x|
           (threatening_piece_y - 1).downto(king_y + 1) do |y|
-            return true if piece.is_valid_move?(x, y) && (x - threatening_piece_x).abs == (y - threatening_piece_y).abs
+            return true if piece.is_valid_move?(x, y) && (x - threatening_piece.position_x).abs == (y - threatening_piece.position_y).abs
           end 
         end 
       elsif threatening_piece_x > king_x && threatening_piece_y > king_y # Southwest
         (threatening_piece_x - 1).downto(king_x + 1) do |x|
           (threatening_piece_y - 1).downto(king_y + 1) do |y|
-            return true if piece.is_valid_move?(x, y) && (x - threatening_piece_x).abs == (y - threatening_piece_y).abs
+            return true if piece.is_valid_move?(x, y) && (x - threatening_piece.position_x).abs == (y - threatening_piece.position_y).abs
           end 
         end
       end  
@@ -185,9 +185,8 @@ end
       end 
     elsif threatening_piece.is_knight_move?(king_x, king_y)
       return false
-    else
-      return false
     end
+    false
   end 
 
 end

@@ -169,7 +169,7 @@ RSpec.describe Game, type: :model do
     end 
   end
 
-   describe "is_in_checkmate? is false if black king can block a check" do
+   describe "is_in_checkmate? is false if black can block a check" do
     before :each do
       @g = FactoryGirl.create(:joined_game)
       @pawn1 = Pawn.create(position_x: 6, position_y: 5, game: @g, player: @g.white_player)

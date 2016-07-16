@@ -219,6 +219,26 @@
       dataType: 'json',
       success: function(data) {
       	if (data.is_in_check === true) {
+          if (data.is_in_checkmate === true) {
+            var winningColor = "";
+            if (data.color_in_checkmate === "Black") {
+              var winningColor = "White";
+            }
+            else {
+              var winningColor = "Black";
+            }
+            checkAlert.css("display", "block");
+            var checkMessage = data.color_in_checkmate + ' (' + data.player_in_checkmate + ') is in checkmate.<br/>' + winningColor + ' wins!'
+            checkAlert.html(checkMessage);
+            // What does gameRef do?
+            if (gameRef) {
+              gameRef.update({
+                check_message: checkMessage,
+                });
+            }
+          }
+          else {
+          console.log(data)
       		checkAlert.css("display", "block");
       		var checkMessage = data.current_color_in_check + ' (' + data.current_player_in_check + ') in check';
       		checkAlert.html(checkMessage);
@@ -228,6 +248,7 @@
               });
           }      		
       	}
+      }
       	else {
       		checkAlert.css("display", "none");
           if (gameRef) {
