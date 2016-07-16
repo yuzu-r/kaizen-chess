@@ -128,24 +128,64 @@
 <script src="https://www.gstatic.com/firebasejs/3.1.0/firebase.js"></script>
 <script>
 //  var config = {
-//    apiKey: "AIzaSyCC2MZPApT577ulM1MkmMJsKLi-pnExpWE",
-//    authDomain: "rtod2-caa01.firebaseapp.com",
-//    databaseURL: "https://rtod2-caa01.firebaseio.com",
-//   storageBucket: ""
+//    apiKey: "AIzaSyDl-eYmZdYvQQO3vs2JqK9tYjg_L2t8n2I",
+//    authDomain: "yuzu-rtod2.firebaseapp.com",
+//    databaseURL: "https://yuzu-rtod2.firebaseio.com",
+//    storageBucket: "",
 //  };
 
-  var config = {
-    apiKey: "AIzaSyDl-eYmZdYvQQO3vs2JqK9tYjg_L2t8n2I",
-    authDomain: "yuzu-rtod2.firebaseapp.com",
-    databaseURL: "https://yuzu-rtod2.firebaseio.com",
-    storageBucket: "",
-  }; 
-  firebase.initializeApp(config);
-  var dbRef = firebase.database().ref();
-	var gamesRef = dbRef.child('games'); 
-  var gameRef = gamesRef.child('<%= @game.firebase_game_id %>');
-  console.log('at the start: ' +gameRef);
-  var whitePlayerId = <%= @game.white_player_id %>;
+  function firebaseStuff(){
+    var config = {
+      apiKey: "AIzaSyCM2KQUHWR-GStRCYGpYQJFLmeaaHtSX3w",
+      authDomain: "yuzu-aka.firebaseapp.com",
+      databaseURL: "https://yuzu-aka.firebaseio.com",
+     storageBucket: "yuzu-aka.appspot.com", 
+    };
+    firebase.initializeApp(config);
+    var dbRef = firebase.database().ref();
+    var gamesRef = dbRef.child('games'); 
+    var gameRef = gamesRef.child('<%= @game.firebase_game_id %>');
+    var gameKey = 'games/' + '<%= @game.firebase_game_id %>';
+    var gameRef2 = firebase.database().ref(gameKey);
+    console.log('at the start: ' +gameRef);
+    var whitePlayerId = <%= @game.white_player_id %>;
+
+    gameRef.on('value', function(dataSnapshot) { 
+      var gameData = dataSnapshot.val(); //this snapshot is potentially incorrect
+      console.log(gameData);
+      console.log('gameId from snapshot: ' + gameData.id + ' compare to game id <%= @game.id %> ');
+      if (gameData) {
+        //console.log('in listener, <%= current_user.id %>');
+        if (gameData.active_player_id == '<%= current_user.id %>') {
+          $('#firebase-turn').text('It is your turn.');  
+        }
+        else if (gameData.active_player_id) {
+          if (gameData.active_player_id == whitePlayerId) {
+            $('#firebase-turn').text('White\'s Move');  
+          }
+          else if (gameData.active_player_id !== "") {
+            $('#firebase-turn').text('Black\'s Move');    
+          }
+          else { 
+            $('#firebase-turn').text('');   
+          }
+        }
+        console.log(gameData.status_message);
+        
+        $('#game-status-panel-title').text(gameData.status_message);
+        $('#firebase-checkalert').text(gameData.check_message);
+
+        console.log('calling drawPieces from listener');
+        drawPieces();
+        console.log('calling updateActivePlayer from listener');
+        updateActivePlayer();
+      }  
+      else {
+        console.log('listening for changes, cant find game- gameRef ' + gameRef);
+      }
+    });
+  }
+
 	var pieceCodes = {
 		white: 
 		{
@@ -194,7 +234,6 @@
 						clonedPiece.addClass(pieceColor);
 						clonedPiece.html(pieceCodes[pieceColor][piece.type.toLowerCase()]);
 						$('.board_square[data-position-x='+ piece.position_x + '][data-position-y=' + piece.position_y + ']').html(clonedPiece);
-						//updateActivePlayer();
         	}
 				});
         console.log('calling updateActivePlayer from drawPieces');
@@ -241,6 +280,7 @@
 	}
 
 	$(document).ready(function(){
+    firebaseStuff();
 		drawPieces();
 		gameStatus();
 		$('.dark_square').droppable({drop: dropPiece});
@@ -261,14 +301,14 @@
 	})
 
 	function joinGame(gameId) {
-		var joinUrl = "/games/" + <%=@game.id %> + "/join";
+		var joinUrl = "/games/" + gameId + "/join";
 		var data = {_method: 'PATCH'};
 		$.post(joinUrl, data)
 			.done(function(data){
 				console.log('successfully joined!');
         console.log('calling drawPieces and updateActivePlayer from joinGame');
         drawPieces();
-        updateActivePlayer();
+        updateActivePlayer();  
         $('#join-game').hide();
 			})
 			.fail(function(xhr, textStatus, errorThrown) {
@@ -299,44 +339,6 @@
       });
   }
 
-	// FIREBASE LISTENER
-  // the below line should refer to the current game in browser, but is changing
-  // in responese to a different browser going to a different game
-	gameRef.on('value', function(dataSnapshot) { 
-    var gameData = dataSnapshot.val(); //this snapshot is potentially incorrect
-    console.log(gameRef);
-    console.log('gameId from snapshot: ' + gameData.id + ' compare to game id <%= @game.id %> ');
-    if (gameData) {
-    	//console.log('in listener, <%= current_user.id %>');
-      if (gameData.active_player_id == '<%= current_user.id %>') {
-        $('#firebase-turn').text('It is your turn.');  
-      }
-    	else if (gameData.active_player_id) {
-	    	if (gameData.active_player_id == whitePlayerId) {
-	    		$('#firebase-turn').text('White\'s Move');	
-	    	}
-	    	else if (gameData.active_player_id !== "") {
-	    		$('#firebase-turn').text('Black\'s Move');		
-	    	}
-	    	else { 
-					$('#firebase-turn').text('');		
-	    	}
-			}
-      console.log(gameData.status_message);
-      
-      $('#game-status-panel-title').text(gameData.status_message);
-  		$('#firebase-checkalert').text(gameData.check_message);
-
-      console.log('calling drawPieces from listener');
-      drawPieces();
-      console.log('calling updateActivePlayer from listener');
-      updateActivePlayer();
-    }  
-    else {
-    	console.log('listening for changes, cant find game- gameRef ' + gameRef);
-    }
-  });
-
   function updateActivePlayer(){
     $.ajax({
       type: 'GET', 
@@ -344,15 +346,24 @@
       dataType: 'json',
       success: function(active_player_id) {
         var current_user_id = <%= current_user.id %>;
-        var black_player_id = '<%= @game.black_player_id %>';
+        var white_player_id = '<%= @game.white_player_id %>';
+//        var black_player_id = '<%= @game.black_player_id %>';  // note: can't count on having this
         if(current_user_id == active_player_id){
-          if( active_player_id == black_player_id ){
-            $('.black').draggable({disabled: false});
-          }
-          else{
+//          if( active_player_id == black_player_id ){
+//            $('.black').draggable({disabled: false});
+//          }
+//          else{
+//            $('.white').draggable({disabled: false});
+//          }
+//        }
+          if( active_player_id == white_player_id ){
             $('.white').draggable({disabled: false});
           }
+          else{
+            $('.black').draggable({disabled: false});
+          }
         }
+
         else{
           $('.piece').draggable({ disabled: true });
         }
@@ -382,6 +393,7 @@
 					$('.blackpromotion').css("display", "none");
           console.log('successful promotion, redraw pieces');
 					drawPieces();
+          updateActivePlayer();
 				});
 		});		
 	}
@@ -397,6 +409,8 @@
 			castleMove = false;
 		}
 		var enPassante;
+    console.log('dest x : ' +dest_x + ' Y: ' + dest_y);
+    
 		if ( (selectedPiece.html().indexOf('♙') === 0 || selectedPiece.html().indexOf('♟') === 0) && $('.board_square[data-position-x='+ dest_x + '][data-position-y=' + dest_y + ']').children().length < 1 && Math.abs(selectedPiece[0].dataset.positionX - dest_x) == 1 && Math.abs(selectedPiece[0].dataset.positionY - dest_y) == 1  ){
 			enPassante = true;
 		}
@@ -404,6 +418,11 @@
 			enPassante = false;
 		}
 
+    if (selectedPiece.html().indexOf('♙') === 0 || selectedPiece.html().indexOf('♟') === 0) {
+      console.log(selectedPiece[0].dataset.positionX + selectedPiece[0].dataset.positionY);  
+    }
+
+    console.log('enpassant: '+ enPassante);
 		var promotion; 
 		if (selectedPiece.html().indexOf('♙') === 0 && dest_y === 8) {
 			promotion = true;
@@ -448,10 +467,12 @@
             console.log('promoting!');
 						if (selectedPiece.html().indexOf('♙') === 0 ) {
 							$('.whitepromotion').css("display", "block");
+              $('.white').draggable({disabled: true});
 							promotePawn(pieceId);
 						}
 						else {
 							$('.blackpromotion').css("display", "block");
+              $('.black').draggable({disabled: true});
 						 	promotePawn(pieceId);
 						}
 					}
@@ -459,8 +480,8 @@
 					gameStatus();
 					
 	        console.log('We have movement!');
-          console.log('calling updateActivePlayer from within moveSelectedPiece');
-          updateActivePlayer();           
+          console.log('calling updateActivePlayer from within moveSelectedPiece'); 
+          updateActivePlayer();  
         }
 	      else{
 	      	$('.piece').draggable({revert: true});
