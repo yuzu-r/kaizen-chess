@@ -4,6 +4,7 @@ Rails.application.routes.draw do
   resources :games do
     member do
       patch :join
+      patch :forfeit
       get :status
     end
     resources :pieces, only: [:update] do
