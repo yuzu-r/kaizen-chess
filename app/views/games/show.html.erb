@@ -127,12 +127,6 @@
 
 <script src="https://www.gstatic.com/firebasejs/3.1.0/firebase.js"></script>
 <script>
-//  var config = {
-//    apiKey: "AIzaSyDl-eYmZdYvQQO3vs2JqK9tYjg_L2t8n2I",
-//    authDomain: "yuzu-rtod2.firebaseapp.com",
-//    databaseURL: "https://yuzu-rtod2.firebaseio.com",
-//    storageBucket: "",
-//  };
 
   function firebaseStuff(){
     var config = {
@@ -147,7 +141,6 @@
     var gamesRef = dbRef.child('games'); 
     var gameRef = gamesRef.child('<%= @game.firebase_game_id %>');
     var gameKey = 'games/' + '<%= @game.firebase_game_id %>';
-    var gameRef2 = firebase.database().ref(gameKey);
     console.log('at the start: ' +gameRef);
     var whitePlayerId = <%= @game.white_player_id %>;
 
@@ -278,12 +271,6 @@
             checkAlert.css("display", "block");
             var checkMessage = data.color_in_checkmate + ' (' + data.player_in_checkmate + ') is in checkmate.<br/>' + winningColor + ' wins!'
             checkAlert.html(checkMessage);
-            // What does gameRef do?
-            if (gameRef) {
-              gameRef.update({
-                check_message: checkMessage,
-                });
-            }
           }
           else {
           console.log(data)

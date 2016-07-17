@@ -62,9 +62,13 @@ class GamesController < ApplicationController
           if @game.is_in_checkmate?(@game.black_player)
             @player_in_checkmate = @game.black_player.email
             @color_in_checkmate = "Black"
+            @game.update_attributes(winning_player: @game.white_player_id, losing_player: @game.black_player_id, status: "finished")
+            @game.checkmated_firebase(@game.black_player.id)
           else
             @player_in_checkmate = @game.white_player.email
             @color_in_checkmate = "White"
+            @game.update_attributes(winning_player: @game.black_player_id, losing_player: @game.white_player_id, status: "finished")
+            @game.checkmated_firebase(@game.white_player.id)
           end
         else
           if @game.is_in_check?(@game.black_player)

@@ -237,4 +237,14 @@ end
     FB.update(game_uri, {game_status: 'finished', active_player_id: "", status_message: game_status_msg})
   end
 
+  def checkmated_firebase(player_id)
+    game_uri = GAMES_URI + self.firebase_game_id.to_s
+    if player_id == self.white_player.id
+      game_status_msg = self.name + ': white in checkmate, ' + self.black_player.email + ' won'
+    else
+      game_status_msg = self.name + ': black in checkmate, ' + self.white_player.email + ' won'
+    end
+    FB.update(game_uri, {game_status: 'finished', active_player_id: "", status_message: game_status_msg})
+
+  end
 end
