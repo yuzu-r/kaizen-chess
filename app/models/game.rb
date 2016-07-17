@@ -87,6 +87,108 @@ end
     return false
   end
 
+  def is_in_checkmate?(player)
+    return false if !is_in_check?(player)
+    if player == white_player
+      king = pieces.where(type: "King", player: white_player).first
+      return false if king.can_escape_from_check?
+
+      # Finds the piece that is currently threatening the king
+      king_x = king.position_x
+      king_y = king.position_y
+      threatening_piece = nil
+      black_player.pieces.where(game: self, is_active: true).each do |piece|
+        if piece.type != "King"
+          threatening_piece = piece if piece.is_valid_move?(king_x, king_y)
+        end
+      end
+
+      # Finds the friendly pieces that can block the threatening piece from checking the king
+      white_player.pieces.where(game: self, is_active: true).each do |piece|
+        return false if valid_check_block?(threatening_piece, piece, king) && piece.type != "King"
+      end
+      return true
+    else
+      king = pieces.where(type: "King", player: black_player).first
+      return false if king.can_escape_from_check?
+
+      # Finds the piece that is currently threatening the king
+      king_x = king.position_x
+      king_y = king.position_y
+      threatening_piece = nil
+      white_player.pieces.where(game: self, is_active: true).each do |piece|
+        if piece.type != "King"
+          threatening_piece = piece if piece.is_valid_move?(king_x, king_y)
+        end
+      end
+
+      # Finds the friendly pieces that can block the threatening piece from checking the king
+      black_player.pieces.where(game: self, is_active: true).each do |piece|
+        return false if valid_check_block?(threatening_piece, piece, king) && piece.type != "King"
+      end
+
+      return true
+    end
+  end
+
+  def valid_check_block?(threatening_piece, piece, king)
+    threatening_piece_x = threatening_piece.position_x
+    threatening_piece_y = threatening_piece.position_y
+    king_x = king.position_x
+    king_y = king.position_y
+
+    if threatening_piece.is_diagonal_move?(king_x, king_y)
+      if threatening_piece_x < king_x && threatening_piece_y < king_y # Northeast
+        (threatening_piece_x + 1).upto(king_x - 1) do |x|
+          (threatening_piece_y + 1).upto(king_y - 1) do |y|
+            return true if piece.is_valid_move?(x, y) && (x - threatening_piece.position_x).abs == (y - threatening_piece.position_y).abs
+          end 
+        end 
+      elsif threatening_piece_x > king_x && threatening_piece_y < king_y # Northwest
+        (threatening_piece_x - 1).downto(king_x + 1) do |x|
+          (threatening_piece_y + 1).upto(king_y - 1) do |y|
+            return true if piece.is_valid_move?(x, y) && (x - threatening_piece.position_x).abs == (y - threatening_piece.position_y).abs
+          end 
+        end 
+      elsif threatening_piece_x < king_x && threatening_piece_y > king_y # Southeast
+        (threatening_piece_x + 1).upto(king_x - 1) do |x|
+          (threatening_piece_y - 1).downto(king_y + 1) do |y|
+            return true if piece.is_valid_move?(x, y) && (x - threatening_piece.position_x).abs == (y - threatening_piece.position_y).abs
+          end 
+        end 
+      elsif threatening_piece_x > king_x && threatening_piece_y > king_y # Southwest
+        (threatening_piece_x - 1).downto(king_x + 1) do |x|
+          (threatening_piece_y - 1).downto(king_y + 1) do |y|
+            return true if piece.is_valid_move?(x, y) && (x - threatening_piece.position_x).abs == (y - threatening_piece.position_y).abs
+          end 
+        end
+      end  
+    elsif threatening_piece.is_horizontal_move?(king_x, king_y)
+      if threatening_piece_x < king_x # East
+        (threatening_piece_x + 1).upto(king_x - 1) do |x|
+          return true if piece.is_valid_move?(x, king_y)
+        end 
+      else # West
+        (threatening_piece_x - 1).downto(king_x + 1) do |x|
+          return true if piece.is_valid_move?(x, king_y)
+        end 
+      end 
+    elsif threatening_piece.is_vertical_move?(king_x, king_y)
+      if threatening_piece_y < king_y # North
+        (threatening_piece_y + 1).upto(king_y - 1) do |y|
+          return true if piece.is_valid_move?(king_x, y)
+        end 
+      else # South
+        (threatening_piece_y - 1).downto(king_y + 1) do |y|
+          return true if piece.is_valid_move?(king_x, y)
+        end 
+      end 
+    elsif threatening_piece.is_knight_move?(king_x, king_y)
+      return false
+    end
+    false
+  end 
+
   def initialize_firebase
     game_status_msg = self.name + ': waiting for opponent'
     response = FB.push(GAMES_URI, {id: self.id, game_status: self.status, status_message: game_status_msg, check_message: ""})
@@ -135,4 +237,14 @@ end
     FB.update(game_uri, {game_status: 'finished', active_player_id: "", status_message: game_status_msg})
   end
 
+  def checkmated_firebase(player_id)
+    game_uri = GAMES_URI + self.firebase_game_id.to_s
+    if player_id == self.white_player.id
+      game_status_msg = self.name + ': white in checkmate, ' + self.black_player.email + ' won'
+    else
+      game_status_msg = self.name + ': black in checkmate, ' + self.white_player.email + ' won'
+    end
+    FB.update(game_uri, {game_status: 'finished', active_player_id: "", status_message: game_status_msg})
+
+  end
 end

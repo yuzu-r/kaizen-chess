@@ -40,7 +40,7 @@ class King < Piece
     else
       game.white_player.pieces.where(game: game, is_active: true).each do |piece|
         if piece.type == "Pawn"
-          return true if (dest_x - piece.position_x).abs == 1 && dest_y - piece.position_y == 1
+          return true if (dest_x - piece.position_x).abs == 1 && piece.position_y - dest_y == 1
         elsif piece.type == "King"
           return true if piece.moves_only_one_space?(dest_x, dest_y)
         else
@@ -102,5 +102,25 @@ class King < Piece
       rook.update_attributes(position_x: 4, move_count: move_count + 1)
     end
   end
+
+  def can_escape_from_check?
+    return true if !game.is_in_check?(player)
+    king_x = position_x
+    king_y = position_y
+
+    #Checks to see if the White King can make a valid move...
+    [-1, 1].each do |increment_x| #...diagonally
+      [-1, 1].each do |increment_y|
+        return true if is_valid_move?(king_x + increment_x, king_y + increment_y)
+      end
+    end
+    [-1, 1].each do |increment_x| #...horizontally
+      return true if is_valid_move?(king_x + increment_x, king_y)
+    end
+    [-1, 1].each do |increment_y| #...vertically
+      return true if is_valid_move?(king_x, king_y + increment_y)
+    end
+    false
+  end 
 
 end

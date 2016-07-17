@@ -54,22 +54,40 @@ class GamesController < ApplicationController
   def status
     @game = Game.find(params[:id])
     if @game.pieces.present?
-      @is_in_check = @game.is_in_check?(@game.black_player) ||  @game.is_in_check?(@game.white_player) 
+      @is_in_check = @game.is_in_check?(@game.black_player) ||  @game.is_in_check?(@game.white_player)
+
       if @is_in_check
-        if @game.is_in_check?(@game.black_player)
-          @current_player_in_check = @game.black_player.email
-          @current_color_in_check = "Black"
-          @game.in_check_firebase(@game.black_player)
+        @is_in_checkmate = @game.is_in_checkmate?(@game.black_player) || @game.is_in_checkmate?(@game.white_player)
+        if @is_in_checkmate
+          if @game.is_in_checkmate?(@game.black_player)
+            @player_in_checkmate = @game.black_player.email
+            @color_in_checkmate = "Black"
+            @game.update_attributes(winning_player: @game.white_player_id, losing_player: @game.black_player_id, status: "finished")
+            @game.checkmated_firebase(@game.black_player.id)
+          else
+            @player_in_checkmate = @game.white_player.email
+            @color_in_checkmate = "White"
+            @game.update_attributes(winning_player: @game.black_player_id, losing_player: @game.white_player_id, status: "finished")
+            @game.checkmated_firebase(@game.white_player.id)
+          end
         else
-          @current_player_in_check = @game.white_player.email
-          @current_color_in_check = "White"
-          @game.in_check_firebase(@game.white_player)
-        end 
+          if @game.is_in_check?(@game.black_player)
+            @current_player_in_check = @game.black_player.email
+            @current_color_in_check = "Black"
+            @game.in_check_firebase(@game.black_player)
+          else
+            @current_player_in_check = @game.white_player.email
+            @current_color_in_check = "White"
+            @game.in_check_firebase(@game.white_player)
+          end 
+        end
       else
         @game.in_check_firebase()
       end
     end
-    render :json => { :success => "success", :status_code => "200", :is_in_check => @is_in_check, :current_player_in_check => @current_player_in_check, :current_color_in_check => @current_color_in_check }
+    render :json => { :success => "success", :status_code => "200", :is_in_check => @is_in_check, 
+      :current_player_in_check => @current_player_in_check, :current_color_in_check => @current_color_in_check, 
+      :is_in_checkmate => @is_in_checkmate, :player_in_checkmate => @player_in_checkmate, :color_in_checkmate => @color_in_checkmate }
   end
 
   def forfeit
