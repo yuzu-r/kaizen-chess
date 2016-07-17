@@ -25,6 +25,7 @@ class GamesController < ApplicationController
   def create
     @game = current_user.games_as_white.create(game_params)
     if @game.valid?
+      @game.initialize_firebase
       redirect_to root_path
     else
       render :new, status: :unprocessable_entity
@@ -40,7 +41,8 @@ class GamesController < ApplicationController
     @game.update_attributes(black_player: current_user)
     @game.setup
     @game.update_attributes(active_player: @game.white_player)
-    @game.update_attributes(status: 'active');
+    @game.update_attributes(status: 'active')
+    @game.join_firebase
     if request.xhr?
       render :json => {:location => url_for(:controller => 'games', :action => 'show', id: @game)}
     else
@@ -73,6 +75,17 @@ class GamesController < ApplicationController
             @current_color_in_check = "White"
           end 
         end
+        if @game.is_in_check?(@game.black_player)
+          @current_player_in_check = @game.black_player.email
+          @current_color_in_check = "Black"
+          @game.in_check_firebase(@game.black_player)
+        else
+          @current_player_in_check = @game.white_player.email
+          @current_color_in_check = "White"
+          @game.in_check_firebase(@game.white_player)
+        end 
+      else
+        @game.in_check_firebase()
       end
     end
     render :json => { :success => "success", :status_code => "200", :is_in_check => @is_in_check, 
@@ -80,6 +93,22 @@ class GamesController < ApplicationController
       :is_in_checkmate => @is_in_checkmate, :player_in_checkmate => @player_in_checkmate, :color_in_checkmate => @color_in_checkmate }
   end
 
+  def forfeit
+    @game = Game.find(params[:id])
+    if @game.active_player.id == @game.white_player_id
+      @game.update_attributes(winning_player: @game.black_player_id, losing_player: @game.white_player_id, status: "finished")
+      @game.forfeit_firebase(@game.white_player_id)
+    else
+      @game.update_attributes(winning_player: @game.white_player_id, losing_player: @game.black_player_id, status: "finished")
+      @game.forfeit_firebase(@game.black_player_id)
+    end
+
+    if request.xhr?
+      render :json => {:location => url_for(:controller => 'games', :action => 'show', id:@game)}
+    else
+      redirect_to game_path(@game)
+    end
+  end
 
   private
     def game_params

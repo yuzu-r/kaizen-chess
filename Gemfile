@@ -34,6 +34,8 @@ gem 'bootstrap-sass', '~> 3.3.5.1'
 
 gem 'sprockets', '2.11.0'
 
+gem 'firebase'
+
 # testing
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
