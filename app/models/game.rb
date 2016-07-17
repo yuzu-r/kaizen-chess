@@ -99,7 +99,7 @@ end
       threatening_piece = nil
       black_player.pieces.where(game: self, is_active: true).each do |piece|
         if piece.type != "King"
-          threatening_piece = piece if piece.is_valid_capture?(king_x, king_y) && piece.is_valid_move?(king_x, king_y)
+          threatening_piece = piece if piece.is_valid_move?(king_x, king_y)
         end
       end
 
@@ -118,7 +118,7 @@ end
       threatening_piece = nil
       white_player.pieces.where(game: self, is_active: true).each do |piece|
         if piece.type != "King"
-          threatening_piece = piece if piece.is_valid_capture?(king_x, king_y) && piece.is_valid_move?(king_x, king_y)
+          threatening_piece = piece if piece.is_valid_move?(king_x, king_y)
         end
       end
 

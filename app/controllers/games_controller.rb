@@ -74,20 +74,13 @@ class GamesController < ApplicationController
           if @game.is_in_check?(@game.black_player)
             @current_player_in_check = @game.black_player.email
             @current_color_in_check = "Black"
+            @game.in_check_firebase(@game.black_player)
           else
             @current_player_in_check = @game.white_player.email
             @current_color_in_check = "White"
+            @game.in_check_firebase(@game.white_player)
           end 
         end
-        if @game.is_in_check?(@game.black_player)
-          @current_player_in_check = @game.black_player.email
-          @current_color_in_check = "Black"
-          @game.in_check_firebase(@game.black_player)
-        else
-          @current_player_in_check = @game.white_player.email
-          @current_color_in_check = "White"
-          @game.in_check_firebase(@game.white_player)
-        end 
       else
         @game.in_check_firebase()
       end
