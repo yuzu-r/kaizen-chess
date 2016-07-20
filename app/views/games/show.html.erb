@@ -124,11 +124,9 @@
   <button class="btn btn-danger" id="forfeit-game">Forfeit Game</button>
 <% end %>
 
-
 <script src="https://www.gstatic.com/firebasejs/3.1.0/firebase.js"></script>
 <script>
-
-  function firebaseStuff(){
+  function firebaseStart(){
     var config = {
       apiKey: "AIzaSyCC2MZPApT577ulM1MkmMJsKLi-pnExpWE",
       authDomain: "rtod2-caa01.firebaseapp.com",
@@ -145,9 +143,8 @@
     var whitePlayerId = <%= @game.white_player_id %>;
 
     gameRef.on('value', function(dataSnapshot) { 
-      var gameData = dataSnapshot.val(); //this snapshot is potentially incorrect
+      var gameData = dataSnapshot.val(); 
       console.log(gameData);
-      console.log('gameId from snapshot: ' + gameData.id + ' compare to game id <%= @game.id %> ');
       if (gameData) {
         //console.log('in listener, <%= current_user.id %>');
         if (gameData.active_player_id == '<%= current_user.id %>') {
@@ -164,7 +161,6 @@
             $('#firebase-turn').text('');   
           }
         }
-        console.log(gameData.status_message);
         
         $('#game-status-panel-title').text(gameData.status_message);
         $('#firebase-checkalert').text(gameData.check_message);
@@ -177,7 +173,15 @@
       else {
         console.log('listening for changes, cant find game- gameRef ' + gameRef);
       }
-    });
+    }); 
+  }
+
+  function firebaseStop(){
+    var dbRef = firebase.database().ref();
+    var gamesRef = dbRef.child('games'); 
+    var gameRef = gamesRef.child('<%= @game.firebase_game_id %>');
+    console.log('turning off the listener');
+    gameRef.off();
   }
 
 	var pieceCodes = {
@@ -289,13 +293,18 @@
 	}
 
 	$(document).ready(function(){
-    firebaseStuff();
+    firebaseStart();
 		drawPieces();
 		gameStatus();
 		$('.dark_square').droppable({drop: dropPiece});
 		$('.light_square').droppable({drop: dropPiece});
 		updateActivePlayer();
 	});
+
+  $(window).unload(function() {
+    console.log('I am unloading!');
+    firebaseStop();  // stop listening for this game
+  })
 
 	$('.piece').on('drag',(function(){
 		$(this).css('color', 'blue');
