@@ -25,10 +25,10 @@ class GamesController < ApplicationController
   def firebase_info
     @game = Game.find(params[:id])
     render json: {:success => "success", :status_code => "200", 
-        :config => {:apiKey => "AIzaSyC2b40CZYaLiVtUEuzav-CdzLXjQp3dd_w", 
-                    :authDomain => "kaizen-chess.firebaseapp.com",
-                    :databaseURL => "https://kaizen-chess.firebaseio.com",
-                    :storageBucket => ""
+        :config => {:apiKey => ENV["firebase_api_key"], 
+                    :authDomain => ENV["firebase_auth_domain"],
+                    :databaseURL => ENV["firebase_database_url"],
+                    :storageBucket => ENV["firebase_storage_bucket"]
                     }
                   }
   end

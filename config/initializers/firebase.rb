@@ -1,2 +1,2 @@
-GAMES_URI = 'https://kaizen-chess.firebaseio.com/games/'
+GAMES_URI = ENV["firebase_database_url"] + '/games/'
 FB = Firebase::Client.new(GAMES_URI)
