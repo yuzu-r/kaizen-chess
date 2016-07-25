@@ -234,6 +234,10 @@
 						clonedPiece.html(pieceCodes[pieceColor][piece.type.toLowerCase()]);
 						$('.board_square[data-position-x='+ piece.position_x + '][data-position-y=' + piece.position_y + ']').html(clonedPiece);
         	}
+          else {
+            //console.log('piece is not on board!' + piece.id);
+            $('.piece[data-piece-id=' + piece.id + ']').empty();
+          }
 				});
         console.log('calling updateActivePlayer from drawPieces');
         updateActivePlayer();
@@ -358,6 +362,23 @@
       });
   }
 
+  function promotePawn(pieceId){
+    var choosePiece = $('.choosepiece');
+    choosePiece.click(function(event){
+    var pieceType = $(event.target).data('piece-type');
+      var data = {type:pieceType, _method: 'PATCH'};
+      var pieceUrl = "/games/" + <%=@game.id%> + "/pieces/" + pieceId + "/promote"; 
+      $.post(pieceUrl, data
+        ).success(function(data){
+          $('.whitepromotion').css("display", "none");
+          $('.blackpromotion').css("display", "none");
+          console.log('successful promotion, redraw pieces');
+          drawPieces();
+          updateActivePlayer();
+        });
+    });   
+  }
+  
   function updateActivePlayer(){
     $.ajax({
       type: 'GET', 
@@ -366,15 +387,7 @@
       success: function(active_player_id) {
         var current_user_id = <%= current_user.id %>;
         var white_player_id = '<%= @game.white_player_id %>';
-//        var black_player_id = '<%= @game.black_player_id %>';  // note: can't count on having this
         if(current_user_id == active_player_id){
-//          if( active_player_id == black_player_id ){
-//            $('.black').draggable({disabled: false});
-//          }
-//          else{
-//            $('.white').draggable({disabled: false});
-//          }
-//        }
           if( active_player_id == white_player_id ){
             $('.white').draggable({disabled: false});
           }
@@ -400,26 +413,11 @@
     drawPieces();	
 	}
 
-	function promotePawn(pieceId){
-		var choosePiece = $('.choosepiece');
-		choosePiece.click(function(event){
-		var pieceType = $(event.target).data('piece-type');
-			var data = {type:pieceType, _method: 'PATCH'};
-			var pieceUrl = "/games/" + <%=@game.id%> + "/pieces/" + pieceId + "/promote"; 
-			$.post(pieceUrl, data
-				).success(function(data){
-					$('.whitepromotion').css("display", "none");
-					$('.blackpromotion').css("display", "none");
-          console.log('successful promotion, redraw pieces');
-					drawPieces();
-          updateActivePlayer();
-				});
-		});		
-	}
-	
 	function moveSelectedPiece(pieceId, dest_x, dest_y, selectedPiece){
-		var data = {position_x: dest_x, position_y: dest_y, _method: 'PATCH'};
-		var pieceUrl = "/games/" + <%=@game.id%> + "/pieces/" + pieceId + "/move"; 
+    console.log("selectedPiece dataset: " + selectedPiece[0].dataset.positionX + 'and y: ' + selectedPiece[0].dataset.positionY);
+    console.log(selectedPiece[0].attributes);
+    var selectedX = selectedPiece.data('piece-position-x');
+    var selectedY = selectedPiece.data('piece-position-y');
 		var castleMove;
 		if ((selectedPiece.html().indexOf('♔') === 0 || selectedPiece.html().indexOf('♚') === 0) && Math.abs(selectedPiece[0].dataset.positionX - dest_x) == 2 && selectedPiece[0].dataset.positionY == dest_y){
 			castleMove = true;
@@ -429,15 +427,14 @@
 		}
 
 		var enPassante;
-    
-		if ( (selectedPiece.html().indexOf('♙') === 0 || selectedPiece.html().indexOf('♟') === 0) && $('.board_square[data-position-x='+ dest_x + '][data-position-y=' + dest_y + ']').children().length < 1 && Math.abs(selectedPiece[0].dataset.positionX - dest_x) == 1 && Math.abs(selectedPiece[0].dataset.positionY - dest_y) == 1  ){
+
+		if ( (selectedPiece.html().indexOf('♙') === 0 || selectedPiece.html().indexOf('♟') === 0) && $('.board_square[data-position-x='+ dest_x + '][data-position-y=' + dest_y + ']').children().length < 1 && Math.abs(selectedX - dest_x) == 1 && Math.abs(selectedY - dest_y) == 1  ){
 			enPassante = true;
 		}
 		else {
 			enPassante = false;
 		}
 
-    console.log('enpassant: '+ enPassante);
 		var promotion; 
 		if (selectedPiece.html().indexOf('♙') === 0 && dest_y === 8) {
 			promotion = true;
@@ -448,6 +445,9 @@
 		else {
 			promotion = false;
 		}
+
+    var data = {position_x: dest_x, position_y: dest_y, _method: 'PATCH'};
+    var pieceUrl = "/games/" + <%=@game.id%> + "/pieces/" + pieceId + "/move"; 
 
 		$.post(pieceUrl, data
 			).success(function(data){
