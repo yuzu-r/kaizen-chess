@@ -22,6 +22,17 @@ class GamesController < ApplicationController
     render json: @game.active_player_id
   end
 
+  def firebase_info
+    @game = Game.find(params[:id])
+    render json: {:success => "success", :status_code => "200", 
+        :config => {:apiKey => "AIzaSyC2b40CZYaLiVtUEuzav-CdzLXjQp3dd_w", 
+                    :authDomain => "kaizen-chess.firebaseapp.com",
+                    :databaseURL => "https://kaizen-chess.firebaseio.com",
+                    :storageBucket => ""
+                    }
+                  }
+  end
+
   def create
     @game = current_user.games_as_white.create(game_params)
     if @game.valid?

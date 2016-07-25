@@ -126,60 +126,62 @@
 
 <script>
   function firebaseStart(){
-    var config = {
-      apiKey: "AIzaSyC2b40CZYaLiVtUEuzav-CdzLXjQp3dd_w",
-      authDomain: "kaizen-chess.firebaseapp.com",
-      databaseURL: "https://kaizen-chess.firebaseio.com",
-      storageBucket: "kaizen-chess.appspot.com",
-    };
+    var firebaseURL = "/games/" + '<%=@game.id%>' + "/get_firebase_info";
+    $.ajax({
+      type: 'GET', 
+      url: firebaseURL,
+      dataType: 'json',
+      success: function(response) {
+        console.log('firebase info: ' + response.config);
+        firebase.initializeApp(response.config);
+        var dbRef = firebase.database().ref();
+        var gamesRef = dbRef.child('games'); 
+        var gameRef = gamesRef.child('<%= @game.firebase_game_id %>');
+        var whitePlayerId = <%= @game.white_player_id %>;
 
-    firebase.initializeApp(config);
-    var dbRef = firebase.database().ref();
-    var gamesRef = dbRef.child('games'); 
-    var gameRef = gamesRef.child('<%= @game.firebase_game_id %>');
-    var gameKey = 'games/' + '<%= @game.firebase_game_id %>';
-    console.log('at the start: ' +gameRef);
-    var whitePlayerId = <%= @game.white_player_id %>;
+        gameRef.on('value', function(dataSnapshot) { 
+          var gameData = dataSnapshot.val(); 
+          console.log(gameData);
+          if (gameData) {
+            if (gameData.active_player_id == '<%= current_user.id %>') {
+              $('#firebase-turn').text('It is your turn.');  
+            }
+            else if (gameData.active_player_id) {
+              if (gameData.active_player_id == whitePlayerId) {
+                $('#firebase-turn').text('White\'s Move');  
+              }
+              else if (gameData.active_player_id !== "") {
+                $('#firebase-turn').text('Black\'s Move');    
+              }
+              else { 
+                $('#firebase-turn').text('');   
+              }
+            }
+            
+            $('#game-status-panel-title').text(gameData.status_message);
+            $('#firebase-checkalert').text(gameData.check_message);
 
-    gameRef.on('value', function(dataSnapshot) { 
-      var gameData = dataSnapshot.val(); 
-      console.log(gameData);
-      if (gameData) {
-        //console.log('in listener, <%= current_user.id %>');
-        if (gameData.active_player_id == '<%= current_user.id %>') {
-          $('#firebase-turn').text('It is your turn.');  
-        }
-        else if (gameData.active_player_id) {
-          if (gameData.active_player_id == whitePlayerId) {
-            $('#firebase-turn').text('White\'s Move');  
+            console.log('calling drawPieces from listener');
+            drawPieces();
+            console.log('calling updateActivePlayer from listener');
+            updateActivePlayer();
+          }  
+          else {
+            console.log('listening for changes, cant find game- gameRef ' + gameRef);
           }
-          else if (gameData.active_player_id !== "") {
-            $('#firebase-turn').text('Black\'s Move');    
-          }
-          else { 
-            $('#firebase-turn').text('');   
-          }
-        }
-        
-        $('#game-status-panel-title').text(gameData.status_message);
-        $('#firebase-checkalert').text(gameData.check_message);
-
-        console.log('calling drawPieces from listener');
-        drawPieces();
-        console.log('calling updateActivePlayer from listener');
-        updateActivePlayer();
-      }  
-      else {
-        console.log('listening for changes, cant find game- gameRef ' + gameRef);
+        });
+          },
+      error: function (data) {
+        console.log('did not get firebase info!');
       }
-    }); 
+    });
   }
 
   function firebaseStop(){
     var dbRef = firebase.database().ref();
     var gamesRef = dbRef.child('games'); 
     var gameRef = gamesRef.child('<%= @game.firebase_game_id %>');
-    console.log('turning off the listener');
+    console.log('turning off the listener: ' + gameRef);
     gameRef.off();
   }
 
