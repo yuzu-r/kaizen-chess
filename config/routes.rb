@@ -17,6 +17,7 @@ Rails.application.routes.draw do
   get '/games/:id/getPieces', to: 'games#getPieces', as: 'get_pieces'
   get '/games/:id/getActivePlayer', to: 'games#getActivePlayer', as: 'get_active_player'
   get '/open' => 'games#open', :as => :open
+  get '/games/:id/get_firebase_info', to: 'games#firebase_info', as: 'firebase_info'
   root 'games#index'
   
   # The priority is based upon order of creation: first created -> highest priority.

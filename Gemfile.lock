@@ -71,6 +71,8 @@ GEM
     factory_girl_rails (4.7.0)
       factory_girl (~> 4.7.0)
       railties (>= 3.0.0)
+    figaro (1.1.1)
+      thor (~> 0.14)
     firebase (0.2.6)
       httpclient
       json
@@ -215,6 +217,7 @@ DEPENDENCIES
   coffee-rails (~> 4.1.0)
   devise (= 3.5.8)
   factory_girl_rails (~> 4.0)
+  figaro
   firebase
   jbuilder (~> 2.0)
   jquery-rails

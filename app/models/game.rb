@@ -191,6 +191,7 @@ end
 
   def initialize_firebase
     game_status_msg = self.name + ': waiting for opponent'
+    logger.info "writing to #{GAMES_URI}"
     response = FB.push(GAMES_URI, {id: self.id, game_status: self.status, status_message: game_status_msg, check_message: ""})
     self.update_attribute(:firebase_game_id, response.body["name"]) if response.success?
     logger.info "This game is #{response.body["name"]}"

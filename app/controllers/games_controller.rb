@@ -22,6 +22,17 @@ class GamesController < ApplicationController
     render json: @game.active_player_id
   end
 
+  def firebase_info
+    @game = Game.find(params[:id])
+    render json: {:success => "success", :status_code => "200", 
+        :config => {:apiKey => ENV["firebase_api_key"], 
+                    :authDomain => ENV["firebase_auth_domain"],
+                    :databaseURL => ENV["firebase_database_url"],
+                    :storageBucket => ENV["firebase_storage_bucket"]
+                    }
+                  }
+  end
+
   def create
     @game = current_user.games_as_white.create(game_params)
     if @game.valid?
