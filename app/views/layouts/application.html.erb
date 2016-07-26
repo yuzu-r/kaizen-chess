@@ -30,10 +30,13 @@
         <% if user_signed_in? %>
           <p class="navbar-text">Signed in as <%=current_user.email %></p>
           <li>
-            <%= link_to 'Sign Out', destroy_user_session_path, method: :delete %>
+            <%= link_to 'New Game', new_game_path %>
           </li>
           <li>
-            <%= link_to 'New Game', new_game_path %>
+            <%= link_to 'Join a Game', open_path %>
+          </li>
+          <li>
+            <%= link_to 'Sign Out', destroy_user_session_path, method: :delete %>
           </li>
         <% else %>
           <li>
