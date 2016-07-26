@@ -22,7 +22,11 @@
             <h4>Playing Black:</h4> </br>
             <% @games.each do |game| %>
               <% if (current_user.id == game.black_player_id && game.status == 'active') %>
-                <p><%= link_to game.name, game_path(game.id) %></p>
+                <%= link_to game.name, game_path(game.id) %>
+                <% if current_user.id == game.active_player_id %>
+                  (waiting for your move)
+                <% end %>
+                <br/>                
               <% end %>
             <% end %>        
           </div>
@@ -34,7 +38,7 @@
           <div class="panel-body">
             <% @games.each do |game| %>
               <% if (current_user.id == game.white_player_id && game.status == 'pending') %>
-                <p><%= link_to game.name, game_path(game.id) %></p>
+                <%= link_to game.name, game_path(game.id) %>
               <% end %>
             <% end %>        
           </div>
@@ -46,7 +50,7 @@
           <div class="panel-heading">Your Completed Games</div>
           <div class="panel-body">
             <% @games.each do |game| %>
-              <% if (current_user.id == game.white_player_id || current_user_id == game.black_player_id) && game.status == 'finished' %>
+              <% if (current_user.id == game.white_player_id || current_user.id == game.black_player_id) && game.status == 'finished' %>
                 <%= link_to game.name, game_path(game.id) %>
                 <% if game.winning_player == current_user.id %>
                   (win)
