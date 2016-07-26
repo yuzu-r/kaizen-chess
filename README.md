@@ -1,11 +1,9 @@
-# Chess App
-
-# Team RtoD2
+# Kaizen Chess
 
 
-Play chess online with all your droid friends.  It's probably still a good idea to let the Wookiee win.  
+This is a continuously improving version of the group project from The Firehose Project.
 
-[Trello](https://trello.com/b/Cbenou4N/kevin-g-may)
+[Trello](https://trello.com/b/6VsvW8ej/kaizen-chess)
 
-[![Codeship Status for rtod2/badges](https://codeship.com/projects/cbe41fb0-08e2-0134-fbe4-4e1ca58af965/status?branch=master)](https://codeship.com/projects/155156)
+[![Codeship Status for kaizen-chess/badges](https://codeship.com/projects/c451ecb0-35a3-0134-2e43-5afc2e42dc0b/status?branch=master](https://codeship.com/projects/165323)
 
