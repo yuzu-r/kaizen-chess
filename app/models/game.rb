@@ -107,6 +107,12 @@ end
       white_player.pieces.where(game: self, is_active: true).each do |piece|
         return false if valid_check_block?(threatening_piece, piece, king) && piece.type != "King"
       end
+
+      # find friendly pieces that can capture the threatening piece
+      white_player.pieces.where(game: self, is_active: true).each do |piece|
+        return false if valid_check_capture?(threatening_piece, piece, king)
+      end
+
       return true
     else
       king = pieces.where(type: "King", player: black_player).first
@@ -127,8 +133,19 @@ end
         return false if valid_check_block?(threatening_piece, piece, king) && piece.type != "King"
       end
 
+      # find friendly pieces that can capture the threatening piece
+      black_player.pieces.where(game: self, is_active: true).each do |piece|
+        return false if valid_check_capture?(threatening_piece, piece, king)
+      end
+
       return true
     end
+  end
+
+  def valid_check_capture?(threatening_piece, piece, king)
+    threatening_piece_x = threatening_piece.position_x
+    threatening_piece_y = threatening_piece.position_y
+    return true if piece.is_valid_move?(threatening_piece_x, threatening_piece_y)    
   end
 
   def valid_check_block?(threatening_piece, piece, king)
