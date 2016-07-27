@@ -70,37 +70,35 @@
 </div> <!-- close chess_board_container div -->
 <br><br><br>
 
-<div class="whitepromotion" style="display: none;" >
-<h2 class="text-center">You can promote your pawn</h2>
-	<div class="container">
-    <div class="text-center">
-			<div class="btn btn-default choosepiece" data-piece-type="Rook">♖</div>
-			<div class="btn btn-default choosepiece" data-piece-type="Knight">♘</div>
-			<div class="btn btn-default choosepiece" data-piece-type="Bishop">♗</div>
-			<div class="btn btn-default choosepiece" data-piece-type="Queen">♕</div>
-		</div>
-	</div>
-</div>
-
-<div class="blackpromotion" style="display: none;">
-<h2 class="text-center">You can promote your pawn</h2>
-	<div class="container">
-    <div class="text-center">
-			<div class="btn btn-default choosepiece" data-piece-type="Rook">♜</div>
-			<div class="btn btn-default choosepiece" data-piece-type="Knight">♞</div>
-			<div class="btn btn-default choosepiece" data-piece-type="Bishop">♝</div>
-			<div class="btn btn-default choosepiece" data-piece-type="Queen">♛</div> 
-		</div>
-	</div>
-</div>
-
-
 <div class="container col-xs-8 col-xs-offset-2">
   <div class="panel panel-default">
     <div class="panel-heading">
       <h4 class="panel-title" id="game-status-panel-title">Game Actions</h4>
     </div>
     <div class="panel-body">
+      <div class="clearfix"></div>
+      <div class="whitepromotion" style="display: none;" >
+      <h4>Promote your pawn:</h4>
+        <div class="container">
+          <div class="btn btn-default choosepiece" data-piece-type="Rook">♖</div>
+          <div class="btn btn-default choosepiece" data-piece-type="Knight">♘</div>
+          <div class="btn btn-default choosepiece" data-piece-type="Bishop">♗</div>
+          <div class="btn btn-default choosepiece" data-piece-type="Queen">♕</div>
+        </div>
+        <br/>
+      </div>
+      <div class="clearfix"></div>
+      <div class="blackpromotion" style="display: none;">
+      <h4>Promote your pawn:</h4>
+        <div class="container">
+          <div class="btn btn-default choosepiece" data-piece-type="Rook">♜</div>
+          <div class="btn btn-default choosepiece" data-piece-type="Knight">♞</div>
+          <div class="btn btn-default choosepiece" data-piece-type="Bishop">♝</div>
+          <div class="btn btn-default choosepiece" data-piece-type="Queen">♛</div> 
+        </div>
+        <br/>
+      </div>
+      <div class="clearfix"></div>      
       <% if @game.black_player == nil && @game.white_player_id != current_user.id %>
         <button class="btn btn-primary btn-sm" id="join-game">Join Game</button>
       <% end %>
@@ -208,7 +206,7 @@ Black Player:
       dataType: 'json',
       cache: false,
       success: function(pieces) {
-        // empty all board squares before redrawing?
+        // empty all board squares before redrawing
         $('.board_square').empty();
         $.each(pieces, function(index, piece){
         	if( isPieceOnBoard(piece.position_x, piece.position_y) ){
@@ -228,6 +226,7 @@ Black Player:
 						clonedPiece.attr('data-piece-position-y', piece.position_y);
 						clonedPiece.addClass(pieceColor);
 						clonedPiece.html(pieceCodes[pieceColor][piece.type.toLowerCase()]);
+
 						$('.board_square[data-position-x='+ piece.position_x + '][data-position-y=' + piece.position_y + ']').html(clonedPiece);
         	}
           else {
@@ -373,8 +372,8 @@ Black Player:
           $('.whitepromotion').css("display", "none");
           $('.blackpromotion').css("display", "none");
           console.log('successful promotion, redraw pieces');
-          drawPieces();
-          updateActivePlayer();
+          drawPieces(); // note this only has effect on active board
+          updateActivePlayer(); // note this only has effect on active board
         });
     });   
   }
@@ -483,12 +482,12 @@ Black Player:
             console.log('promoting!');
 						if (selectedPiece.html().indexOf('♙') === 0 ) {
 							$('.whitepromotion').css("display", "block");
-              //$('.white').draggable({disabled: true});
+              $('.white').draggable({disabled: true});
 							promotePawn(pieceId);
 						}
 						else {
 							$('.blackpromotion').css("display", "block");
-              //$('.black').draggable({disabled: true});
+              $('.black').draggable({disabled: true});
 						 	promotePawn(pieceId);
 						}
 					}

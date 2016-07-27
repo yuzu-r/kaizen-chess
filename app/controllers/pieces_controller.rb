@@ -11,14 +11,18 @@ class PiecesController < ApplicationController
 
       @piece.update_attributes(position_x: position_x, position_y: position_y, move_count: @move_count)
 
-      if @piece.player == @game.white_player
-        @game.update_attributes(active_player: @game.black_player)
-        @game.update_active_player_firebase(@game.black_player)
+      if @piece.type == 'Pawn' && position_y == 8 || position_y == 1
+        # this is a pawn promotion
+        # do not update the active player yet
       else
-        @game.update_attributes(active_player: @game.white_player)
-        @game.update_active_player_firebase(@game.white_player)
+        if @piece.player == @game.white_player
+          @game.update_attributes(active_player: @game.black_player)
+          @game.update_active_player_firebase(@game.black_player)
+        else
+          @game.update_attributes(active_player: @game.white_player)
+          @game.update_active_player_firebase(@game.white_player)
+        end
       end
-
       @game.update_attributes(last_moved_piece: @piece)
       render :json => { :success => "success", :status_code => "200" }
     else
@@ -32,6 +36,14 @@ class PiecesController < ApplicationController
     @game = Game.find(params[:game_id])
     
     @piece.update_attributes(type: params[:type])
+    if @piece.player == @game.white_player
+      @game.update_attributes(active_player: @game.black_player)
+      @game.update_active_player_firebase(@game.black_player)
+    else
+      @game.update_attributes(active_player: @game.white_player)
+      @game.update_active_player_firebase(@game.white_player)
+    end
+
     render :json => { :success => "success", :status_code => "200" }
   end
 
