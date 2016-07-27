@@ -8,9 +8,8 @@
         <div class="panel panel-default">
           <div class="panel-heading">Your Active Games</div>
           <div class="panel-body">
-            <h4>Playing White:</h4> </br>
+            <h4>Playing White:</h4>
             <% @games.each do |game| %>
-
               <% if (current_user.id == game.white_player_id && game.status == 'active') %>
                 <%= link_to game.name, game_path(game.id) %>
                 <% if current_user.id == game.active_player_id %>
@@ -19,7 +18,7 @@
                 <br/>
               <% end %>
             <% end %>
-            <h4>Playing Black:</h4> </br>
+            <h4>Playing Black:</h4> 
             <% @games.each do |game| %>
               <% if (current_user.id == game.black_player_id && game.status == 'active') %>
                 <%= link_to game.name, game_path(game.id) %>
@@ -39,6 +38,7 @@
             <% @games.each do |game| %>
               <% if (current_user.id == game.white_player_id && game.status == 'pending') %>
                 <%= link_to game.name, game_path(game.id) %>
+                <br/>
               <% end %>
             <% end %>        
           </div>
@@ -55,6 +55,7 @@
                 <% if game.winning_player == current_user.id %>
                   (win)
                 <% end %>
+                <br/>
               <% end %>
             <% end %>        
           </div>
