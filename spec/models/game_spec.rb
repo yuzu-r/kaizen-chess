@@ -57,6 +57,17 @@ RSpec.describe Game, type: :model do
       white_knight = Knight.create(position_x: 6, position_y: 5, game: @g, player: @g.white_player)
       expect(@g.is_in_check?(@g.black_player)).to eq true
     end
+    it "is true if king is surrounded by own pieces and enemy knight can capture", :bug => true do
+      white_king = King.create(position_x: 5, position_y: 1, game: @g, player: @g.white_player)
+      white_queen = Queen.create(position_x: 4, position_y: 1, game: @g, player: @g.white_player)
+      white_bishop = Bishop.create(position_x: 6, position_y: 1, game: @g, player: @g.white_player)
+      white_pawn1 = Pawn.create(position_x: 5, position_y: 2, game: @g, player: @g.white_player)
+      white_pawn2 = Pawn.create(position_x: 6, position_y: 2, game: @g, player: @g.white_player)
+      white_pawn3 = Pawn.create(position_x: 7, position_y: 2, game: @g, player: @g.white_player)
+      black_knight = Knight.create(position_x: 6, position_y: 3, game: @g, player: @g.black_player)
+      expect(@g.is_in_check?(@g.white_player)).to eq true
+    end
+
   end
 
   describe "is_in_check? false if player is not in check" do
@@ -231,6 +242,20 @@ RSpec.describe Game, type: :model do
       @blocker = Rook.create(position_x: 5, position_y: 1, game: @g, player: @g.black_player)
     end 
  
+  end
+
+  describe "checkmate when king can be defended by capture" do
+    it "is_in_checkmate? returns false if player can capture the threatening piece", :bug => true do
+      @g = FactoryGirl.create(:joined_game)
+      white_king = King.create(position_x: 5, position_y: 1, game: @g, player: @g.white_player)
+      white_queen = Queen.create(position_x: 4, position_y: 1, game: @g, player: @g.white_player)
+      white_bishop = Bishop.create(position_x: 6, position_y: 1, game: @g, player: @g.white_player)
+      white_pawn1 = Pawn.create(position_x: 5, position_y: 2, game: @g, player: @g.white_player)
+      white_pawn2 = Pawn.create(position_x: 6, position_y: 2, game: @g, player: @g.white_player)
+      white_pawn3 = Pawn.create(position_x: 7, position_y: 2, game: @g, player: @g.white_player)
+      black_knight = Knight.create(position_x: 6, position_y: 3, game: @g, player: @g.black_player)
+      expect(@g.is_in_checkmate?(@g.white_player)).to eq false
+    end
   end
 
 end
