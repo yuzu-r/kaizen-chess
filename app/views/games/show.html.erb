@@ -1,18 +1,9 @@
 
-
-<div class="panel panel-default col-xs-10 col-xs-offset-1">
-  <div class="panel-heading">
-    <h4 class="panel-title" id="game-status-panel-title"><%= @game.name %></h4>
-  </div>
-  <div class="panel-body">
-		<h4 id="firebase-turn"></h4>
-		<h4 id="firebase-checkalert"></h4>  
-  </div>
-</div>
-<div class="clearfix"></div>
-
-<h3 class="checkalert" style="display:none;"></h3> 
-<br>
+<h4 id="game-status-panel-title" class="text-center"><%= @game.name %></h4>
+<h4 id="firebase-turn" class="text-center"></h4>
+<h4 id="firebase-checkalert" class="text-center"></h4>
+  
+<br/>
 <div class="chess_board_container">
 	<table class="chess_board_table">
 		
@@ -40,14 +31,12 @@
 						<% is_piece = @game.pieces.where(position_x: position_x, position_y: position_y).first %>
 						<% if is_piece %>
 								<div id="piece-<%=is_piece.id %>" class="piece" data-piece-id=<%=is_piece.id %> data-position-x=<%= is_piece.position_x %> data-position-y=<%= is_piece.position_y %> ></div>	
-						<% end %>
-						
+						<% end %>					
 					</div>
 				</td>	
 			<% end %>
 			</tr>	
 		<% end %>
-
 	</table>
 
 	<table class="x_axis_labels">
@@ -67,7 +56,6 @@
 			<% for i in 1..8 %>
 				<td><div class="label_square"><%= arr_x_labels[i] %></div></td>
 			<% end %>
-
 		</tr>
 	</table>
 
@@ -77,7 +65,6 @@
 				<td><div class="label_square"><%= i %></div></td>
 			</tr>
 		<% end %>
-		
 	</table>
 
 </div> <!-- close chess_board_container div -->
@@ -107,22 +94,29 @@
 	</div>
 </div>
 
-<h1>White Player</h1>
-<p><%= @game.white_player.email %></p>
-<br />
-<br />
-<h1>Black Player</h1>
-<% if @game.black_player == nil && @game.white_player_id != current_user.id %>
-	<button class="btn btn-primary" id="join-game">Join Game</button>
-<% elsif @game.black_player != nil %>
-	<p><%= @game.black_player.email %></p>
-<% end %>
-<br />
-<br />
 
-<% if @game.active_player_id == current_user.id %>
-  <button class="btn btn-danger" id="forfeit-game">Forfeit Game</button>
+<div class="container col-xs-8 col-xs-offset-2">
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h4 class="panel-title" id="game-status-panel-title">Game Actions</h4>
+    </div>
+    <div class="panel-body">
+      <% if @game.black_player == nil && @game.white_player_id != current_user.id %>
+        <button class="btn btn-primary btn-sm" id="join-game">Join Game</button>
+      <% end %>
+      <button class="btn btn-danger btn-sm" id="forfeit-game">Forfeit Game</button>
+      <h4>Offer Draw</h4>  
+    </div>
+  </div>
+</div>
+<div class="clearfix"></div>
+
+White Player: <%= @game.white_player.email %>
+Black Player: 
+<% if @game.black_player != nil %>
+	<%= @game.black_player.email %>
 <% end %>
+<br />
 
 <button class="btn btn-danger" id="myButton">Draw Pieces</button>
 
@@ -143,7 +137,6 @@
 
         gameRef.on('value', function(dataSnapshot) { 
           var gameData = dataSnapshot.val(); 
-          //console.log(gameData);
           if (gameData) {
             if (gameData.active_player_id == '<%= current_user.id %>') {
               $('#firebase-turn').text('It is your turn.');  
@@ -226,11 +219,6 @@
 						else{
 							pieceColor = 'black'
 						}
-           //if (piece.id ==85 || piece.id==87)  {
-           //  console.log(pieceColor+ ' '+piece.position_x + ' y: ' + piece.position_y);
-           //  console.log()
-           // }
-
 						// get rid of old piece
 						$('.piece[data-piece-id=' + piece.id + ']').empty();
 						clonedPiece = $('<div class="piece"></div>'); 
@@ -238,13 +226,8 @@
 						clonedPiece.attr('data-piece-color', pieceColor);
 						clonedPiece.attr('data-piece-position-x', piece.position_x);
 						clonedPiece.attr('data-piece-position-y', piece.position_y);
-        //   if (piece.id ==85 || piece.id==87)  {
-        //     console.log('cloned piece: ' + clonedPiece.data('piece-position-x') + ' y: ' + clonedPiece.data('piece-position-y'));
-        //    }            
 						clonedPiece.addClass(pieceColor);
 						clonedPiece.html(pieceCodes[pieceColor][piece.type.toLowerCase()]);
-            // don't think the following is needed anymore
-            //$('.board_square[data-position-x='+ piece.position_x + '][data-position-y=' + piece.position_y + ']').empty();
 						$('.board_square[data-position-x='+ piece.position_x + '][data-position-y=' + piece.position_y + ']').html(clonedPiece);
         	}
           else {
@@ -274,37 +257,14 @@
 	}
 
 	function gameStatus(){
-		var checkAlert = $('.checkalert')
-    console.log('starting gameStatus');
 		$.ajax({
       type: 'GET', 
       url: '<%= status_game_path(@game) %>',
       dataType: 'json',
       success: function(data) {
-      	if (data.is_in_check === true) {
-          if (data.is_in_checkmate === true) {
-            var winningColor = "";
-            if (data.color_in_checkmate === "Black") {
-              var winningColor = "White";
-            }
-            else {
-              var winningColor = "Black";
-            }
-            checkAlert.css("display", "block");
-            var checkMessage = data.color_in_checkmate + ' (' + data.player_in_checkmate + ') is in checkmate.<br/>' + winningColor + ' wins!'
-            checkAlert.html(checkMessage);
-          }
-          else {
-          console.log(data)
-      		checkAlert.css("display", "block");
-      		var checkMessage = data.current_color_in_check + ' (' + data.current_player_in_check + ') in check';
-      		checkAlert.html(checkMessage);
-      	}
-      }
-      	else {
-      		checkAlert.css("display", "none");
-      	}
-      }, error: function (data) {
+      	console.log('updated gameStatus');
+      }, 
+      error: function (data) {
         console.log('Status failed to load!');
       }
     });
@@ -316,6 +276,14 @@
 		gameStatus();
 		$('.dark_square').droppable({drop: dropPiece});
 		$('.light_square').droppable({drop: dropPiece});
+    var current_user_id = <%= current_user.id %>;
+    var white_player_id = '<%= @game.white_player_id %>';
+    if (current_user_id == white_player_id) {
+      $('#forfeit-game').addClass('white-player');
+    }
+    else {
+      $('#forfeit-game').addClass('black-player');
+    }
 		updateActivePlayer();
 	});
 
@@ -350,6 +318,7 @@
         drawPieces();
         updateActivePlayer();  
         $('#join-game').hide();
+        $('#forfeit-game').addClass('black-player');
 			})
 			.fail(function(xhr, textStatus, errorThrown) {
 				console.log('failed to join!');
@@ -360,7 +329,22 @@
 	}
 
   $('#forfeit-game').on('click', function() {
-  forfeitGame(<%=@game.id %>);
+    $.ajax({
+      type: 'GET', 
+      url: '<%= get_active_player_path(@game) %>',
+      dataType: 'json',
+      cache: false,
+      success: function(active_player_id) {
+        var current_user_id = <%= current_user.id %>;
+        var white_player_id = '<%= @game.white_player_id %>';
+        if(current_user_id == active_player_id){
+          forfeitGame(<%=@game.id %>); 
+        }
+        else {
+          alert('You can forfeit when it is your turn.');
+        }
+      }
+    });
   })
 
   function forfeitGame(gameId) {
@@ -369,7 +353,6 @@
     $.post(forfeitUrl, data)
       .done(function(data){
         console.log('forfeited game!');
-        console.log(data);
       })
       .fail(function(xhr, testStatus, errorThrown) {
         console.log('failed to forfeit');
@@ -408,10 +391,12 @@
         if(current_user_id == active_player_id){
           if( active_player_id == white_player_id ){
             $('.white').draggable({disabled: false});
+            //$('#forfeit-game.black-player').prop('disabled', true);
+            //$('#forfeit-game.white-player').prop('disabled', false);
           }
           else{
             $('.black').draggable({disabled: false});
-          }
+            }
         }
 
         else{
@@ -432,8 +417,6 @@
 	}
 
 	function moveSelectedPiece(pieceId, dest_x, dest_y, selectedPiece){
-    //console.log("selectedPiece dataset: " + selectedPiece[0].dataset.positionX + 'and y: ' + selectedPiece[0].dataset.positionY);
-    //console.log(selectedPiece[0].attributes);
     var selectedX = selectedPiece.data('piece-position-x');
     var selectedY = selectedPiece.data('piece-position-y');
 		var castleMove;
