@@ -1,5 +1,18 @@
+
+
 <h1>Create a new game</h1>
 <%= form_for @game do |f| %>
+  <% if @game.errors.any? %>
+    <div id="error_explanation">
+      <h3><%= pluralize(@game.errors.count, "error") %> prohibited this game from being saved:</h3>
+      <ul>
+      <% @game.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
   <%= f.text_field :name %>
   <%= f.submit "Create Game!" %>
 <% end %>

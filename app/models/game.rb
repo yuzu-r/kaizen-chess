@@ -4,7 +4,7 @@ class Game < ActiveRecord::Base
   belongs_to :active_player, class_name: "User"
   belongs_to :last_moved_piece, class_name: "Piece", foreign_key: "last_moved_piece_id"
   has_many :pieces
-
+  validates :name, presence: true 
   validate :valid_active_player?
 
   def active_game_count
