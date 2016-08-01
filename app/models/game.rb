@@ -7,6 +7,14 @@ class Game < ActiveRecord::Base
 
   validate :valid_active_player?
 
+  def active_game_count
+    Game.where(status: "active").count
+  end
+
+  def pending_game_count
+    Game.where(status: "pending").count
+  end
+
   def valid_active_player?
     if active_player
       if (active_player != white_player) && (active_player != black_player)

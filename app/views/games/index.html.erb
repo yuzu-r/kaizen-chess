@@ -1,14 +1,17 @@
 
 <div class="clearfix"></div>
-<h2 class="text-center">Welcome to Kaizen Chess!</h2>
-<div class="container">
-  <div id="jumbotron-game-index" class="jumbotron container-fluid">
+<h2 class="text-center" id="welcome">Welcome to Kaizen Chess!</h2>
+
+<div id="jumbotron-game-index" class="jumbotron">
+  <div class="container">
     <% if user_signed_in? %>
+      <p class ="text-center">Click on the name of a game listed below, <a href= <%= new_game_path %>>start a new game (as white)</a>, or <a href = <%=open_path %>>look for a game to join (as black)</a>.</p>  
+      <div class="clearfix"></div>
       <div class="container col-sm-6">
         <div class="panel panel-default">
-          <div class="panel-heading">Your Active Games</div>
+          <div class="panel-heading"><b>Your Active Games</b></div>
           <div class="panel-body">
-            <h4>Playing White:</h4>
+            <b>Playing White:</b><br/>
             <% @games.each do |game| %>
               <% if (current_user.id == game.white_player_id && game.status == 'active') %>
                 <%= link_to game.name, game_path(game.id) %>
@@ -18,7 +21,8 @@
                 <br/>
               <% end %>
             <% end %>
-            <h4>Playing Black:</h4> 
+            <br/>
+            <b>Playing Black:</b><br/> 
             <% @games.each do |game| %>
               <% if (current_user.id == game.black_player_id && game.status == 'active') %>
                 <%= link_to game.name, game_path(game.id) %>
@@ -33,7 +37,7 @@
       </div>
       <div class="container col-sm-6">
         <div class="panel panel-default">
-          <div class="panel-heading">Your Pending Games</div>
+          <div class="panel-heading"><b>Your Pending Games</b></div>
           <div class="panel-body">
             <% @games.each do |game| %>
               <% if (current_user.id == game.white_player_id && game.status == 'pending') %>
@@ -47,7 +51,7 @@
       <div class="clearfix"></div>
       <div class="container col-sm-6">
         <div class="panel panel-default">
-          <div class="panel-heading">Your Completed Games</div>
+          <div class="panel-heading"><b>Your Completed Games</b></div>
           <div class="panel-body">
             <% @games.each do |game| %>
               <% if (current_user.id == game.white_player_id || current_user.id == game.black_player_id) && game.status == 'finished' %>
@@ -62,6 +66,7 @@
         </div>
       </div>
       <div class="clearfix"></div>
+      <!--
       <div class="container col-sm-8">
         <div class="panel panel-default">
           <div class="panel-heading">Observe a Game in Progress</div>
@@ -84,13 +89,23 @@
         </div>
       </div>
       <div class="clearfix"></div>
-
+    -->
     <% else %>
-      <%= link_to "Sign Up", new_user_registration_path, class: 'btn btn-primary' %>
-      <%= link_to "Sign In", new_user_session_path, class: 'btn btn-primary' %>
+      <p>
+        <%= link_to "Sign in", new_user_session_path %> or 
+        <%= link_to "Sign up", new_user_registration_path %> to play chess with your friends. <br/> 
+        There are <%= pluralize(@active_game_count, 'game') %> in progress. 
+        <% if @pending_game_count > 0 %>
+          <%= pluralize(@pending_game_count, 'game') %>
+          <%= @pending_game_count == 1 ? 'is' : 'are' %> 
+          looking for an opponent.
+        <% end %>
+        Join the action!
+      </p>
     <% end %>
   </div>
 </div>
+
 <div class="clearfix"></div>
 
 
