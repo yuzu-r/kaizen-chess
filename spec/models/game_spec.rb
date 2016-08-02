@@ -38,6 +38,40 @@ RSpec.describe Game, type: :model do
     end
   end
 
+  describe "offer draw" do
+    it "does not allow a player who is not in the game to offer a draw", :draw=> true do
+      g=FactoryGirl.create(:joined_game)
+      u= FactoryGirl.create(:user)
+      g.offer_draw(u.id)
+      g.reload
+      expect(g.draw_offered_by_id).to be nil      
+    end
+
+    it "allows white_player to offer draw", :draw => true do
+      g=FactoryGirl.create(:joined_game)
+      g.offer_draw(g.white_player.id)
+      g.reload
+      expect(g.draw_offered_by_id).to eq g.white_player.id
+    end
+
+    it "allows black_player to offer draw", :draw => true do
+      g=FactoryGirl.create(:joined_game)
+      g.offer_draw(g.black_player.id)
+      g.reload
+      expect(g.draw_offered_by_id).to eq g.black_player.id
+    end
+
+    it "does not change draw if a draw has already been offered", :draw => true do
+      g=FactoryGirl.create(:joined_game)
+      g.offer_draw(g.black_player.id)
+      g.reload
+      g.offer_draw(g.white_player.id)
+      g.reload
+      expect(g.draw_offered_by_id).to eq g.black_player.id
+    end
+
+  end
+
   describe "is_in_check? returns true if player is in check" do
     before :each do
       @g = FactoryGirl.create(:joined_game)

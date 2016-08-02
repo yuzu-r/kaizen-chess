@@ -7,6 +7,18 @@ class Game < ActiveRecord::Base
   validates :name, presence: true 
   validate :valid_active_player?
 
+  def offer_draw(player_id)
+    if player_id != self.white_player.id && player_id != self.black_player.id
+      errors.add(:player_id, 'Invalid player!')
+    else
+      if draw_offered_by_id?
+        errors.add(:draw_offered_by_id, 'Already in draw offered!')
+      else
+        self.update_attribute(:draw_offered_by_id, player_id) 
+      end
+    end
+  end
+
   def active_game_count
     Game.where(status: "active").count
   end
