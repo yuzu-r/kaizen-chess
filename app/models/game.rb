@@ -9,7 +9,7 @@ class Game < ActiveRecord::Base
 
   def offer_draw(player_id)
     if player_id != self.white_player.id && player_id != self.black_player.id
-      errors.add(:player_id, 'Invalid player!')
+      errors.add(:draw_offered_by_id, 'Invalid player!')
     else
       if draw_offered_by_id?
         errors.add(:draw_offered_by_id, 'Already in draw offered!')
@@ -27,7 +27,27 @@ class Game < ActiveRecord::Base
     if player_id != self.draw_offered_by_id
       errors.add(:draw_offered_by_id, 'Player did not initiate draw.')
     else
-      self.update_attribute(:draw_offered_by_id, nil)
+      if self.status != 'active'
+        errors.add(:status, 'Game is not active')
+      else
+        self.update_attribute(:draw_offered_by_id, nil)
+      end
+    end
+  end
+
+  def decline_draw(player_id)
+    if player_id != self.white_player.id && player_id != self.black_player.id
+      errors.add(:draw_offered_by_id, 'Invalid player!')
+    else
+      if player_id != self.draw_offered_by_id
+        if self.status != 'active'
+          errors.add(:status, 'Game is not active.')
+        else
+          self.update_attribute(:draw_offered_by_id, nil)
+        end
+      else
+        errors.add(:draw_offered_by_id, 'Player initiated draw')
+      end
     end
   end
 

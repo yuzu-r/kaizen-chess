@@ -72,6 +72,7 @@ RSpec.describe Game, type: :model do
     it "does not change draw if the game is not active", :draw => true do
       g=FactoryGirl.create(:joined_game)
       g.status = "finished"
+      g.save
       g.offer_draw(g.black_player.id)
       g.reload
       expect(g.draw_offered_by_id).to eq nil
@@ -109,6 +110,41 @@ RSpec.describe Game, type: :model do
       g.rescind_draw(u.id)
       g.reload
       expect(g.draw_offered_by_id).to eq g.white_player.id
+    end
+  end
+
+  describe "decline draw" do
+    it "clears the draw id if the player offered draw declines", :draw => true do
+      g=FactoryGirl.create(:joined_game)
+      g.offer_draw(g.white_player.id)
+      g.reload
+      g.decline_draw(g.black_player.id)
+      expect(g.draw_offered_by_id).to eq nil
+    end
+
+    it "has no effect if the declining player is not the other player in game", :draw => true do
+      g=FactoryGirl.create(:joined_game)
+      g.offer_draw(g.white_player.id)
+      g.reload
+      g.decline_draw(g.white_player.id)
+      g.reload
+      expect(g.draw_offered_by_id).to eq g.white_player.id
+    end
+
+    it "has no effect if the game is not active", :draw => true do
+      g=FactoryGirl.create(:joined_game)
+      g.offer_draw(g.black_player.id)
+      g.status = "finished"
+      g.save
+      g.decline_draw(g.white_player.id)
+      expect(g.draw_offered_by_id).to eq g.black_player_id
+    end
+
+    it "has no effect if the game is not in draw", :draw => true do
+      g=FactoryGirl.create(:joined_game)
+      g.decline_draw(g.white_player.id)
+      g.reload
+      expect(g.draw_offered_by_id).to eq nil
     end
   end
 
