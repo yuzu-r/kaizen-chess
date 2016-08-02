@@ -14,8 +14,20 @@ class Game < ActiveRecord::Base
       if draw_offered_by_id?
         errors.add(:draw_offered_by_id, 'Already in draw offered!')
       else
-        self.update_attribute(:draw_offered_by_id, player_id) 
+        if self.status != 'active'
+          errors.add(:status, 'Game must be active in order to offer draw')
+        else
+          self.update_attribute(:draw_offered_by_id, player_id) 
+        end
       end
+    end
+  end
+
+  def rescind_draw(player_id)
+    if player_id != self.draw_offered_by_id
+      errors.add(:draw_offered_by_id, 'Player did not initiate draw.')
+    else
+      self.update_attribute(:draw_offered_by_id, nil)
     end
   end
 

@@ -69,7 +69,47 @@ RSpec.describe Game, type: :model do
       g.reload
       expect(g.draw_offered_by_id).to eq g.black_player.id
     end
+    it "does not change draw if the game is not active", :draw => true do
+      g=FactoryGirl.create(:joined_game)
+      g.status = "finished"
+      g.offer_draw(g.black_player.id)
+      g.reload
+      expect(g.draw_offered_by_id).to eq nil
+    end
+  end
 
+  describe "rescind draw" do
+    it "allows player who made draw offer to withdraw the offer", :draw => true do
+      g=FactoryGirl.create(:joined_game)
+      g.offer_draw(g.black_player.id)
+      g.reload
+      g.rescind_draw(g.black_player.id)
+      g.reload
+      expect(g.draw_offered_by_id).to eq nil      
+    end
+    it "does not allow player receiving offer to withdraw the offer", :draw => true do
+      g=FactoryGirl.create(:joined_game)
+      g.offer_draw(g.black_player.id)
+      g.reload
+      g.rescind_draw(g.white_player.id)
+      g.reload
+      expect(g.draw_offered_by_id).to eq g.black_player.id         
+    end
+    it "it has no effect if there is no draw", :draw => true do
+      g=FactoryGirl.create(:joined_game)
+      g.rescind_draw(g.black_player.id)
+      g.reload
+      expect(g.draw_offered_by_id).to eq nil
+    end
+    it "does not allow player not in game to rescind a draw", :draw => true do
+      g=FactoryGirl.create(:joined_game)
+      u= FactoryGirl.create(:user)
+      g.offer_draw(g.white_player.id)
+      g.reload
+      g.rescind_draw(u.id)
+      g.reload
+      expect(g.draw_offered_by_id).to eq g.white_player.id
+    end
   end
 
   describe "is_in_check? returns true if player is in check" do

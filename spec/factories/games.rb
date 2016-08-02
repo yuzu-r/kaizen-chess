@@ -5,6 +5,7 @@ FactoryGirl.define do
 
     factory :joined_game do
       black_player
+      status "active"
     end
   end
 
