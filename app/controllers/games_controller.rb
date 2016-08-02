@@ -8,8 +8,13 @@ class GamesController < ApplicationController
 
   def index
     @games = Game.all
-    @active_game_count = Game.first.active_game_count
-    @pending_game_count = Game.first.pending_game_count
+    if @games.empty?
+      @active_game_count = 0
+      @pending_game_count = 0
+    else
+      @active_game_count = Game.first.active_game_count
+      @pending_game_count = Game.first.pending_game_count
+    end
   end
 
   def show

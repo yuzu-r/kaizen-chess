@@ -5,3 +5,6 @@ Don't see a game? <a href=<%= new_game_path%>>Start a new one yourself</a>.
     <p><%= link_to game.name, game_path(game.id) %></p>
   <% end %>
 <% end %>
+
+<br/><br/>
+<%= link_to 'back to games index', games_path %>
