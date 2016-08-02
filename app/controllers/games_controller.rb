@@ -1,11 +1,20 @@
 class GamesController < ApplicationController
   before_action :authenticate_user!, only: [:new, :create, :open]
+  attr_reader :active_game_count, :pending_game_count
+
   def new
     @game = Game.new
   end
 
   def index
     @games = Game.all
+    if @games.empty?
+      @active_game_count = 0
+      @pending_game_count = 0
+    else
+      @active_game_count = Game.first.active_game_count
+      @pending_game_count = Game.first.pending_game_count
+    end
   end
 
   def show
