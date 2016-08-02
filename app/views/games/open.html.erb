@@ -1,8 +1,7 @@
-<div class='col-xs-10 col-xs-offset-1 col-sm-2 col-sm-offset-2'>
-  <h1>Join a Game</h1>
-  <% @games.each do |game| %>
-    <% if current_user.id != game.white_player_id && game.black_player_id == nil %>
-      <p><%= link_to game.name, game_path(game.id) %></p>
-    <% end %>
+<h2>Join a Game</h2>
+Don't see a game? <a href=<%= new_game_path%>>Start a new one yourself</a>.
+<% @games.each do |game| %>
+  <% if current_user.id != game.white_player_id && game.black_player_id == nil %>
+    <p><%= link_to game.name, game_path(game.id) %></p>
   <% end %>
-</div>
+<% end %>
