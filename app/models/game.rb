@@ -51,6 +51,28 @@ class Game < ActiveRecord::Base
     end
   end
 
+  def accept_draw(player_id)
+    if player_id != self.white_player.id && player_id != self.black_player.id
+      errors.add(:draw_offered_by_id, 'Invalid player!')
+    else
+      if player_id != self.draw_offered_by_id
+        if self.status != 'active'
+          errors.add(:status, 'Game is not active.')
+        else
+          # update the game to mark it as a draw
+          # game = finished and no winning/losing player means it was a draw
+          if self.draw_offered_by_id
+            self.update(status: "finished", active_player_id: nil, draw_offered_by_id: nil)
+          else
+            errors.add(:draw_offered_by_id, 'No draw to accept')
+          end
+        end
+      else
+        errors.add(:draw_offered_by_id, 'Player initiated draw')
+      end
+    end
+  end
+
   def active_game_count
     Game.where(status: "active").count
   end
@@ -315,6 +337,11 @@ class Game < ActiveRecord::Base
       game_status_msg = self.name + ': black in checkmate, ' + self.white_player.email + ' won'
     end
     FB.update(game_uri, {game_status: 'finished', active_player_id: "", status_message: game_status_msg})
+  end
 
+  def draw_firebase
+    game_uri = GAMES_URI + self.firebase_game_id.to_s
+    game_status_msg = self.name + ': draw' 
+    FB.update(game_uri, {game_status: 'finished', active_player_id: "", status_message: game_status_msg})
   end
 end

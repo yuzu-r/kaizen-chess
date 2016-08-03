@@ -6,6 +6,10 @@ Rails.application.routes.draw do
       patch :join
       patch :forfeit
       get :status
+      patch :offer_draw
+      patch :accept_draw
+      patch :rescind_draw
+      patch :decline_draw
     end
     resources :pieces, only: [:update] do
       member do

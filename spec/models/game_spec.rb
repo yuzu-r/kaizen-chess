@@ -148,6 +148,45 @@ RSpec.describe Game, type: :model do
     end
   end
 
+  describe "accept draw" do
+    it "concludes the game if a valid player accepts a draw", :draw => true do
+      g=FactoryGirl.create(:joined_game)
+      g.offer_draw(g.black_player.id)
+      g.reload
+      g.accept_draw(g.white_player.id)
+      g.reload
+      expect(g.status).to eq "finished"
+      expect(g.active_player_id).to eq nil      
+    end
+
+    it "doesn't let a different player accept draw", :draw => true do
+      g=FactoryGirl.create(:joined_game)
+      u= FactoryGirl.create(:user)
+      g.offer_draw(g.white_player.id)
+      g.reload
+      g.accept_draw(u.id)
+      expect(g.status).to eq "active"
+    end
+
+    it "has no effect if the game is not active", :draw => true do
+      g=FactoryGirl.create(:joined_game)
+      g.offer_draw(g.black_player.id)      
+      g.status = "zoo"
+      g.winning_player = g.white_player.id
+      g.save
+      g.accept_draw(g.white_player.id)
+      expect(g.status).to eq "zoo"
+    end
+
+    it "has no effect if the game has no draw on offer", :draw => true do
+      g=FactoryGirl.create(:joined_game)
+      g.accept_draw(g.white_player.id)
+      g.reload
+      expect(g.status).to eq "active"
+    end
+
+  end
+
   describe "is_in_check? returns true if player is in check" do
     before :each do
       @g = FactoryGirl.create(:joined_game)
