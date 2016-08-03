@@ -344,4 +344,33 @@ class Game < ActiveRecord::Base
     game_status_msg = self.name + ': draw' 
     FB.update(game_uri, {game_status: 'finished', active_player_id: "", status_message: game_status_msg})
   end
+
+  def offer_draw_firebase(player_id)
+    game_uri = GAMES_URI + self.firebase_game_id.to_s
+    if player_id == self.white_player.id
+      draw_status_msg = 'White offers a draw. Black can accept or decline.'
+    else
+      draw_status_msg = 'Black offers a draw. White can accept or decline.'
+    end
+    FB.update(game_uri, {draw_message: draw_status_msg})
+  end
+
+  def decline_draw_firebase(player_id)
+    game_uri = GAMES_URI + self.firebase_game_id.to_s
+    draw_status_msg = 'Draw offer was declined.'
+    FB.update(game_uri, {draw_message: draw_status_msg})
+  end
+
+  def rescind_draw_firebase(player_id)
+    game_uri = GAMES_URI + self.firebase_game_id.to_s
+    draw_status_msg = 'Draw offer was withdrawn.'
+    FB.update(game_uri, {draw_message: draw_status_msg})   
+  end
+
+  def accept_draw_firebase(player_id)
+    game_uri = GAMES_URI + self.firebase_game_id.to_s
+    draw_status_msg = 'Draw accepted. The game is over.'
+    status_message = self.name + ': finished (draw)'
+    FB.update(game_uri, {game_status: 'finished', active_player_id: "", draw_message: draw_status_msg, status_message: status_message})       
+  end
 end

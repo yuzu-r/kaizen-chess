@@ -73,7 +73,7 @@
 <div class="container col-xs-8 col-xs-offset-2">
   <div class="panel panel-default">
     <div class="panel-heading">
-      <h4 class="panel-title" id="game-status-panel-title">Game Actions</h4>
+      <h4 class="panel-title" id="game-action-panel-title">Game Actions</h4>
     </div>
     <div class="panel-body">
       <div class="clearfix"></div>
@@ -103,7 +103,12 @@
         <button class="btn btn-primary btn-sm" id="join-game">Join Game</button>
       <% end %>
       <button class="btn btn-danger btn-sm" id="forfeit-game">Forfeit Game</button>
-      <h4>Offer Draw</h4>  
+      <br/><br/>
+      <h5 id="draw-status-msg"></h5><br/>
+      <button class="btn btn-default btn-sm" id="offer-draw">Offer Draw</button>
+      <button class="btn btn-default btn-sm" id="decline-draw">Decline Draw</button>
+      <button class="btn btn-default btn-sm" id="rescind-draw">Rescind Draw</button>
+      <button class="btn btn-default btn-sm" id="accept-draw">Accept Draw</button>  
     </div>
   </div>
 </div>
@@ -150,7 +155,8 @@ Black Player:
                 $('#firebase-turn').text('');   
               }
             }
-            
+
+            $('#draw-status-msg').text(gameData.draw_message);
             $('#game-status-panel-title').text(gameData.status_message);
             $('#firebase-checkalert').text(gameData.check_message);
 
@@ -306,6 +312,66 @@ Black Player:
   $('#myButton').on('click', function(){
     drawPieces();
   })
+
+  $('#offer-draw').on('click', function(){
+    offerDraw(<%=@game.id%>);
+  })
+
+  $('#decline-draw').on('click', function(){
+    declineDraw(<%=@game.id%>);
+  })
+
+  $('#rescind-draw').on('click', function(){
+    rescindDraw(<%=@game.id%>);
+  })
+
+  $('#accept-draw').on('click', function(){
+    acceptDraw(<%=@game.id%>);
+  })
+
+  function acceptDraw(gameId){
+    var acceptDrawUrl = "/games/" + gameId + "/accept_draw";
+    var data = {_method: 'PATCH'};
+    $.post(acceptDrawUrl, data)
+      .done(function(){
+        console.log('draw accepted successfully');
+        drawPieces();
+        updateActivePlayer();
+      });           
+  }
+
+  function rescindDraw(gameId){
+    var rescindDrawUrl = "/games/" + gameId + "/rescind_draw";
+    var data = {_method: 'PATCH'};
+    $.post(rescindDrawUrl, data)
+      .done(function(){
+        console.log('draw withdrawn successfully');
+        drawPieces();
+        updateActivePlayer();
+      });       
+  }
+
+  function declineDraw(gameId){
+    var declineDrawUrl = "/games/" + gameId + "/decline_draw";
+    var data = {_method: 'PATCH'};
+    $.post(declineDrawUrl, data)
+      .done(function(){
+        console.log('draw declined successfully');
+        drawPieces();
+        updateActivePlayer();
+      });    
+  }
+
+  function offerDraw(gameId){
+    var offerDrawUrl = "/games/" + gameId + "/offer_draw";
+    var data = {_method: 'PATCH'};
+    $.post(offerDrawUrl, data)
+      .done(function(){
+        console.log('draw offered successfully');
+        drawPieces();
+        updateActivePlayer();
+      })
+  }
 
 	function joinGame(gameId) {
 		var joinUrl = "/games/" + gameId + "/join";
