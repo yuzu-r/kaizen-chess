@@ -1,5 +1,5 @@
 <h2>Join a Game</h2>
-Don't see a game? <a href=<%= new_game_path%>>Start a new one yourself</a>.
+Don't see a game? <a href=<%= new_game_path%>>Start a new one yourself</a>.<br/><br/>
 <% @games.each do |game| %>
   <% if current_user.id != game.white_player_id && game.black_player_id == nil %>
     <p><%= link_to game.name, game_path(game.id) %></p>

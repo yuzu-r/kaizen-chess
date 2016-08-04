@@ -28,7 +28,8 @@ class GamesController < ApplicationController
 
   def getActivePlayer
     @game = Game.find(params[:id])
-    render json: @game.active_player_id
+    #render json: @game.active_player_id
+    render :json => {active_player_id: @game.active_player_id, draw_offered_by: @game.draw_offered_by_id}
   end
 
   def firebase_info
@@ -54,6 +55,42 @@ class GamesController < ApplicationController
 
   def open
     @games = Game.all
+  end
+
+  def offer_draw
+    @game = Game.find(params[:id])
+    @game.offer_draw(current_user.id)
+    if @game.valid?
+      @game.offer_draw_firebase(current_user.id)
+      render json: {:success => "success", :status_code => "200"}
+    end
+  end
+
+  def decline_draw
+    @game = Game.find(params[:id])
+    @game.decline_draw(current_user.id)
+    if @game.valid?
+      @game.decline_draw_firebase(current_user.id)
+      render json: {:success => "success", :status_code => "200"}
+    end
+  end
+
+  def rescind_draw
+    @game = Game.find(params[:id])
+    @game.rescind_draw(current_user.id)
+    if @game.valid?
+      @game.rescind_draw_firebase(current_user.id)
+      render json: {:success => "success", :status_code => "200"}
+    end
+  end
+
+  def accept_draw
+    @game = Game.find(params[:id])
+    @game.accept_draw(current_user.id)
+    if @game.valid?
+      @game.accept_draw_firebase(current_user.id)
+      render json: {:success => "success", :status_code => "200"}
+    end   
   end
 
   def join

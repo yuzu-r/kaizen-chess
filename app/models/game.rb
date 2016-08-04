@@ -7,6 +7,72 @@ class Game < ActiveRecord::Base
   validates :name, presence: true 
   validate :valid_active_player?
 
+  def offer_draw(player_id)
+    if player_id != self.white_player.id && player_id != self.black_player.id
+      errors.add(:draw_offered_by_id, 'Invalid player!')
+    else
+      if draw_offered_by_id?
+        errors.add(:draw_offered_by_id, 'Already in draw offered!')
+      else
+        if self.status != 'active'
+          errors.add(:status, 'Game must be active in order to offer draw')
+        else
+          self.update_attribute(:draw_offered_by_id, player_id) 
+        end
+      end
+    end
+  end
+
+  def rescind_draw(player_id)
+    if player_id != self.draw_offered_by_id
+      errors.add(:draw_offered_by_id, 'Player did not initiate draw.')
+    else
+      if self.status != 'active'
+        errors.add(:status, 'Game is not active')
+      else
+        self.update_attribute(:draw_offered_by_id, nil)
+      end
+    end
+  end
+
+  def decline_draw(player_id)
+    if player_id != self.white_player.id && player_id != self.black_player.id
+      errors.add(:draw_offered_by_id, 'Invalid player!')
+    else
+      if player_id != self.draw_offered_by_id
+        if self.status != 'active'
+          errors.add(:status, 'Game is not active.')
+        else
+          self.update_attribute(:draw_offered_by_id, nil)
+        end
+      else
+        errors.add(:draw_offered_by_id, 'Player initiated draw')
+      end
+    end
+  end
+
+  def accept_draw(player_id)
+    if player_id != self.white_player.id && player_id != self.black_player.id
+      errors.add(:draw_offered_by_id, 'Invalid player!')
+    else
+      if player_id != self.draw_offered_by_id
+        if self.status != 'active'
+          errors.add(:status, 'Game is not active.')
+        else
+          # update the game to mark it as a draw
+          # game = finished and no winning/losing player means it was a draw
+          if self.draw_offered_by_id
+            self.update(status: "finished", active_player_id: nil, draw_offered_by_id: nil)
+          else
+            errors.add(:draw_offered_by_id, 'No draw to accept')
+          end
+        end
+      else
+        errors.add(:draw_offered_by_id, 'Player initiated draw')
+      end
+    end
+  end
+
   def active_game_count
     Game.where(status: "active").count
   end
@@ -271,6 +337,40 @@ class Game < ActiveRecord::Base
       game_status_msg = self.name + ': black in checkmate, ' + self.white_player.email + ' won'
     end
     FB.update(game_uri, {game_status: 'finished', active_player_id: "", status_message: game_status_msg})
+  end
 
+  def draw_firebase
+    game_uri = GAMES_URI + self.firebase_game_id.to_s
+    game_status_msg = self.name + ': draw' 
+    FB.update(game_uri, {game_status: 'finished', active_player_id: "", status_message: game_status_msg})
+  end
+
+  def offer_draw_firebase(player_id)
+    game_uri = GAMES_URI + self.firebase_game_id.to_s
+    if player_id == self.white_player.id
+      draw_status_msg = 'White offers a draw. Black can accept or decline.'
+    else
+      draw_status_msg = 'Black offers a draw. White can accept or decline.'
+    end
+    FB.update(game_uri, {draw_message: draw_status_msg})
+  end
+
+  def decline_draw_firebase(player_id)
+    game_uri = GAMES_URI + self.firebase_game_id.to_s
+    draw_status_msg = 'Draw offer was declined. Black or White can make a new draw offer.'
+    FB.update(game_uri, {draw_message: draw_status_msg})
+  end
+
+  def rescind_draw_firebase(player_id)
+    game_uri = GAMES_URI + self.firebase_game_id.to_s
+    draw_status_msg = 'Draw offer was withdrawn. Black or White can make a new draw offer.'
+    FB.update(game_uri, {draw_message: draw_status_msg})   
+  end
+
+  def accept_draw_firebase(player_id)
+    game_uri = GAMES_URI + self.firebase_game_id.to_s
+    draw_status_msg = 'Draw accepted. The game is over.'
+    status_message = self.name + ': finished (draw)'
+    FB.update(game_uri, {game_status: 'finished', active_player_id: "", draw_message: draw_status_msg, status_message: status_message})       
   end
 end

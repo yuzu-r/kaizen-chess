@@ -58,6 +58,10 @@
                 <%= link_to game.name, game_path(game.id) %>
                 <% if game.winning_player == current_user.id %>
                   (win)
+                <% elsif game.winning_player.nil? %>
+                  (draw)
+                <% else %>
+                  (loss)
                 <% end %>
                 <br/>
               <% end %>
