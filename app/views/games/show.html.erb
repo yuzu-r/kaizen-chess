@@ -476,7 +476,13 @@ Black Player:
           else {
             // if game is not in draw, enable the offer draw button
             // and disable all the other draw buttons
-            $('#offer-draw').prop('disabled', false);
+            if(active_player_id){
+              $('#offer-draw').prop('disabled', false);
+            }
+            else {
+              // no active player means game is pending or finished
+              $('#offer-draw').prop('disabled', true);
+            }
             $('#rescind-draw').prop('disabled', true);
             $('#decline-draw').prop('disabled', true);
             $('#accept-draw').prop('disabled', true);             
@@ -507,7 +513,13 @@ Black Player:
             }            
           }
           else {
-            $('#offer-draw').prop('disabled', false); 
+            if(active_player_id){
+              $('#offer-draw').prop('disabled', false); 
+            }
+            else{
+              $('#offer-draw').prop('disabled', true);   
+            }
+
             $('#rescind-draw').prop('disabled', true);
             $('#decline-draw').prop('disabled', true);
             $('#accept-draw').prop('disabled', true);             
