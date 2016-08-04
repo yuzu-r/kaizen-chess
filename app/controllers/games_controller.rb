@@ -28,7 +28,8 @@ class GamesController < ApplicationController
 
   def getActivePlayer
     @game = Game.find(params[:id])
-    render json: @game.active_player_id
+    #render json: @game.active_player_id
+    render :json => {active_player_id: @game.active_player_id, draw_offered_by: @game.draw_offered_by_id}
   end
 
   def firebase_info

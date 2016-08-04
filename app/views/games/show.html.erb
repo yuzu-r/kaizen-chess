@@ -121,8 +121,6 @@ Black Player:
 <% end %>
 <br />
 
-<button class="btn btn-danger" id="myButton">Draw Pieces</button>
-
 <script>
   function firebaseStart(){
     var firebaseURL = "/games/" + '<%=@game.id%>' + "/get_firebase_info";
@@ -131,7 +129,6 @@ Black Player:
       url: firebaseURL,
       dataType: 'json',
       success: function(response) {
-        //console.log('firebase info: ' + response.config);
         firebase.initializeApp(response.config);
         var dbRef = firebase.database().ref();
         var gamesRef = dbRef.child('games'); 
@@ -236,11 +233,9 @@ Black Player:
 						$('.board_square[data-position-x='+ piece.position_x + '][data-position-y=' + piece.position_y + ']').html(clonedPiece);
         	}
           else {
-            //console.log('piece is not on board!' + piece.id);
             $('.piece[data-piece-id=' + piece.id + ']').empty();
           }
 				});
-        //console.log('calling updateActivePlayer from drawPieces');
         updateActivePlayer();
       }, error: function (data) {
         console.log('Chess pieces failed to load!');
@@ -308,10 +303,6 @@ Black Player:
 	$('#join-game').on('click', function(){
 		joinGame(<%=@game.id %>);
 	})
-
-  $('#myButton').on('click', function(){
-    drawPieces();
-  })
 
   $('#offer-draw').on('click', function(){
     offerDraw(<%=@game.id%>);
@@ -437,7 +428,6 @@ Black Player:
         ).success(function(data){
           $('.whitepromotion').css("display", "none");
           $('.blackpromotion').css("display", "none");
-          console.log('successful promotion, redraw pieces');
           drawPieces(); // note this only has effect on active board
           updateActivePlayer(); // note this only has effect on active board
         });
@@ -450,22 +440,78 @@ Black Player:
       url: '<%= get_active_player_path(@game) %>',
       dataType: 'json',
       cache: false,
-      success: function(active_player_id) {
+      success: function(data) {
+        var active_player_id = data.active_player_id;
+        var drawOfferedBy = data.draw_offered_by;
         var current_user_id = <%= current_user.id %>;
         var white_player_id = '<%= @game.white_player_id %>';
         if(current_user_id == active_player_id){
           if( active_player_id == white_player_id ){
             $('.white').draggable({disabled: false});
-            //$('#forfeit-game.black-player').prop('disabled', true);
-            //$('#forfeit-game.white-player').prop('disabled', false);
+            $('#forfeit-game.black-player').prop('disabled', true);
+            $('#forfeit-game.white-player').prop('disabled', false);
           }
           else{
             $('.black').draggable({disabled: false});
+            $('#forfeit-game.black-player').prop('disabled', false);
+            $('#forfeit-game.white-player').prop('disabled', true);
             }
+            console.log('isdraw: '+ drawOfferedBy);
+          if (drawOfferedBy){
+            // if game is in draw, disable the offer draw button
+            // and enable the accept and decline buttons for the other player
+            // and enable the rescind button for the draw player
+            $('#offer-draw').prop('disabled', true);
+            if(active_player_id == drawOfferedBy) {
+              $('#rescind-draw').prop('disabled', false);
+              $('#decline-draw').prop('disabled', true);
+              $('#accept-draw').prop('disabled', true);
+            }
+            else{
+              $('#rescind-draw').prop('disabled', true);
+              $('#decline-draw').prop('disabled', false);
+              $('#accept-draw').prop('disabled', false);             
+            }
+          }
+          else {
+            // if game is not in draw, enable the offer draw button
+            // and disable all the other draw buttons
+            $('#offer-draw').prop('disabled', false);
+            $('#rescind-draw').prop('disabled', true);
+            $('#decline-draw').prop('disabled', true);
+            $('#accept-draw').prop('disabled', true);             
+          }
         }
-
         else{
+          // actions that the listening board should take
           $('.piece').draggable({ disabled: true });
+          if(active_player_id == white_player_id) {
+            $('#forfeit-game.black-player').prop('disabled', true);
+            $('#forfeit-game.white-player').prop('disabled', false);            
+          }
+          else {
+            $('#forfeit-game.black-player').prop('disabled', false);
+            $('#forfeit-game.white-player').prop('disabled', true);
+          }
+          if (drawOfferedBy){
+            $('#offer-draw').prop('disabled', true);
+            if(current_user_id == drawOfferedBy) {
+              $('#rescind-draw').prop('disabled', false);
+              $('#decline-draw').prop('disabled', true);
+              $('#accept-draw').prop('disabled', true);
+            }
+            else{
+              $('#rescind-draw').prop('disabled', true);
+              $('#decline-draw').prop('disabled', false);
+              $('#accept-draw').prop('disabled', false);             
+            }            
+          }
+          else {
+            $('#offer-draw').prop('disabled', false); 
+            $('#rescind-draw').prop('disabled', true);
+            $('#decline-draw').prop('disabled', true);
+            $('#accept-draw').prop('disabled', true);             
+          }
         }
       }, error: function (data) {
         console.log('Failed to get active player!');
