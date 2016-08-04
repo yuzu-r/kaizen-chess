@@ -357,13 +357,13 @@ class Game < ActiveRecord::Base
 
   def decline_draw_firebase(player_id)
     game_uri = GAMES_URI + self.firebase_game_id.to_s
-    draw_status_msg = 'Draw offer was declined.'
+    draw_status_msg = 'Draw offer was declined. Black or White can make a new draw offer.'
     FB.update(game_uri, {draw_message: draw_status_msg})
   end
 
   def rescind_draw_firebase(player_id)
     game_uri = GAMES_URI + self.firebase_game_id.to_s
-    draw_status_msg = 'Draw offer was withdrawn.'
+    draw_status_msg = 'Draw offer was withdrawn. Black or White can make a new draw offer.'
     FB.update(game_uri, {draw_message: draw_status_msg})   
   end
 
