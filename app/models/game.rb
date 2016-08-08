@@ -280,6 +280,67 @@ class Game < ActiveRecord::Base
     false
   end 
 
+  def valid_check_defense?(threatening_piece, block_x, block_y, king)
+    # this is like valid_check_block? but piece-agnostic
+    # all it does is check if putting a piece at the coordinates will block a threat
+    threatening_piece_x = threatening_piece.position_x
+    threatening_piece_y = threatening_piece.position_y
+    king_x = king.position_x
+    king_y = king.position_y
+
+    if threatening_piece.is_diagonal_move?(king_x, king_y)
+      if threatening_piece_x < king_x && threatening_piece_y < king_y # SW
+        (threatening_piece_x + 1).upto(king_x - 1) do |x|
+          (threatening_piece_y + 1).upto(king_y - 1) do |y|
+            return true if block_x == x && block_y == y && (x - threatening_piece.position_x).abs == (y - threatening_piece.position_y).abs
+          end 
+        end 
+      elsif threatening_piece_x > king_x && threatening_piece_y < king_y # SE
+        (threatening_piece_x - 1).downto(king_x + 1) do |x|
+          (threatening_piece_y + 1).upto(king_y - 1) do |y|
+            return true if block_x ==x && block_y == y && (x - threatening_piece.position_x).abs == (y - threatening_piece.position_y).abs
+          end 
+        end 
+      elsif threatening_piece_x < king_x && threatening_piece_y > king_y # NW
+        (threatening_piece_x + 1).upto(king_x - 1) do |x|
+          (threatening_piece_y - 1).downto(king_y + 1) do |y|
+            return true if block_x == x && block_y == y && (x - threatening_piece.position_x).abs == (y - threatening_piece.position_y).abs
+          end 
+        end 
+      elsif threatening_piece_x > king_x && threatening_piece_y > king_y # NE
+        (threatening_piece_x - 1).downto(king_x + 1) do |x|
+         (threatening_piece_y - 1).downto(king_y + 1) do |y|
+           return true if block_x == x && block_y == y && (x - threatening_piece.position_x).abs == (y - threatening_piece.position_y).abs
+         end 
+        end
+      end  
+    elsif threatening_piece.is_horizontal_move?(king_x, king_y)
+      if threatening_piece_x < king_x # East
+        (threatening_piece_x + 1).upto(king_x - 1) do |x|
+          return true if block_y == threatening_piece_y && block_x == x
+        end 
+      else # West
+        (threatening_piece_x - 1).downto(king_x + 1) do |x|
+          return true if block_y == threatening_piece_y && block_x == x
+        end 
+      end 
+    elsif threatening_piece.is_vertical_move?(king_x, king_y)
+      if threatening_piece_y < king_y # North
+        (threatening_piece_y + 1).upto(king_y - 1) do |y|
+          return true if block_x == threatening_piece_x && block_y == y
+        end 
+      else # South
+        (threatening_piece_y - 1).downto(king_y + 1) do |y|
+          return true if block_x == threatening_piece_x && block_y == y
+        end 
+      end 
+    elsif threatening_piece.is_knight_move?(king_x, king_y)
+      # nothing can block a knight, out of luck
+      return false
+    end
+    return false
+  end
+
   def initialize_firebase
     game_status_msg = self.name + ': waiting for opponent'
     logger.info "writing to #{GAMES_URI}"

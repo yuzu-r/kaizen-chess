@@ -407,4 +407,31 @@ RSpec.describe Game, type: :model do
     end
   end
 
+  describe "valid_check_defense? returns true if king is threatened by a diagonal piece and a block is valid" do
+    # valid_check_defense?(threatening_piece, block_x, block_y, king)
+    before :each do
+      @g = FactoryGirl.create(:joined_game)
+    end   
+    it "is true if white king is endangered by rook to the north", :check_block => true do
+      white_king = King.create(position_x: 4, position_y: 4, game: @g, player: @g.white_player)
+      black_rook = Rook.create(position_x: 4, position_y: 7, game: @g, player: @g.black_player)
+      expect(@g.valid_check_defense?(black_rook, 4, 6, white_king)).to eq true
+    end
+    it "is true if white king is endangered by rook to the south", :check_block => true do
+      white_king = King.create(position_x: 4, position_y: 4, game: @g, player: @g.white_player)
+      black_rook = Rook.create(position_x: 4, position_y: 2, game: @g, player: @g.black_player)
+      expect(@g.valid_check_defense?(black_rook, 4, 3, white_king)).to eq true
+    end
+    it "is true if black king is endangered from the east", :check_block => true do
+      black_king = King.create(position_x: 4, position_y: 4, game: @g, player: @g.black_player)
+      white_queen = Queen.create(position_x: 8, position_y: 4, game: @g, player: @g.white_player)
+      expect(@g.valid_check_defense?(white_queen, 7, 4, black_king)).to eq true
+    end
+    it "is true if black king is endangered by rook to the west", :check_block => true do
+      black_king = King.create(position_x: 4, position_y: 4, game: @g, player: @g.black_player)
+      white_queen = Queen.create(position_x: 1, position_y: 4, game: @g, player: @g.white_player)
+      expect(@g.valid_check_defense?(white_queen, 3, 4, black_king)).to eq true
+    end
+
+  end
 end
