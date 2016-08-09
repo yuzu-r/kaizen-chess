@@ -118,5 +118,55 @@ class Piece < ActiveRecord::Base
     return false
   end
 
+  def resolve_check?(dest_x, dest_y)
+    # if player is in check, does moving a piece to dest_x, dest_y get the player out of check?
+    # if this is false, the move is not valid. this is called by each piece's is valid move method
+    # note - this method is piece type agnostic, it does not care how the piece gets there
+    # first find the threatening piece or pieces on the board
+    if player == game.white_player
+      king = game.pieces.where(type: "King", player: player).first
+      king_x = king.position_x
+      king_y = king.position_y
+      threatening_piece = nil
+      threats=[]
+      threat_counter = 0
+      game.black_player.pieces.where(is_active: true).each do |piece|
+        if piece.type != "King"
+          threatening_piece = piece if piece.is_valid_move?(king_x, king_y)
+          threats[threat_counter] = piece
+          threat_counter += 1
+        end
+      end
+      # for each threatening piece, does bishop block or capture it?
+      return true if threats.empty?
+      threats.each do |p|
+        isCapture = dest_x == p.position_x && dest_y == p.position_y
+        return false if !isCapture && !game.valid_check_defense?(p, dest_x, dest_y, king)
+      end
+      return true
+    else 
+      king = game.pieces.where(type: "King", player: player).first
+      king_x = king.position_x
+      king_y = king.position_y
+      threatening_piece = nil
+      threats = []
+      threat_counter = 0
+      game.white_player.pieces.where(is_active: true).each do |piece|
+        if piece.type != "King"
+          threatening_piece = piece if piece.is_valid_move?(king_x, king_y)
+          threats[threat_counter] = piece
+          threat_counter += 1         
+        end
+      end
+      # for each threatening piece, does bishop block or capture it?
+      return true if threats.empty?
+      threats.each do |p|
+        isCapture = dest_x == p.position_x && dest_y == p.position_y
+        return false if !isCapture && !game.valid_check_defense?(p, dest_x, dest_y, king)
+      end
+      return true   
+    end
+  end
+
 end
 
