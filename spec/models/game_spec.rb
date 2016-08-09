@@ -407,8 +407,7 @@ RSpec.describe Game, type: :model do
     end
   end
 
-  describe "valid_check_defense? returns true if king is threatened by a diagonal piece and a block is valid" do
-    # valid_check_defense?(threatening_piece, block_x, block_y, king)
+  describe "valid_check_defense? returns true if king is threatened and a block is valid" do
     before :each do
       @g = FactoryGirl.create(:joined_game)
     end   
@@ -432,6 +431,47 @@ RSpec.describe Game, type: :model do
       white_queen = Queen.create(position_x: 1, position_y: 4, game: @g, player: @g.white_player)
       expect(@g.valid_check_defense?(white_queen, 3, 4, black_king)).to eq true
     end
+    it "is true if king is endangered from the northeast", :check_block => true do
+      black_king = King.create(position_x: 4, position_y: 4, game: @g, player: @g.black_player)
+      white_queen = Queen.create(position_x: 6, position_y: 6, game: @g, player: @g.white_player)
+      expect(@g.valid_check_defense?(white_queen, 5, 5, black_king)).to eq true
+    end
+    it "is true if king is endangered from the southeast", :check_block => true do
+      black_king = King.create(position_x: 4, position_y: 4, game: @g, player: @g.black_player)
+      white_queen = Queen.create(position_x: 7, position_y: 1, game: @g, player: @g.white_player)
+      expect(@g.valid_check_defense?(white_queen, 5, 3, black_king)).to eq true
+    end
+    it "is true if king is endangered from the northwest", :check_block => true do
+      white_king = King.create(position_x: 4, position_y: 4, game: @g, player: @g.white_player)
+      black_bishop = Bishop.create(position_x: 1, position_y: 7, game: @g, player: @g.black_player)
+      expect(@g.valid_check_defense?(black_bishop, 3, 5, white_king)).to eq true
+    end
+    it "is true if king is endangered from the southwest", :check_block => true do
+      white_king = King.create(position_x: 4, position_y: 4, game: @g, player: @g.white_player)
+      black_bishop = Bishop.create(position_x: 1, position_y: 1, game: @g, player: @g.black_player)
+      expect(@g.valid_check_defense?(black_bishop, 2, 2, white_king)).to eq true
+    end
+  end
 
+  describe "valid_check_defense? returns false if king is threatened by a diagonal piece and a block is valid" do
+    # valid_check_defense?(threatening_piece, block_x, block_y, king)
+    before :each do
+      @g = FactoryGirl.create(:joined_game)
+    end   
+    it "returns false if king is threatened but the block is not in line with the attacker", :check_block => true do
+      white_king = King.create(position_x: 4, position_y: 4, game: @g, player: @g.white_player)
+      black_bishop = Bishop.create(position_x: 1, position_y: 1, game: @g, player: @g.black_player)
+      expect(@g.valid_check_defense?(black_bishop, 7, 7, white_king)).to eq false
+    end
+    it "returns false if king is threatened but the block is not in line with the attacker", :check_block => true do
+      white_king = King.create(position_x: 4, position_y: 4, game: @g, player: @g.white_player)
+      black_rook = Rook.create(position_x: 4, position_y: 1, game: @g, player: @g.black_player)
+      expect(@g.valid_check_defense?(black_rook, 4, 8, white_king)).to eq false
+    end
+    it "returns false if king is threatened by a knight", :check_block => true do
+      white_king = King.create(position_x: 4, position_y: 4, game: @g, player: @g.white_player)
+      black_knight = Knight.create(position_x: 3, position_y: 2, game: @g, player: @g.black_player)
+      expect(@g.valid_check_defense?(black_knight, 4, 3, white_king)).to eq false
+    end
   end
 end
