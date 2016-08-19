@@ -142,10 +142,12 @@ class Piece < ActiveRecord::Base
         end
       end
       logger.info "threats to white: #{threat_counter}"
-      # for each threatening piece, does bishop block or capture it?
+      # for each threatening piece, does piece block or capture it?
       return true if threats.empty?
       threats.each do |p|
+        logger.info "isCapture: dest_x = #{dest_x}, threat x: #{p.position_x}, dest_y: #{dest_y}, threat y: #{p.position_y}"
         isCapture = dest_x == p.position_x && dest_y == p.position_y
+        logger.info "isCapture: #{isCapture}"
         return false if !isCapture && !game.valid_check_defense?(p, dest_x, dest_y, king)
       end
       return true
@@ -165,11 +167,10 @@ class Piece < ActiveRecord::Base
           end
         end
       end
-      logger.info "threats to black: #{threat_counter}"
-      # for each threatening piece, does bishop block or capture it?
+      # for each threatening piece, does piece block or capture it?
       return true if threats.empty?
       threats.each do |p|
-        isCapture = dest_x == p.position_x && dest_y == p.position_y
+        isCapture = dest_x == p.position_x && dest_y == p.position_y # is this failing for en passant?
         return false if !isCapture && !game.valid_check_defense?(p, dest_x, dest_y, king)
       end
       return true   
