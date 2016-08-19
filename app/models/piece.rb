@@ -133,7 +133,7 @@ class Piece < ActiveRecord::Base
       threatening_piece = nil
       threats=[]
       threat_counter = 0
-      game.black_player.pieces.where(is_active: true).each do |piece|
+      game.black_player.pieces.where(game: game, is_active: true).each do |piece|
         if piece.type != "King"
           if piece.is_valid_move?(king_x, king_y)
             threats[threat_counter] = piece
@@ -158,7 +158,7 @@ class Piece < ActiveRecord::Base
       threatening_piece = nil
       threats = []
       threat_counter = 0
-      game.white_player.pieces.where(is_active: true).each do |piece|
+      game.white_player.pieces.where(game: game, is_active: true).each do |piece|
         if piece.type != "King"
           if piece.is_valid_move?(king_x, king_y)
             threats[threat_counter] = piece
