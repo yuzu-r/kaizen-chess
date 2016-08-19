@@ -123,6 +123,9 @@ class Piece < ActiveRecord::Base
     # if this is false, the move is not valid. this is called by each piece's is valid move method
     # note - this method is piece type agnostic, it does not care how the piece gets there
     # first find the threatening piece or pieces on the board
+    # there is stuff going on here. why is active record querying other games? add some "self"
+    # or this might need to move into the game model anyway.
+    logger.info "IN RESOLVE CHECK"
     if player == game.white_player
       king = game.pieces.where(type: "King", player: player).first
       king_x = king.position_x
@@ -132,11 +135,13 @@ class Piece < ActiveRecord::Base
       threat_counter = 0
       game.black_player.pieces.where(is_active: true).each do |piece|
         if piece.type != "King"
-          threatening_piece = piece if piece.is_valid_move?(king_x, king_y)
-          threats[threat_counter] = piece
-          threat_counter += 1
+          if piece.is_valid_move?(king_x, king_y)
+            threats[threat_counter] = piece
+            threat_counter += 1
+          end
         end
       end
+      logger.info "threats to white: #{threat_counter}"
       # for each threatening piece, does bishop block or capture it?
       return true if threats.empty?
       threats.each do |p|
@@ -153,11 +158,14 @@ class Piece < ActiveRecord::Base
       threat_counter = 0
       game.white_player.pieces.where(is_active: true).each do |piece|
         if piece.type != "King"
-          threatening_piece = piece if piece.is_valid_move?(king_x, king_y)
-          threats[threat_counter] = piece
-          threat_counter += 1         
+          if piece.is_valid_move?(king_x, king_y)
+            threats[threat_counter] = piece
+            threat_counter += 1
+          else
+          end
         end
       end
+      logger.info "threats to black: #{threat_counter}"
       # for each threatening piece, does bishop block or capture it?
       return true if threats.empty?
       threats.each do |p|
