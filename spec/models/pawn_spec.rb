@@ -41,6 +41,8 @@ RSpec.describe Pawn, type: :model do
   describe "is_valid_enpassant?" do
     before :each do
       @g = FactoryGirl.create(:joined_game)
+      @white_king = King.create(position_x: 5, position_y: 1, game: @g, player: @g.white_player)
+      @black_king = King.create(position_x: 5, position_y: 8, game: @g, player: @g.black_player)    
     end
 
     it "returns true if moving diagonally right after white enemy player moves two spaces" do
