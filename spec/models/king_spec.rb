@@ -5,6 +5,7 @@ RSpec.describe King, type: :model do
     before :each do
       @g = FactoryGirl.create(:joined_game)
       @king = King.create(position_x: 1, position_y: 2, game: @g, player: @g.white_player)
+      @black_king = King.create(position_x: 5, position_y: 8, game: @g, player: @g.black_player)
     end
    
     it "returns true if moving 1 space up" do
@@ -103,6 +104,7 @@ RSpec.describe King, type: :model do
     before :each do
       @g = FactoryGirl.create(:joined_game)
       @king = King.create(position_x: 4, position_y: 4, game: @g, player: @g.white_player)
+      @black_king = King.create(position_x: 5, position_y: 8, game: @g, player: @g.black_player)
     end
 
     it "should return true if moving to a square that will put it in check" do

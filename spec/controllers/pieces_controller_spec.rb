@@ -6,6 +6,8 @@ RSpec.describe PiecesController, type: :controller do
     before :each do
       @g = FactoryGirl.create(:joined_game)
       @q = Queen.create(position_x: 4, position_y: 4, game: @g, player: @g.white_player)
+      @white_king = King.create(position_x: 5, position_y: 1, game: @g, player: @g.white_player)
+      @black_king = King.create(position_x: 5, position_y: 8, game: @g, player: @g.black_player)
     end
 
     it "should successfully change a piece's location if the destination is valid" do

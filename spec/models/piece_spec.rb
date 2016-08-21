@@ -334,4 +334,63 @@ RSpec.describe Piece, type: :model do
     @k = Knight.create(position_x: 4, position_y: 4, game: @g, player: @g.white_player)
     expect(@k.is_obstructed?(4,4)).to eq true
   end
+
+  describe "resolve_check? returns true if checked player captures the attacking piece", :check_block => true do
+    before :each do
+      @g = FactoryGirl.create(:joined_game)
+      @k = King.create(position_x: 4, position_y: 4, game: @g, player: @g.white_player)
+      @black_king = King.create(position_x: 5, position_y: 8, game: @g, player: @g.black_player)
+    end
+    it "returns true if one threat and it is captured" do
+      threat = Queen.create(position_x: 4, position_y: 8, game: @g, player: @g.black_player)
+      hero = Rook.create(position_x: 1, position_y: 8, game: @g, player: @g.white_player)
+      expect(hero.resolve_check?(4, 8)).to eq true
+    end
+    it "returns true if one threat and it is blocked from the king" do
+      threat = Queen.create(position_x: 4, position_y: 8, game: @g, player: @g.black_player)
+      hero = Rook.create(position_x: 1, position_y: 7, game: @g, player: @g.white_player)
+      expect(hero.resolve_check?(4, 7)).to eq true
+    end    
+  end
+
+  describe "resolve_check? returns false if checked player fails to capture or block the attacker", :check_block => true do
+    before :each do
+      @g = FactoryGirl.create(:joined_game)
+      @k = King.create(position_x: 4, position_y: 4, game: @g, player: @g.white_player)
+      @black_king = King.create(position_x: 5, position_y: 8, game: @g, player: @g.black_player)
+    end
+    it "returns false if there is one threat that isn't captured or blocked" do
+      threat = Queen.create(position_x: 4, position_y: 8, game: @g, player: @g.black_player)
+      hero = Rook.create(position_x: 1, position_y: 7, game: @g, player: @g.white_player)
+      expect(hero.resolve_check?(2, 7)).to eq false
+    end
+    it "returns false if there are multiple threats and only one is resolved" do
+      threat = Queen.create(position_x: 4, position_y: 8, game: @g, player: @g.black_player)
+      threat2 = Rook.create(position_x: 4, position_y: 1, game: @g, player: @g.black_player)
+      hero = Knight.create(position_x: 3, position_y: 3, game: @g, player: @g.white_player)
+      expect(hero.resolve_check?(4, 1)).to eq false
+    end    
+  end
+
+  describe "resolve_check? for failing checkmate case", :block_bug => true do
+    it "should return true" do
+      @g = FactoryGirl.create(:joined_game)
+      @pawn1 = Pawn.create(position_x: 6, position_y: 5, game: @g, player: @g.white_player)
+      @threatening_white_piece = Queen.create(position_x: 6, position_y: 6, game: @g, player: @g.white_player)
+      @pawn3 = Pawn.create(position_x: 5, position_y: 6, game: @g, player: @g.white_player)
+      @pawn4 = Pawn.create(position_x: 2, position_y: 6, game: @g, player: @g.white_player)
+      @pawn5 = Pawn.create(position_x: 2, position_y: 5, game: @g, player: @g.white_player)
+      @pawn6 = Pawn.create(position_x: 2, position_y: 4, game: @g, player: @g.white_player)
+      @pawn7 = Pawn.create(position_x: 5, position_y: 4, game: @g, player: @g.white_player)
+      @pawn8 = Pawn.create(position_x: 6, position_y: 4, game: @g, player: @g.white_player)
+      @black_king = King.create(position_x: 4, position_y: 4, game: @g, player: @g.black_player)
+      white_king = King.create(position_x: 1, position_y: 1, game: @g, player: @g.white_player)
+      @blocker = Rook.create(position_x: 3, position_y: 5, game: @g, player: @g.black_player)
+      expect(@g.is_in_check?(@g.black_player)).to eq true
+      #expect(@black_king.can_escape_from_check?).to eq false
+      expect(@g.valid_check_defense?(@threatening_white_piece, 5, 5, @black_king)).to eq true
+      expect(@blocker.resolve_check?(5,5)).to eq true
+      expect(@blocker.is_valid_move?(5,5)).to eq true
+    end
+  end
 end

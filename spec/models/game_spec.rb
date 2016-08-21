@@ -193,21 +193,25 @@ RSpec.describe Game, type: :model do
     end   
     it "is true if white player is in check by pawn" do
       white_king = King.create(position_x: 4, position_y: 4, game: @g, player: @g.white_player)
+      black_king = King.create(position_x: 5, position_y: 8, game: @g, player: @g.black_player)
       black_pawn = Pawn.create(position_x: 3, position_y: 5, game: @g, player: @g.black_player)
       expect(@g.is_in_check?(@g.white_player)).to eq true
     end
     it "is true if black player is in check by rook" do
       black_king = King.create(position_x: 4, position_y: 4, game: @g, player: @g.black_player)
+      white_king = King.create(position_x: 5, position_y: 1, game: @g, player: @g.white_player)
       white_rook = Rook.create(position_x: 1, position_y: 4, game: @g, player: @g.white_player)
       expect(@g.is_in_check?(@g.black_player)).to eq true
     end
     it "is true if black player is in check by knight" do
       black_king = King.create(position_x: 4, position_y: 4, game: @g, player: @g.black_player)
+      white_king = King.create(position_x: 5, position_y: 1, game: @g, player: @g.white_player)
       white_knight = Knight.create(position_x: 6, position_y: 5, game: @g, player: @g.white_player)
       expect(@g.is_in_check?(@g.black_player)).to eq true
     end
     it "is true if king is surrounded by own pieces and enemy knight can capture", :bug => true do
       white_king = King.create(position_x: 5, position_y: 1, game: @g, player: @g.white_player)
+      black_king = King.create(position_x: 5, position_y: 8, game: @g, player: @g.black_player)
       white_queen = Queen.create(position_x: 4, position_y: 1, game: @g, player: @g.white_player)
       white_bishop = Bishop.create(position_x: 6, position_y: 1, game: @g, player: @g.white_player)
       white_pawn1 = Pawn.create(position_x: 5, position_y: 2, game: @g, player: @g.white_player)
@@ -247,6 +251,7 @@ RSpec.describe Game, type: :model do
     end 
     it "is true if white player is in checkmate" do
       @white_king = King.create(position_x: 4, position_y: 4, game: @g, player: @g.white_player)
+      black_king = King.create(position_x: 5, position_y: 8, game: @g, player: @g.black_player)
       @black_rook1 = Rook.create(position_x: 1, position_y: 5, game: @g, player: @g.black_player)
       @black_rook2 = Rook.create(position_x: 1, position_y: 3, game: @g, player: @g.black_player)
       @black_rook3 = Rook.create(position_x: 3, position_y: 8, game: @g, player: @g.black_player)
@@ -256,6 +261,7 @@ RSpec.describe Game, type: :model do
     end
     it "is true if black player is in checkmate" do
       black_king = King.create(position_x: 4, position_y: 4, game: @g, player: @g.black_player)
+      white_king = King.create(position_x: 4, position_y: 1, game: @g, player: @g.white_player)
       @white_rook1 = Rook.create(position_x: 1, position_y: 5, game: @g, player: @g.white_player)
       @white_rook2 = Rook.create(position_x: 1, position_y: 3, game: @g, player: @g.white_player)
       @white_rook3 = Rook.create(position_x: 3, position_y: 8, game: @g, player: @g.white_player)
@@ -265,6 +271,7 @@ RSpec.describe Game, type: :model do
     end
     it "is false if white player is not in check" do
       @white_king = King.create(position_x: 4, position_y: 4, game: @g, player: @g.white_player)
+      black_king = King.create(position_x: 5, position_y: 8, game: @g, player: @g.black_player)
       expect(@g.is_in_checkmate?(@g.white_player)).to eq false
     end
     it "is false if black player is not in check" do
@@ -285,6 +292,7 @@ RSpec.describe Game, type: :model do
       @pawn7 = Pawn.create(position_x: 5, position_y: 4, game: @g, player: @g.white_player)
       @pawn8 = Pawn.create(position_x: 6, position_y: 4, game: @g, player: @g.white_player)
       @black_king = King.create(position_x: 4, position_y: 4, game: @g, player: @g.black_player)
+      white_king = King.create(position_x: 4, position_y: 1, game: @g, player: @g.white_player)
       @threatening_white_rook = Rook.create(position_x: 4, position_y: 8, game: @g, player: @g.white_player)
     end 
 
@@ -349,44 +357,60 @@ RSpec.describe Game, type: :model do
       expect(@g.is_in_checkmate?(@g.black_player)).to eq false
     end 
 
-    it "to the Northeast" do
-      @threatening_white_piece = @pawn2.update_attributes(type:"Queen")
+    it "to the Northeast", :failing=> true do
+      @pawn2.update_attributes(type:"Queen")
+      @threatening_white_piece = @pawn2
+      white_king = King.create(position_x: 1, position_y: 1, game: @g, player: @g.white_player)
       @blocker = Rook.create(position_x: 3, position_y: 5, game: @g, player: @g.black_player)
+      #expect(@g.is_in_check?(@g.black_player)).to eq true
+      #expect(@black_king.can_escape_from_check?).to eq false
+      #expect(@g.valid_check_defense?(@threatening_white_piece, 5, 5, @black_king)).to eq true
+      #expect(@blocker.resolve_check?(5,5)).to eq true
+      #expect(@blocker.is_valid_move?(5,5)).to eq true
+      #expect(@g.valid_check_block?(@threatening_white_piece, @blocker, @black_king)).to eq true
+      #expect(@g.is_in_checkmate?(@g.black_player)).to eq false
     end 
 
     it "to the North" do
       @threatening_white_piece = Rook.create(position_x: 4, position_y: 8, game: @g, player: @g.white_player)
+      white_king = King.create(position_x: 1, position_y: 1, game: @g, player: @g.white_player)
       @blocker = Rook.create(position_x: 3, position_y: 5, game: @g, player: @g.black_player)
     end
 
     it "to the Northwest" do
       @threatening_white_piece = @pawn4.update_attributes(type:"Queen")
+      white_king = King.create(position_x: 1, position_y: 2, game: @g, player: @g.white_player)
       @blocker = Rook.create(position_x: 3, position_y: 1, game: @g, player: @g.black_player)
     end
 
     it "to the West" do
       @threatening_white_piece = @pawn6.update_attributes(type:"Queen")
+      white_king = King.create(position_x: 1, position_y: 2, game: @g, player: @g.white_player)
       @blocker = Rook.create(position_x: 3, position_y: 1, game: @g, player: @g.black_player)
     end 
 
     it "to the Southwest" do
       @threatening_white_piece = Queen.create(position_x: 2, position_y: 2, game: @g, player: @g.white_player)
+      white_king = King.create(position_x: 1, position_y: 2, game: @g, player: @g.white_player)
       @blocker = Rook.create(position_x: 3, position_y: 5, game: @g, player: @g.black_player)
     end 
 
     it "to the South" do
       @threatening_white_piece = Rook.create(position_x: 4, position_y: 1, game: @g, player: @g.white_player)
+      white_king = King.create(position_x: 8, position_y: 1, game: @g, player: @g.white_player)
       @blocker = Rook.create(position_x: 1, position_y: 3, game: @g, player: @g.black_player)
     end 
 
     it "to the Southeast" do
       @threatening_white_piece = Queen.create(position_x: 7, position_y: 1, game: @g, player: @g.white_player)
+      white_king = King.create(position_x: 8, position_y: 1, game: @g, player: @g.white_player)
       @blocker = Rook.create(position_x: 1, position_y: 3, game: @g, player: @g.black_player)
     end 
 
     it "to the East" do
       @pawn7.destroy
       @pawn9 = Pawn.create(position_x: 3, position_y: 4, game: @g, player: @g.white_player)
+      white_king = King.create(position_x: 2, position_y: 2, game: @g, player: @g.white_player)
       @threatening_white_piece = @pawn8.update_attributes(type:"Queen")
       @blocker = Rook.create(position_x: 5, position_y: 1, game: @g, player: @g.black_player)
     end 
@@ -397,6 +421,7 @@ RSpec.describe Game, type: :model do
     it "is_in_checkmate? returns false if player can capture the threatening piece", :bug => true do
       @g = FactoryGirl.create(:joined_game)
       white_king = King.create(position_x: 5, position_y: 1, game: @g, player: @g.white_player)
+      black_king = King.create(position_x: 5, position_y: 8, game: @g, player: @g.black_player)
       white_queen = Queen.create(position_x: 4, position_y: 1, game: @g, player: @g.white_player)
       white_bishop = Bishop.create(position_x: 6, position_y: 1, game: @g, player: @g.white_player)
       white_pawn1 = Pawn.create(position_x: 5, position_y: 2, game: @g, player: @g.white_player)
@@ -407,4 +432,78 @@ RSpec.describe Game, type: :model do
     end
   end
 
+  describe "valid_check_defense? returns true if king is threatened and a block is valid" do
+    before :each do
+      @g = FactoryGirl.create(:joined_game)
+    end   
+    it "is true if white king is endangered by rook to the north", :check_block => true do
+      white_king = King.create(position_x: 4, position_y: 4, game: @g, player: @g.white_player)
+      black_king = King.create(position_x: 5, position_y: 8, game: @g, player: @g.black_player)
+      black_rook = Rook.create(position_x: 4, position_y: 7, game: @g, player: @g.black_player)
+      expect(@g.valid_check_defense?(black_rook, 4, 6, white_king)).to eq true
+    end
+    it "is true if white king is endangered by rook to the south", :check_block => true do
+      white_king = King.create(position_x: 4, position_y: 4, game: @g, player: @g.white_player)
+      black_king = King.create(position_x: 5, position_y: 8, game: @g, player: @g.black_player)
+      black_rook = Rook.create(position_x: 4, position_y: 2, game: @g, player: @g.black_player)
+      expect(@g.valid_check_defense?(black_rook, 4, 3, white_king)).to eq true
+    end
+    it "is true if black king is endangered from the east", :check_block => true do
+      black_king = King.create(position_x: 4, position_y: 4, game: @g, player: @g.black_player)
+      white_queen = Queen.create(position_x: 8, position_y: 4, game: @g, player: @g.white_player)
+      expect(@g.valid_check_defense?(white_queen, 7, 4, black_king)).to eq true
+    end
+    it "is true if black king is endangered by rook to the west", :check_block => true do
+      black_king = King.create(position_x: 4, position_y: 4, game: @g, player: @g.black_player)
+      white_queen = Queen.create(position_x: 1, position_y: 4, game: @g, player: @g.white_player)
+      expect(@g.valid_check_defense?(white_queen, 3, 4, black_king)).to eq true
+    end
+    it "is true if king is endangered from the northeast", :check_block => true do
+      black_king = King.create(position_x: 4, position_y: 4, game: @g, player: @g.black_player)
+      white_queen = Queen.create(position_x: 6, position_y: 6, game: @g, player: @g.white_player)
+      expect(@g.valid_check_defense?(white_queen, 5, 5, black_king)).to eq true
+    end
+    it "is true if king is endangered from the southeast", :check_block => true do
+      black_king = King.create(position_x: 4, position_y: 4, game: @g, player: @g.black_player)
+      white_queen = Queen.create(position_x: 7, position_y: 1, game: @g, player: @g.white_player)
+      expect(@g.valid_check_defense?(white_queen, 5, 3, black_king)).to eq true
+    end
+    it "is true if king is endangered from the northwest", :check_block => true do
+      white_king = King.create(position_x: 4, position_y: 4, game: @g, player: @g.white_player)
+      black_king = King.create(position_x: 5, position_y: 8, game: @g, player: @g.black_player)
+      black_bishop = Bishop.create(position_x: 1, position_y: 7, game: @g, player: @g.black_player)
+      expect(@g.valid_check_defense?(black_bishop, 3, 5, white_king)).to eq true
+    end
+    it "is true if king is endangered from the southwest", :check_block => true do
+      white_king = King.create(position_x: 4, position_y: 4, game: @g, player: @g.white_player)
+      black_king = King.create(position_x: 5, position_y: 8, game: @g, player: @g.black_player)
+      black_bishop = Bishop.create(position_x: 1, position_y: 1, game: @g, player: @g.black_player)
+      expect(@g.valid_check_defense?(black_bishop, 2, 2, white_king)).to eq true
+    end
+  end
+
+  describe "valid_check_defense? returns false if king is threatened by a diagonal piece and a block is valid" do
+    # valid_check_defense?(threatening_piece, block_x, block_y, king)
+    before :each do
+      @g = FactoryGirl.create(:joined_game)
+    end   
+    it "returns false if king is threatened but the block is not in line with the attacker", :check_block => true do
+      white_king = King.create(position_x: 4, position_y: 4, game: @g, player: @g.white_player)
+      black_king = King.create(position_x: 5, position_y: 8, game: @g, player: @g.black_player)
+      black_bishop = Bishop.create(position_x: 1, position_y: 1, game: @g, player: @g.black_player)
+      expect(@g.valid_check_defense?(black_bishop, 7, 7, white_king)).to eq false
+    end
+    it "returns false if king is threatened but the block is not in line with the attacker", :check_block => true do
+      white_king = King.create(position_x: 4, position_y: 4, game: @g, player: @g.white_player)
+      black_king = King.create(position_x: 5, position_y: 8, game: @g, player: @g.black_player)
+      black_rook = Rook.create(position_x: 4, position_y: 1, game: @g, player: @g.black_player)
+      expect(@g.valid_check_defense?(black_rook, 4, 8, white_king)).to eq false
+    end
+    it "returns false if king is threatened by a knight", :check_block => true do
+      white_king = King.create(position_x: 4, position_y: 4, game: @g, player: @g.white_player)
+      black_king = King.create(position_x: 5, position_y: 8, game: @g, player: @g.black_player)
+      black_knight = Knight.create(position_x: 3, position_y: 2, game: @g, player: @g.black_player)
+      expect(@g.valid_check_defense?(black_knight, 4, 3, white_king)).to eq false
+    end
+  end
 end

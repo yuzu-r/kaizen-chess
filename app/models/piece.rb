@@ -69,6 +69,63 @@ class Piece < ActiveRecord::Base
     false
   end 
 
+  def clear_between?(dest_x, dest_y)
+    # checks for clear path between a piece and a destination - not including the destination, friend or foe
+    # this is almost the inverse of is_obstructed except for the check at the destination
+    # Checks to see if destination is outside board bounds
+    return false if dest_x < 1 || dest_x > 8 || dest_y < 1 || dest_y > 8 
+    return true if self.type == "Knight"
+
+    if self.position_y == dest_y # Horizontal movement
+      if self.position_x < dest_x # East
+        (position_x + 1).upto(dest_x - 1) do |x|
+          return false if self.game.is_occupied?(x, dest_y)
+        end 
+      else # West
+        (position_x - 1).downto(dest_x + 1) do |x|
+          return false if self.game.is_occupied?(x, dest_y)
+        end 
+      end 
+    elsif self.position_x == dest_x # Vertical movement
+      if self.position_y < dest_y # North
+        (position_y + 1).upto(dest_y - 1) do |y|
+          return false if self.game.is_occupied?(dest_x, y)
+        end 
+      else # South
+        (position_y - 1).downto(dest_y + 1) do |y|
+          return false if self.game.is_occupied?(dest_x, y)
+        end 
+      end 
+    elsif #Diagonal movement
+      if self.position_x < dest_x && self.position_y < dest_y # Northeast
+        (position_x + 1).upto(dest_x - 1) do |x|
+          (position_y + 1).upto(dest_y - 1) do |y|
+            return false if self.game.is_occupied?(x, y) && (x - position_x).abs == (y - position_y).abs
+          end 
+        end 
+      elsif self.position_x > dest_x && self.position_y < dest_y # Northwest
+        (position_x - 1).downto(dest_x + 1) do |x|
+          (position_y + 1).upto(dest_y - 1) do |y|
+            return false if self.game.is_occupied?(x, y) && (x - position_x).abs == (y - position_y).abs
+          end 
+        end 
+      elsif self.position_x < dest_x && self.position_y > dest_y # Southeast
+        (position_x + 1).upto(dest_x - 1) do |x|
+          (position_y - 1).downto(dest_y + 1) do |y|
+            return false if self.game.is_occupied?(x, y) && (x - position_x).abs == (y - position_y).abs
+          end 
+        end 
+      elsif self.position_x > dest_x && self.position_y > dest_y # Southwest
+        (position_x - 1).downto(dest_x + 1) do |x|
+          (position_y - 1).downto(dest_y + 1) do |y|
+            return false if self.game.is_occupied?(x, y) && (x - position_x).abs == (y - position_y).abs
+          end 
+        end
+      end   
+    end 
+    true
+  end    
+
   def is_diagonal_move?(dest_x, dest_y)
   	if (self.position_y - dest_y).abs == (self.position_x - dest_x).abs
   		return true
@@ -118,5 +175,58 @@ class Piece < ActiveRecord::Base
     return false
   end
 
+  def resolve_check?(dest_x, dest_y)
+    # if player is in check, does moving a piece to dest_x, dest_y get the player out of check?
+    # if this is false, the move is not valid. this is called by each piece's is valid move method
+    # note - this method is piece type agnostic, it does not care how the piece gets there
+    if player == game.white_player
+      king = game.pieces.where(type: "King", player: player).first
+      king_x = king.position_x
+      king_y = king.position_y
+      threatening_piece = nil
+      threats=[]
+      threat_counter = 0
+      game.black_player.pieces.where(game: game, is_active: true).each do |piece|
+        if piece.type != "King"
+          if piece.is_valid_move?(king_x, king_y)
+            threats[threat_counter] = piece
+            threat_counter += 1
+          end
+        end
+      end
+      # logger.info "threats to white: #{threat_counter}"
+      # for each threatening piece, does piece block or capture it?
+      return true if threats.empty?
+      threats.each do |p|
+        #logger.info "isCapture: dest_x = #{dest_x}, threat x: #{p.position_x}, dest_y: #{dest_y}, threat y: #{p.position_y}"
+        isCapture = dest_x == p.position_x && dest_y == p.position_y
+        return false if !isCapture && !game.valid_check_defense?(p, dest_x, dest_y, king)
+      end
+      return true
+    else 
+      king = game.pieces.where(type: "King", player: player).first
+      king_x = king.position_x
+      king_y = king.position_y
+      threatening_piece = nil
+      threats = []
+      threat_counter = 0
+      game.white_player.pieces.where(game: game, is_active: true).each do |piece|
+        if piece.type != "King"
+          if piece.is_valid_move?(king_x, king_y)
+            threats[threat_counter] = piece
+            threat_counter += 1
+          else
+          end
+        end
+      end
+      # for each threatening piece, does piece block or capture it?
+      return true if threats.empty?
+      threats.each do |p|
+        isCapture = dest_x == p.position_x && dest_y == p.position_y # is this failing for en passant?
+        return false if !isCapture && !game.valid_check_defense?(p, dest_x, dest_y, king)
+      end
+      return true   
+    end
+  end
 end
 
