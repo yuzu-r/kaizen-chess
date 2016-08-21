@@ -27,7 +27,6 @@ RSpec.describe Pawn, type: :model do
     it "returns false if it tries to move horizontally" do
     	expect(@wp2.is_valid_move?(3,3)).to eq false
     end
-    
 
     # black player
     it "returns true if black piece moves once space forward" do
@@ -84,8 +83,15 @@ RSpec.describe Pawn, type: :model do
       pawn = Pawn.create(position_x: 4, position_y: 7, game: g, player: g.black_player)
       expect(pawn.is_valid_move?(5,6)).to eq true
     end
+    it "returns false if it exposes king to check" do
+      g = FactoryGirl.create(:joined_game)
+      white_king = King.create(position_x: 5, position_y: 1, game: g, player: g.white_player)
+      black_king = King.create(position_x: 5, position_y: 8, game: g, player: g.black_player)
+      threat = Bishop.create(position_x: 3, position_y: 3, game: g, player: g.black_player)
+      pawn = Pawn.create(position_x: 4, position_y: 2, game: g, player: g.white_player)
+      expect(pawn.is_valid_move?(4,3)).to eq false
+    end
   end
-
 
   describe "is_valid_enpassant?" do
     before :each do

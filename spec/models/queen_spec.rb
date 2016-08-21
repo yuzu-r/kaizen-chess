@@ -34,9 +34,29 @@ RSpec.describe Queen, type: :model do
     it "returns true if it tries to move horizontally" do
       expect(@queen.is_valid_move?(8,4)).to eq true
     end
-    it "returns true if player is in check and queen's move removes the check", :check_block => true do
+    it "returns true if player is in check and queen's move removes the check", :failing => true do
       threat = Queen.create(position_x: 5, position_y: 5, game: @g, player: @g.black_player)
       expect(@queen.is_valid_move?(5, 4)).to eq true
     end
   end
+  describe "is_valid_move? returns false if moving queen exposes king to check" do
+    it "returns false when exposing to a diagonal threat" do
+      g = FactoryGirl.create("joined_game")
+      white_king = King.create(position_x: 5, position_y: 1, game: g, player: g.white_player)
+      black_king = King.create(position_x: 5, position_y: 8, game: g, player: g.black_player)
+      threat = Bishop.create(position_x: 7, position_y: 3, game: g, player: g.black_player)
+      white_queen = Queen.create(position_x: 6, position_y: 2, game: g, player: g.white_player)
+      expect(white_queen.is_valid_move?(7,1)).to eq false
+    end
+
+    it "returns false when exposing to a vertical threat" do
+      g = FactoryGirl.create("joined_game")
+      white_king = King.create(position_x: 5, position_y: 1, game: g, player: g.white_player)
+      black_king = King.create(position_x: 5, position_y: 8, game: g, player: g.black_player)
+      threat = Rook.create(position_x: 5, position_y: 4, game: g, player: g.white_player)
+      black_queen = Queen.create(position_x: 5, position_y: 7, game: g, player: g.black_player)
+      expect(black_queen.is_valid_move?(8,4)).to eq false
+    end
+  end
+
 end

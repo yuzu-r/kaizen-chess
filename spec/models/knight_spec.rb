@@ -25,6 +25,11 @@ RSpec.describe Knight, type: :model do
       threat = Queen.create(position_x: 5, position_y: 5, game: @g, player: @g.black_player)
       expect(@knight.is_valid_move?(6,5)).to eq false
     end 
+    it "returns false if the knight move exposes king to check" do
+      threat = Queen.create(position_x: 5, position_y: 5, game: @g, player: @g.black_player)
+      knight2 = Knight.create(position_x: 5, position_y: 2, game: @g, player: @g.white_player)
+      expect(knight2.is_valid_move?(3,1)).to eq false
+    end
   end
   describe "is_valid_move? returns true if move is allowed" do
     before :each do
@@ -48,4 +53,5 @@ RSpec.describe Knight, type: :model do
       expect(@knight.is_valid_move?(5,2)).to eq true
     end
   end
+
 end

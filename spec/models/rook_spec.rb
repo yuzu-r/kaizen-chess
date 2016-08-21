@@ -23,6 +23,16 @@ RSpec.describe Rook, type: :model do
       expect(@rook.is_valid_move?(4,2)).to eq false
     end
   end
+
+  it "is_valid_move? returns false if the move exposes the king to check", :self_check => true do
+    g = FactoryGirl.create(:joined_game)
+    white_king = King.create(position_x: 5, position_y: 1, game: g, player: g.white_player)
+    black_king = King.create(position_x: 5, position_y: 8, game: g, player: g.black_player)
+    threat = Queen.create(position_x: 5, position_y: 3, game: g, player: g.black_player)
+    rook = Rook.create(position_x:5, position_y: 2, game: g, player: g.white_player)
+    expect(rook.is_valid_move?(4,2)).to eq false
+  end
+
   describe "is_valid_move? returns true if move is allowed" do
     before :each do
       @g = FactoryGirl.create(:joined_game)
@@ -41,6 +51,11 @@ RSpec.describe Rook, type: :model do
       threat = Queen.create(position_x: 5, position_y: 5, game: @g, player: @g.white_player)
       rook2 = Rook.create(position_x: 1, position_y: 6, game: @g, player: @g.black_player)
       expect(rook2.is_valid_move?(5,6)).to eq true
+    end
+    it "returns true if black moves and not in check" do
+      threat = Rook.create(position_x: 7, position_y: 6, game: @g, player: @g.white_player)
+      rook2 = Rook.create(position_x: 6, position_y: 7, game: @g, player: @g.black_player)
+      expect(rook2.is_valid_move?(8,7)).to eq true
     end
   end
 end

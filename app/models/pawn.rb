@@ -1,6 +1,7 @@
 class Pawn < Piece
 
   def is_valid_move?(dest_x, dest_y)	
+    return false if game.endangering_king?(self.player, self)   
  	  if is_valid_enpassant?(dest_x, dest_y) 
  	  	enpassant(dest_x, dest_y)
  	  	return true 
@@ -11,7 +12,7 @@ class Pawn < Piece
   	if is_valid_capture?(dest_x, dest_y)
       if game.is_in_check?(player) && !resolve_check?(dest_x, dest_y)
   		  return false
-      end  			
+      end
   		return true
   	end
   	if player_id == game.white_player_id # player white
@@ -19,14 +20,14 @@ class Pawn < Piece
 	  		if (dest_y - position_y == 2 || dest_y - position_y == 1) && is_vertical_move?(dest_x, dest_y)
 		      if game.is_in_check?(player) && !resolve_check?(dest_x, dest_y)
 		  		  return false
-		      end  			
+		      end
 	  			return true
 	  		end
 	  	else
 	  		if dest_y - position_y == 1 && is_vertical_move?(dest_x, dest_y)
 		      if game.is_in_check?(player) && !resolve_check?(dest_x, dest_y)
 		  		  return false
-		      end  			  			
+		      end
 	  			return true 
 	  		end
 	  	end
@@ -36,14 +37,14 @@ class Pawn < Piece
 		      if game.is_in_check?(player) && !resolve_check?(dest_x, dest_y)
 		  		  return false
 		      end  			  				  			
-	  			return true 
+          return true 
 	  		end
 	  	else
 	  		if position_y - dest_y == 1 && position_x == dest_x
 		      if game.is_in_check?(player) && !resolve_check?(dest_x, dest_y)
 		  		  return false
 		      end  			  				  			
-	  			return true 
+          return true 
 	  		end
 	  	end
 	  end
@@ -70,7 +71,7 @@ class Pawn < Piece
 	end
 
 	def is_valid_enpassant?(dest_x, dest_y)
-		logger.info ("en passant #{dest_x}, #{dest_y}")
+		#logger.info ("en passant #{dest_x}, #{dest_y}")
 		if player_id == game.white_player_id
 			enemy = game.black_player_id
 			return false if position_y > 5
@@ -78,14 +79,14 @@ class Pawn < Piece
 			enemy = game.white_player_id
 			return false if position_y < 4
 		end 
-    logger.info("assessing target pawn next at #{dest_x}, #{position_y}, player: #{enemy}")
+    #logger.info("assessing target pawn next at #{dest_x}, #{position_y}, player: #{enemy}")
 		target_pawn = game.pieces.where(type: "Pawn", player: enemy, position_x: dest_x, position_y: position_y).first
-    logger.info("target pawn: #{target_pawn.inspect}")
-    logger.info("game last moved piece: #{game.last_moved_piece.inspect}")
+    #logger.info("target pawn: #{target_pawn.inspect}")
+    #logger.info("game last moved piece: #{game.last_moved_piece.inspect}")
 		return false if !target_pawn
 		return false if target_pawn != game.last_moved_piece
 		return false if target_pawn.move_count > 1
-    logger.info("assessing destination: #{target_pawn.position_x}, #{target_pawn.position_y}")
+    #logger.info("assessing destination: #{target_pawn.position_x}, #{target_pawn.position_y}")
 		if player_id == game.white_player_id
 			return false if dest_y != 6
 			return false if target_pawn.position_x != dest_x

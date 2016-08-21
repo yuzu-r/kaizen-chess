@@ -23,7 +23,11 @@ RSpec.describe Bishop, type: :model do
       threat = Queen.create(position_x: 5, position_y: 5, game: @g, player: @g.black_player)
       expect(@bishop.is_valid_move?(6,2)).to eq false
     end
-    
+    it "returns false if bishop's move exposes king to check" do
+      threat = Rook.create(position_x: 1, position_y: 1, game: @g, player: @g.black_player)
+      bishop2 = Bishop.create(position_x: 3, position_y: 1, game: @g, player: @g.white_player)
+      expect(bishop2.is_valid_move?(5, 3)).to eq false
+    end
   end
 
   describe "is_valid_move? returns true if move is allowed" do
@@ -40,7 +44,7 @@ RSpec.describe Bishop, type: :model do
     it "returns true if moves diagonal 2 spaces" do 
       expect(@bishop.is_valid_move?(6,2)).to eq true
     end 
-    it "returns true if white is in check and move captures the attacker", :check_block => true do
+    it "returns true if white is in check and move captures the attacker" do
       threat = Queen.create(position_x: 5, position_y: 5, game: @g, player: @g.black_player)
       expect(@bishop.is_valid_move?(5,5)).to eq true
     end

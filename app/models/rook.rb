@@ -5,7 +5,10 @@ class Rook < Piece
       if game.is_in_check?(player) && !resolve_check?(dest_x, dest_y)
         return false
       end
-  		return true 
+      if game.endangering_king?(self.player, self)
+  		  return false
+      end
+      return true 
   	end  	
   	false
   end

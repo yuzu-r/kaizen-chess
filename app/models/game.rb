@@ -161,6 +161,101 @@ class Game < ActiveRecord::Base
     return false
   end
 
+  def endangering_king?(player, moving_piece)
+    # returns true if vacating a friendly piece at open_x, open_y leaves king open to check
+    if player == white_player
+      #logger.info("assessing endangerment(white)")
+      king = pieces.where(type: "King", player: white_player).first
+      king_x = king.position_x
+      king_y = king.position_y
+      # what kind of threat is activated by the potential move?
+      open_x = moving_piece.position_x
+      open_y = moving_piece.position_y
+      #logger.info("king: #{king_x}, #{king_y}")
+      #logger.info("open: #{open_x}, #{open_y}")
+      black_player.pieces.where(game: self, is_active: true).each do |threat|
+        #logger.info("assessing: #{threat.type} is: #{threat.position_x}, #{threat.position_y}")
+        case threat.type
+        when "Queen"
+          if threat.position_y == king_y && threat.position_y == open_y && 
+            (open_x.between?(king_x, threat.position_x) || open_x.between?(threat.position_x, king_x)) 
+            # need to check if threat is in line with the king and the open space
+            return true if threat.clear_between?(open_x, open_y) && king.clear_between?(open_x, open_y)
+          elsif threat.position_x == king_x && threat.position_x == open_x &&
+            (open_y.between?(king_y, threat.position_y) || open_y.between?(threat.position_y, king_y))
+            return true if threat.clear_between?(open_x, open_y) && king.clear_between?(open_x, open_y)
+          elsif threat.is_diagonal_move?(king_x, king_y) && threat.is_diagonal_move?(open_x, open_y) &&
+            (open_x.between?(king_x, threat.position_x) || open_x.between?(threat.position_x, king_x)) &&
+            (open_y.between?(king_y, threat.position_y) || open_y.between?(threat.position_y, king_y))
+            return true if threat.clear_between?(open_x, open_y) && king.clear_between?(open_x, open_y)
+          end 
+        when "Rook"
+          if threat.position_y == king_y && threat.position_y == open_y && 
+            (open_x.between?(king_x, threat.position_x) || open_x.between?(threat.position_x, king_x)) 
+            # need to check if threat is in line with the king and the open space
+            return true if threat.clear_between?(open_x, open_y) && king.clear_between?(open_x, open_y)
+          elsif threat.position_x == king_x && threat.position_x == open_x &&
+            (open_y.between?(king_y, threat.position_y) || open_y.between?(threat.position_y, king_y))
+            return true if threat.clear_between?(open_x, open_y) && king.clear_between?(open_x, open_y)
+          end          
+        when "Bishop"
+          if threat.is_diagonal_move?(king_x, king_y) && threat.is_diagonal_move?(open_x, open_y) &&
+            (open_x.between?(king_x, threat.position_x) || open_x.between?(threat.position_x, king_x)) &&
+            (open_y.between?(king_y, threat.position_y) || open_y.between?(threat.position_y, king_y))
+            return true if threat.clear_between?(open_x, open_y) && king.clear_between?(open_x, open_y)
+          end
+        end
+      end
+    else
+      #logger.info("assessing endangerment")
+      king = pieces.where(type: "King", player: black_player).first
+      king_x = king.position_x
+      king_y = king.position_y
+      open_x = moving_piece.position_x
+      open_y = moving_piece.position_y
+      #logger.info("king: #{king_x}, #{king_y}")
+      #logger.info("open: #{open_x}, #{open_y}")
+
+      white_player.pieces.where(game: self, is_active: true).each do |threat|
+        case threat.type
+        when "Queen"
+          #logger.info("threat is: #{threat.type}, #{threat.position_x}, #{threat.position_y}")
+          # horizontal
+          if threat.position_y == king_y && threat.position_y == open_y && 
+            (open_x.between?(king_x, threat.position_x) || open_x.between?(threat.position_x, king_x)) 
+            # need to check if threat is in line with the king and the open space
+            return true if threat.clear_between?(open_x, open_y) && king.clear_between?(open_x, open_y)
+          elsif threat.position_x == king_x && threat.position_x == open_x &&
+            (open_y.between?(king_y, threat.position_y) || open_y.between?(threat.position_y, king_y))
+            return true if threat.clear_between?(open_x, open_y) && king.clear_between?(open_x, open_y)
+          elsif threat.is_diagonal_move?(king_x, king_y) && threat.is_diagonal_move?(open_x, open_y) &&
+            (open_x.between?(king_x, threat.position_x) || open_x.between?(threat.position_x, king_x)) &&
+            (open_y.between?(king_y, threat.position_y) || open_y.between?(threat.position_y, king_y))
+            return true if threat.clear_between?(open_x, open_y) && king.clear_between?(open_x, open_y)
+          end
+        when "Rook"
+          #logger.info("threat is: #{threat.type}, #{threat.position_x}, #{threat.position_y}")
+          if threat.position_y == king_y && threat.position_y == open_y && 
+            (open_x.between?(king_x, threat.position_x) || open_x.between?(threat.position_x, king_x)) 
+            # need to check if threat is in line with the king and the open space
+            return true if threat.clear_between?(open_x, open_y) && king.clear_between?(open_x, open_y)
+          elsif threat.position_x == king_x && threat.position_x == open_x &&
+            (open_y.between?(king_y, threat.position_y) || open_y.between?(threat.position_y, king_y))
+            return true if threat.clear_between?(open_x, open_y) && king.clear_between?(open_x, open_y)
+          end          
+        when "Bishop"
+          #logger.info("threat is: #{threat.type}, #{threat.position_x}, #{threat.position_y}")
+          if threat.is_diagonal_move?(king_x, king_y) && threat.is_diagonal_move?(open_x, open_y) &&
+            (open_x.between?(king_x, threat.position_x) || open_x.between?(threat.position_x, king_x)) &&
+            (open_y.between?(king_y, threat.position_y) || open_y.between?(threat.position_y, king_y))
+            return true if threat.clear_between?(open_x, open_y) && king.clear_between?(open_x, open_y)
+          end
+        end
+      end
+    end
+    return false
+  end
+
   def is_in_checkmate?(player)
     return false if !is_in_check?(player)
     if player == white_player
