@@ -439,7 +439,15 @@ class Game < ActiveRecord::Base
   def initialize_firebase
     game_status_msg = self.name + ': waiting for opponent'
     logger.info "writing to #{GAMES_URI}"
-    response = FB.push(GAMES_URI, {id: self.id, game_status: self.status, status_message: game_status_msg, check_message: ""})
+    players_msg = white_player.email + " (white) vs ? (black)"
+    response = FB.push(GAMES_URI, 
+      {
+        id: self.id, 
+        game_status: self.status, 
+        status_message: game_status_msg, 
+        check_message: "",
+        players_message: players_msg
+      })
     self.update_attribute(:firebase_game_id, response.body["name"]) if response.success?
     logger.info "This game is #{response.body["name"]}"
   end
@@ -447,7 +455,14 @@ class Game < ActiveRecord::Base
   def join_firebase
     game_uri = GAMES_URI + self.firebase_game_id.to_s
     game_status_msg = self.name + ': active'
-    FB.update(game_uri, {game_status: self.status, active_player_id: white_player.id, status_message: game_status_msg})
+    players_msg = white_player.email + " (white) vs " + black_player.email + " (black)"
+    FB.update(game_uri, 
+      {
+        game_status: self.status, 
+        active_player_id: white_player.id, 
+        status_message: game_status_msg,
+        players_message: players_msg
+      })
   end
 
   def in_check_firebase(player = nil)
