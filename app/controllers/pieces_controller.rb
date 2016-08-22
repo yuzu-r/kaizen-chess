@@ -8,10 +8,9 @@ class PiecesController < ApplicationController
     if @piece.is_valid_move?(position_x, position_y)
       @piece.capture(position_x, position_y)
       @move_count = @piece.move_count + 1
-
       @piece.update_attributes(position_x: position_x, position_y: position_y, move_count: @move_count)
 
-      if @piece.type == 'Pawn' && position_y == 8 || position_y == 1
+      if @piece.type == 'Pawn' && (position_y == 8 || position_y == 1)
         # this is a pawn promotion
         # do not update the active player yet
       else

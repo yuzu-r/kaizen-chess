@@ -22,6 +22,8 @@ Rails.application.configure do
   # Raise an error on page load if there are pending migrations.
   config.active_record.migration_error = :page_load
 
+  #ActiveRecord::Base.logger.level = :debug
+  config.log_level = :info
   #config.active_record.logger = nil
   # Debug mode disables concatenation and preprocessing of assets.
   # This option may cause significant delays in view rendering with a large
@@ -42,4 +44,7 @@ Rails.application.configure do
 
   # devise
   config.action_mailer.default_url_options = { host: 'localhost', port: 3030 }
+
+  # white list to suppress error in console
+  config.web_console.whitelisted_ips = '10.0.2.2'
 end
