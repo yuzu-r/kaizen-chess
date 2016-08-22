@@ -613,12 +613,13 @@
 
 					gameStatus();
 					
-	        console.log('We have movement!');
+	        //console.log('We have movement!');
           updateActivePlayer();  
         }
 	      else{
 	      	$('.piece').draggable({revert: true});
 					console.log('Invalid move!');
+          alert("Invalid move!");
 				}
 			}).fail(function(data) {
 		    console.log('failed move!');
