@@ -1,16 +1,20 @@
 source 'https://rubygems.org'
 
+ruby '2.5.5'
+
+gem 'rails', '5.0.7.2'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '4.2.6'
+#gem 'rails', '4.2.6'
+
 # Use postgresql as the database for Active Record
 gem 'pg', '~> 0.15'
 # Use SCSS for stylesheets
-gem 'sass-rails'
+gem 'sass-rails', '~> 5.0'
 # Use Uglifier as compressor for JavaScript assets
 gem 'uglifier', '>= 1.3.0'
 # Use CoffeeScript for .coffee assets and views
-gem 'coffee-rails', '~> 4.1.0'
+gem 'coffee-rails'
 # See https://github.com/rails/execjs#readme for more supported runtimes
 # gem 'therubyracer', platforms: :ruby
 
@@ -22,18 +26,18 @@ gem 'jquery-ui-rails'
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 gem 'jbuilder', '~> 2.0'
 # bundle exec rake doc:rails generates the API under doc/api.
-gem 'sdoc', '~> 0.4.0', group: :doc
+#gem 'sdoc', '~> 0.4.0', group: :doc
 
 gem 'rails_12factor', group: :production
 
 gem 'rubocop', '~> 0.40.0', require: false
 
-gem 'devise', '3.5.8'
+gem 'devise', '4.6.2'
 
 gem 'bootstrap-sass', '~> 3.3.5.1'
 
-gem 'sprockets', '2.11.0'
-
+#gem 'sprockets', '2.11.0'
+gem 'sprockets'
 gem 'firebase'
 
 gem 'figaro'
@@ -41,7 +45,7 @@ gem 'figaro'
 # testing
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
-  gem 'rspec-rails', '~> 3.0'
+  #gem 'rspec-rails', '~> 3.0'
   gem "factory_girl_rails", "~> 4.0"
 end
 
