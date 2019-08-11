@@ -12,8 +12,6 @@
 //
 //= require jquery
 //= require jquery-ui
-//= require jquery-ui/draggable
-//= require jquery-ui/droppable
 //= require bootstrap-sprockets
 //= require jquery_ujs
 //= require_tree .

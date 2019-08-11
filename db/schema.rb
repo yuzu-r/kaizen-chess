@@ -1,4 +1,3 @@
-# encoding: UTF-8
 # This file is auto-generated from the current state of the database. Instead
 # of editing this file, please use the migrations feature of Active Record to
 # incrementally modify your database, and then regenerate this schema definition.
@@ -29,10 +28,9 @@ ActiveRecord::Schema.define(version: 20160802205059) do
     t.integer  "last_moved_piece_id"
     t.string   "firebase_game_id"
     t.integer  "draw_offered_by_id"
+    t.index ["black_player_id"], name: "index_games_on_black_player_id", using: :btree
+    t.index ["white_player_id"], name: "index_games_on_white_player_id", using: :btree
   end
-
-  add_index "games", ["black_player_id"], name: "index_games_on_black_player_id", using: :btree
-  add_index "games", ["white_player_id"], name: "index_games_on_white_player_id", using: :btree
 
   create_table "pieces", force: :cascade do |t|
     t.string   "type"
@@ -61,9 +59,8 @@ ActiveRecord::Schema.define(version: 20160802205059) do
     t.datetime "created_at",                          null: false
     t.datetime "updated_at",                          null: false
     t.string   "user_alias"
+    t.index ["email"], name: "index_users_on_email", unique: true, using: :btree
+    t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
   end
-
-  add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
-  add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
 
 end
