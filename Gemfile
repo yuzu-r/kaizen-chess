@@ -32,7 +32,7 @@ gem 'rails_12factor', group: :production
 
 gem 'rubocop', '~> 0.40.0', require: false
 
-gem 'devise', '4.6.2'
+gem 'devise', '4.7.1'
 
 gem 'bootstrap-sass', '~> 3.3.5.1'
 
